@@ -307,7 +307,7 @@ src/
 server/              Mentor API handler, Claude provider with calculate tool, prompt, rate limiter, dev plugin,
                      Node server, live check, media check and curriculum report scripts
 api/                 Vercel serverless functions (mentor, health)
-public/brand/        Laarish wordmark and app icons (from the brand kit)
+public/brand/        Laarish wordmark (from the brand kit) and app icons (source art: assets/brand/app-icon-original.webp)
 public/media/        manifest.json, videos/, captions/ (generated WebVTT) and posters/ for official lesson videos
 ```
 

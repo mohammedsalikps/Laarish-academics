@@ -1,12 +1,12 @@
 import { cn } from '../../lib/cn';
 
 /**
- * Laarish brand assets, generated from the official brand-kit logo
- * (public/brand: transparent wordmark and the ruler "L" app icon).
+ * Laarish brand assets in public/brand: the transparent wordmark from the official brand-kit logo,
+ * and the app icon of Rishi and Ayra with the glowing book (source art: assets/brand/app-icon-original.webp).
  */
 const WORDMARK_RATIO = 539 / 160;
 
-/** The ruler "L" app icon on its cream tile. */
+/** The Rishi and Ayra app icon on its rounded tile. */
 export function BrandIcon({ size = 36, className }: { size?: number; className?: string }) {
   return <img src="/brand/icon-192.png" width={size} height={size} alt="" aria-hidden="true" className={cn('shrink-0 rounded-[28%]', className)} />;
 }
