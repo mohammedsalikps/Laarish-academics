@@ -1,0 +1,267 @@
+import type { MentorFaq, Topic } from '../types.js';
+import { missingVideo, scene } from './helpers.js';
+
+/** Mathematics topics. SAMPLE CONTENT; review with subject experts before production use. */
+
+const FRACTION_FAQ: MentorFaq[] = [
+  { keywords: ['equal'], answer: 'Equal parts are all exactly the same size. Halves and quarters only work when every part is equal.' },
+  { keywords: ['half', '1/2', 'halves'], answer: 'One half (1/2) means one of two equal parts. Two halves make one whole.' },
+  { keywords: ['quarter', '1/4'], answer: 'One quarter (1/4) means one of four equal parts. Four quarters make one whole.' },
+  { keywords: ['bottom number', 'denominator'], answer: 'The bottom number shows how many equal parts the whole is divided into.' },
+  { keywords: ['top number', 'numerator'], answer: 'The top number shows how many of the equal parts we are talking about.' },
+];
+
+const FRACTION_FACTS = [
+  'A fraction describes equal parts of one whole.',
+  'The bottom number tells how many equal parts the whole is cut into. The top number tells how many of those parts we have.',
+  'Parts must be equal in size to be halves or quarters.',
+];
+
+export const MATHEMATICS_TOPICS: Topic[] = [
+  {
+    id: 'fractions-halves',
+    subjectId: 'mathematics',
+    lessonId: 'halves-and-quarters',
+    order: 1,
+    title: 'Equal parts and halves',
+    summary: 'Share a roti fairly between two friends.',
+    objectives: ['Recognise equal parts.', 'Show one half (1/2) of a shape.'],
+    language: 'en',
+    icon: 'pie',
+    estimatedMinutes: 6,
+    watch: {
+      video: missingVideo('video-fractions-halves', 'Equal parts and halves'),
+      intro: 'Imagine sharing one roti with a friend. How can you cut it so it is fair for both of you?',
+      explainer: [
+        scene('When we share fairly, every part is the same size. These are called equal parts.', { kind: 'fraction', parts: 4, filled: 0 }),
+        scene('Cut a roti into 2 equal parts. Each part is one half, written as 1/2.', { kind: 'fraction', parts: 2, filled: 1 }),
+        scene('Two halves together make one whole roti.', { kind: 'fraction', parts: 2, filled: 2 }),
+      ],
+      keyIdeas: ['Equal parts are all the same size.', 'One half (1/2) is one of two equal parts.', 'Two halves make one whole.'],
+    },
+    play: {
+      title: 'Fair Share Kitchen',
+      assessed: true,
+      weight: 1,
+      game: {
+        type: 'fraction-builder',
+        rounds: [
+          {
+            id: 'roti-half',
+            shape: 'circle',
+            parts: 2,
+            numerator: 1,
+            prompt: 'Shade one half (1/2) of the roti.',
+            hint: 'The roti has 2 equal parts. One half is 1 of them.',
+            explanation: '1 of 2 equal parts is one half.',
+          },
+          {
+            id: 'bar-half',
+            shape: 'bar',
+            parts: 2,
+            numerator: 1,
+            prompt: 'Shade 1/2 of the chocolate bar.',
+            hint: 'Count the equal pieces. Shade just one of them.',
+            explanation: 'One piece out of two equal pieces is 1/2.',
+          },
+          {
+            id: 'bar-two-quarters',
+            shape: 'bar',
+            parts: 4,
+            numerator: 2,
+            prompt: 'This bar has 4 equal pieces. Shade half of the bar.',
+            hint: 'Half of 4 pieces is 2 pieces.',
+            explanation: '2 out of 4 equal pieces is the same amount as one half.',
+          },
+          {
+            id: 'roti-whole',
+            shape: 'circle',
+            parts: 2,
+            numerator: 2,
+            prompt: 'Shade the whole roti (2/2).',
+            hint: 'The whole roti means every part.',
+            explanation: 'Two halves make one whole, so 2/2 is the whole roti.',
+          },
+        ],
+      },
+      coach: {
+        start: 'Tap the pieces to shade them, then press Check.',
+        'round-correct': 'Perfectly fair! You shaded the right amount.',
+        'round-incorrect': 'Not quite. Count the equal parts again.',
+        complete: 'You shared everything fairly. Great fraction thinking!',
+        'complete:perfect': 'Every round right first time. You are a fraction champion!',
+      },
+    },
+    practice: {
+      weight: 3,
+      questions: [
+        {
+          id: 'q-chocolate',
+          type: 'single-choice',
+          prompt: 'A chocolate bar has 2 equal pieces and you eat 1. What fraction is left?',
+          options: [
+            { id: 'half', text: '1/2' },
+            { id: 'quarter', text: '1/4' },
+            { id: 'whole', text: '2/2' },
+          ],
+          correctOptionId: 'half',
+          hint: 'There were 2 equal pieces. How many are left?',
+          explanation: '1 of the 2 equal pieces is left, which is 1/2.',
+        },
+        {
+          id: 'q-halves-whole',
+          type: 'single-choice',
+          prompt: 'How many halves make one whole?',
+          options: [
+            { id: '1', text: '1' },
+            { id: '2', text: '2' },
+            { id: '3', text: '3' },
+            { id: '4', text: '4' },
+          ],
+          correctOptionId: '2',
+          hint: 'Think of cutting a roti into two equal parts.',
+          explanation: 'Two halves make one whole.',
+        },
+        {
+          id: 'q-unequal',
+          type: 'true-false',
+          prompt: 'If you cut a roti into one big piece and one small piece, each piece is a half.',
+          correct: false,
+          hint: 'Halves must be a special kind of part. What kind?',
+          explanation: 'False! Halves must be 2 EQUAL parts. A big piece and a small piece are not halves.',
+        },
+      ],
+    },
+    mentor: {
+      facts: [...FRACTION_FACTS, 'One half (1/2) is one of two equal parts. Two halves make one whole. 2/4 is the same amount as 1/2.'],
+      simpler: 'If you cut a roti into 2 pieces that are exactly the same size, each piece is one half.',
+      examples: ['If you and a friend share an apple fairly, you each get one half. Can you think of something else you share in halves?'],
+      why: 'The bottom number tells how many equal parts the whole is cut into. The top number tells how many of those parts you have.',
+      hints: {
+        watch: 'Watch how the roti is cut. Are both parts the same size?',
+        play: 'Count the equal parts first. For one half, shade exactly half of them.',
+        practice: 'Remember: halves are 2 equal parts.',
+        default: 'Halves are 2 equal parts of one whole.',
+      },
+      faq: FRACTION_FAQ,
+      practice: [{ question: 'How many halves are there in one whole apple?', accept: ['2', 'two'], explanation: 'One whole apple can be cut into 2 equal halves.' }],
+    },
+  },
+  {
+    id: 'fractions-quarters',
+    subjectId: 'mathematics',
+    lessonId: 'halves-and-quarters',
+    order: 2,
+    title: 'Quarters',
+    summary: 'Share between four friends with quarters.',
+    objectives: ['Recognise one quarter (1/4) as one of four equal parts.', 'Read 1/4, 2/4, 3/4 and 4/4.'],
+    language: 'en',
+    icon: 'pie',
+    estimatedMinutes: 6,
+    watch: {
+      video: missingVideo('video-fractions-quarters', 'Quarters'),
+      intro: "What if four friends want to share one roti? Let's cut it into quarters!",
+      explainer: [
+        scene('Cut a roti into 4 equal parts. Each part is one quarter, written as 1/4.', { kind: 'fraction', parts: 4, filled: 1 }),
+        scene('Two quarters (2/4) are the same amount as one half.', { kind: 'fraction', parts: 4, filled: 2 }),
+        scene('Three quarters (3/4) means three of the four equal parts.', { kind: 'fraction', parts: 4, filled: 3 }),
+        scene('Four quarters (4/4) make one whole.', { kind: 'fraction', parts: 4, filled: 4 }),
+      ],
+      keyIdeas: ['One quarter (1/4) is one of four equal parts.', 'Two quarters are the same as one half.', 'Four quarters make one whole.'],
+    },
+    play: {
+      title: 'Fraction Match',
+      assessed: true,
+      weight: 1,
+      game: {
+        type: 'concept-match',
+        prompt: 'Match each fraction to what it means.',
+        leftLabel: 'Fraction',
+        rightLabel: 'Meaning',
+        pairs: [
+          { id: 'half', left: '1/2', leftIcon: 'pie', right: 'One of two equal parts', hint: 'The bottom number tells how many equal parts.' },
+          { id: 'quarter', left: '1/4', leftIcon: 'pie', right: 'One of four equal parts', hint: 'The bottom number is 4.' },
+          { id: 'two-quarters', left: '2/4', leftIcon: 'pie', right: 'The same amount as one half', hint: 'Two quarters put together make...?' },
+          { id: 'three-quarters', left: '3/4', leftIcon: 'pie', right: 'Three of four equal parts', hint: 'The top number tells how many parts you have.' },
+          { id: 'whole', left: '4/4', leftIcon: 'pie', right: 'One whole', hint: 'You have all 4 of the 4 parts.' },
+        ],
+      },
+      coach: {
+        start: 'Tap a fraction, then tap what it means.',
+        'match-correct': 'Yes! You read that fraction perfectly.',
+        'match-incorrect': 'Not quite. Look at the bottom number: how many equal parts are there?',
+        complete: 'All matched! You are a fraction expert.',
+        'complete:perfect': 'No mistakes at all. Fantastic fractions!',
+      },
+    },
+    practice: {
+      weight: 3,
+      questions: [
+        {
+          id: 'q-pizza',
+          type: 'single-choice',
+          prompt: 'A pizza is cut into 4 equal slices. You eat 1 slice. What fraction did you eat?',
+          options: [
+            { id: 'half', text: '1/2' },
+            { id: 'quarter', text: '1/4' },
+            { id: 'four', text: '4/1' },
+            { id: 'third', text: '1/3' },
+          ],
+          correctOptionId: 'quarter',
+          hint: 'How many equal slices are there in total? How many did you eat?',
+          explanation: 'There are 4 equal slices and you ate 1, so you ate 1/4 (one quarter).',
+        },
+        {
+          id: 'q-quarters-whole',
+          type: 'single-choice',
+          prompt: 'How many quarters make one whole?',
+          options: [
+            { id: '2', text: '2' },
+            { id: '3', text: '3' },
+            { id: '4', text: '4' },
+            { id: '8', text: '8' },
+          ],
+          correctOptionId: '4',
+          hint: 'A quarter is one of how many equal parts?',
+          explanation: 'Four quarters (4/4) make one whole.',
+        },
+        {
+          id: 'q-equals',
+          type: 'match-pairs',
+          prompt: 'Match each amount to what it equals.',
+          pairs: [
+            { id: 'a', left: '2 quarters', right: 'One half' },
+            { id: 'b', left: '4 quarters', right: 'One whole' },
+            { id: 'c', left: '1 quarter + 2 quarters', right: 'Three quarters' },
+          ],
+          hint: 'Count the quarters and remember: 2 quarters = 1 half.',
+          explanation: '2/4 is the same as 1/2, 4/4 is one whole, and 1/4 + 2/4 = 3/4.',
+        },
+        {
+          id: 'q-unequal-quarters',
+          type: 'true-false',
+          prompt: 'If a cake is cut into 4 pieces of different sizes, each piece is one quarter.',
+          correct: false,
+          hint: 'Quarters must be a special kind of part. What kind?',
+          explanation: 'False! Quarters must be 4 EQUAL parts. Different-sized pieces are not quarters.',
+        },
+      ],
+    },
+    mentor: {
+      facts: [...FRACTION_FACTS, 'One quarter (1/4) is one of four equal parts. Two quarters (2/4) are the same amount as one half. Four quarters (4/4) make one whole.'],
+      simpler: 'Cut something into 4 pieces that are all the same size. Each piece is one quarter.',
+      examples: ['A clock face can show quarters too: quarter past means the minute hand has gone one quarter of the way around.'],
+      why: 'The bottom number tells how many equal parts the whole is cut into. The top number tells how many of those parts you have.',
+      hints: {
+        play: 'Look at the bottom number first: how many equal parts? Then the top number: how many parts do you have?',
+        practice: 'Count the equal parts in the whole, then count the parts you are talking about.',
+        default: 'Quarters are 4 equal parts. Two quarters make a half.',
+      },
+      faq: FRACTION_FAQ,
+      practice: [
+        { question: 'How many quarters make one half?', accept: ['2', 'two'], explanation: 'Two quarters make one half, because 2/4 is the same amount as 1/2.' },
+        { question: 'A cake is cut into 4 equal slices. You eat 3. What fraction did you eat?', accept: ['3/4', 'three quarters', 'three-quarters'], explanation: 'You ate 3 of the 4 equal slices, which is 3/4.' },
+      ],
+    },
+  },
+];

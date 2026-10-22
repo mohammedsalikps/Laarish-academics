@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+ * Design tokens. Colours are RGB channel triplets so Tailwind can apply alpha.
+ * ------------------------------------------------------------------------- */
+:root {
+  --c-canvas: 251 248 243; /* warm ivory */
+  --c-canvas-sunken: 244 239 230;
+  --c-surface: 255 255 255;
+  --c-line: 233 226 214;
+  --c-line-strong: 214 205 189;
+
+  --c-ink: 29 26 74; /* deep indigo */
+  --c-ink-soft: 70 67 122;
+  --c-ink-muted: 105 102 142;
+
+  --c-primary: 88 71 224; /* violet-blue */
+  --c-primary-strong: 64 49 184;
+  --c-primary-soft: 238 235 255;
+  --c-primary-tint: 216 210 255;
+
+  --c-success: 30 154 95;
+  --c-success-strong: 18 112 69;
+  --c-success-soft: 225 245 235;
+
+  --c-reward: 242 165 22; /* amber */
+  --c-reward-strong: 158 98 0;
+  --c-reward-soft: 255 243 214;
+
+  --c-coral: 240 106 77;
+  --c-coral-strong: 176 64 40;
+  --c-coral-soft: 255 233 227;
+
+  --c-sky: 59 151 222;
+  --c-sky-soft: 226 241 252;
+
+  --space-gutter: 16px;
+  --radius-card: 24px;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.25);
+
+  color-scheme: light;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --space-gutter: 28px;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html[data-text='large'] {
+  font-size: 112.5%;
+}
+
+body {
+  @apply bg-canvas font-sans text-ink antialiased;
+  font-feature-settings: 'kern';
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: theme('fontFamily.display');
+  letter-spacing: -0.01em;
+}
+
+/* Grid children may shrink below their content width (prevents horizontal page
+   overflow when a child contains a horizontal scroller or a wide table). */
+.grid > * {
+  min-width: 0;
+}
+
+/* Visible, consistent focus for keyboard users. */
+:focus-visible {
+  outline: 3px solid rgb(var(--c-primary));
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+::selection {
+  background: rgb(var(--c-primary-tint));
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion: honoured from the OS and from the in-app setting.
+ * ------------------------------------------------------------------------- */
+html[data-motion='reduce'] *,
+html[data-motion='reduce'] *::before,
+html[data-motion='reduce'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@layer components {
+  /* Chunky, tactile game buttons. The bottom shadow compresses on press. */
+  .btn {
+    @apply relative inline-flex select-none items-center justify-center gap-2 rounded-2xl px-5 font-extrabold
+      transition-[transform,box-shadow,background-color,color] duration-150 ease-out
+      disabled:cursor-not-allowed disabled:opacity-50;
+    min-height: 48px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:not(:disabled):active {
+    transform: translateY(3px);
+  }
+  .btn-primary {
+    @apply bg-primary text-white shadow-press-primary hover:bg-[rgb(76_60_214)];
+  }
+  .btn-primary:not(:disabled):active {
+    box-shadow: 0 1px 0 rgb(var(--c-primary-strong));
+  }
+  .btn-success {
+    @apply bg-success text-white shadow-press-success hover:bg-[rgb(26_142_87)];
+  }
+  .btn-success:not(:disabled):active {
+    box-shadow: 0 1px 0 rgb(var(--c-success-strong));
+  }
+  .btn-reward {
+    @apply bg-reward text-ink shadow-press-reward hover:bg-[rgb(247_176_45)];
+  }
+  .btn-reward:not(:disabled):active {
+    box-shadow: 0 1px 0 rgb(var(--c-reward-strong));
+  }
+  .btn-secondary {
+    @apply border-2 border-line bg-surface text-ink shadow-press-line hover:bg-canvas;
+  }
+  .btn-secondary:not(:disabled):active {
+    box-shadow: 0 0 0 rgb(var(--c-line-strong));
+  }
+  .btn-ghost {
+    @apply bg-transparent text-ink-soft hover:bg-ink/5 hover:text-ink;
+  }
+  .btn-sm {
+    @apply rounded-xl px-3.5 text-sm;
+    min-height: 40px;
+  }
+  .btn-lg {
+    @apply rounded-2xl px-7 text-lg;
+    min-height: 56px;
+  }
+
+  .card {
+    @apply rounded-3xl border border-line/80 bg-surface shadow-soft;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold;
+  }
+
+  .eyebrow {
+    @apply text-xs font-extrabold uppercase tracking-[0.12em] text-ink-muted;
+  }
+
+  .page {
+    @apply mx-auto w-full max-w-6xl px-[var(--space-gutter)] pb-28 pt-5 md:pb-12 md:pt-8;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--c-canvas-sunken)) 0px,
+      rgb(var(--c-surface)) 120px,
+      rgb(var(--c-canvas-sunken)) 240px
+    );
+    background-size: 800px 100%;
+    @apply animate-shimmer rounded-2xl;
+  }
+
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    @apply sr-only;
+  }
+
+  .range-input {
+    @apply h-2 w-full cursor-pointer appearance-none rounded-full bg-white/30;
+    accent-color: rgb(var(--c-primary));
+  }
+}
+
+/* Hide scrollbars on horizontal scrollers while keeping them scrollable. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Small looping illustration motions (disabled by reduced motion). */
+.anim-nudge {
+  animation: nudge 2.6s ease-in-out infinite;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+.anim-drip {
+  animation: drip 1.4s ease-in infinite;
+}
+@keyframes drip {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+.anim-drive {
+  animation: drive 4s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+}
+@keyframes drive {
+  0% {
+    transform: translateX(-90px);
+  }
+  70%,
+  100% {
+    transform: translateX(40px);
+  }
+}
+.anim-loop-track {
+  animation: loop-track 9s linear infinite;
+}
+@keyframes loop-track {
+  0% {
+    transform: translateX(-80px);
+  }
+  100% {
+    transform: translateX(560px);
+  }
+}
+
+/* Wheel rotation for the friction lab car is driven by JS (inline transform). */
+.wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+}

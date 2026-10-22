@@ -1,0 +1,13 @@
+# Files Vercel must never receive. Vercel builds from source (npm install + npm run build:client),
+# so local builds are not needed either. Secrets go in the Vercel project's environment variables.
+.env
+.env.*
+!.env.example
+node_modules
+dist
+dist-server
+coverage
+*.log
+dump.txt
+.claude
+assets

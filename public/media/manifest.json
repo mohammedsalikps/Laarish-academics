@@ -1,0 +1,10 @@
+{
+  "videos": {
+    "video-friction-what-is": {
+      "src": "/media/videos/friction-what-is.mp4",
+      "captionsSrc": "/media/captions/friction-what-is.en.vtt",
+      "captionsLang": "en",
+      "poster": "/media/posters/friction-what-is.jpg"
+    }
+  }
+}

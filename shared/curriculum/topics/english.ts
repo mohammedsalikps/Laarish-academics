@@ -1,0 +1,242 @@
+import type { MentorFaq, Topic } from '../types.js';
+import { missingVideo, scene } from './helpers.js';
+
+/** English topics. SAMPLE CONTENT; review with subject experts before production use. */
+
+const WORDS_FAQ: MentorFaq[] = [
+  { keywords: ['noun', 'naming'], answer: 'A naming word, or noun, names a person, place, animal or thing, like teacher, park, tiger or ball.' },
+  { keywords: ['verb', 'doing', 'action'], answer: 'A doing word, or verb, shows an action, like run, write, sing or swim.' },
+  { keywords: ['person', 'people'], answer: 'Words for people, like teacher, farmer or Riya, are naming words.' },
+  { keywords: ['place'], answer: 'Words for places, like school, market or garden, are naming words too.' },
+];
+
+export const ENGLISH_TOPICS: Topic[] = [
+  {
+    id: 'words-naming',
+    subjectId: 'english',
+    lessonId: 'naming-and-doing-words',
+    order: 1,
+    title: 'Naming words',
+    summary: 'Find the words that name people, places, animals and things.',
+    objectives: ['Identify naming words (nouns).', 'Sort naming words into people, places and things.'],
+    language: 'en',
+    icon: 'book',
+    estimatedMinutes: 6,
+    watch: {
+      video: missingVideo('video-words-naming', 'Naming words'),
+      intro: "Every sentence is built from words. Let's find the words that name things!",
+      explainer: [
+        scene('Naming words (nouns) name a person, place, animal or thing.', { kind: 'word-chips', words: ['teacher', 'school', 'cat', 'ball'] }),
+        scene('Some naming words name people, like Riya, doctor or farmer.', { kind: 'word-chips', words: ['Riya', 'doctor', 'farmer'] }),
+        scene('Some name places, like park, kitchen or market.', { kind: 'word-chips', words: ['park', 'kitchen', 'market'] }),
+        scene('And some name animals or things, like tiger, kite or apple.', { kind: 'word-chips', words: ['tiger', 'kite', 'apple'] }),
+      ],
+      keyIdeas: ['Naming words are also called nouns.', 'They name a person, place, animal or thing.', 'Riya, park and kite are all naming words.'],
+    },
+    play: {
+      title: 'Person, Place or Thing?',
+      assessed: true,
+      weight: 1,
+      game: {
+        type: 'sort',
+        prompt: 'Every word here is a naming word. Is it a person, a place, or an animal or thing?',
+        bins: [
+          { id: 'person', label: 'Person', description: 'Names a person', icon: 'users' },
+          { id: 'place', label: 'Place', description: 'Names a place', icon: 'map' },
+          { id: 'thing', label: 'Animal or thing', description: 'Names an animal or a thing', icon: 'shapes' },
+        ],
+        items: [
+          { id: 'teacher', label: 'teacher', binId: 'person', explanation: 'A teacher is a person.' },
+          { id: 'farmer', label: 'farmer', binId: 'person', explanation: 'A farmer is a person.' },
+          { id: 'riya', label: 'Riya', binId: 'person', explanation: 'Riya is the name of a person.' },
+          { id: 'school', label: 'school', binId: 'place', explanation: 'A school is a place.' },
+          { id: 'garden', label: 'garden', binId: 'place', explanation: 'A garden is a place.' },
+          { id: 'market', label: 'market', binId: 'place', explanation: 'A market is a place.' },
+          { id: 'elephant', label: 'elephant', binId: 'thing', explanation: 'An elephant is an animal.' },
+          { id: 'bicycle', label: 'bicycle', binId: 'thing', explanation: 'A bicycle is a thing.' },
+          { id: 'apple', label: 'apple', icon: 'apple', binId: 'thing', explanation: 'An apple is a thing.' },
+        ],
+      },
+      coach: {
+        start: 'Pick a word, then choose: person, place, or animal or thing?',
+        'sort-correct': 'Great detective work!',
+        'sort-incorrect': 'Try asking: is it a who, a where, or a what?',
+        complete: 'All sorted! Those naming words are in the right homes.',
+        'complete:perfect': 'Perfect sorting. You are a super word detective!',
+      },
+    },
+    practice: {
+      weight: 3,
+      questions: [
+        {
+          id: 'q-place',
+          type: 'single-choice',
+          prompt: 'Which of these is a naming word for a place?',
+          options: [
+            { id: 'park', text: 'park' },
+            { id: 'happy', text: 'happy' },
+            { id: 'eat', text: 'eat' },
+            { id: 'quickly', text: 'quickly' },
+          ],
+          correctOptionId: 'park',
+          hint: 'Which one could you visit?',
+          explanation: 'A park is a place, so park is a naming word.',
+        },
+        {
+          id: 'q-person',
+          type: 'single-choice',
+          prompt: 'Which word names a person?',
+          options: [
+            { id: 'doctor', text: 'doctor' },
+            { id: 'run', text: 'run' },
+            { id: 'happy', text: 'happy' },
+            { id: 'quickly', text: 'quickly' },
+          ],
+          correctOptionId: 'doctor',
+          hint: 'Which one is a who?',
+          explanation: 'A doctor is a person, so doctor is a naming word.',
+        },
+        {
+          id: 'q-elephant',
+          type: 'true-false',
+          prompt: '"Elephant" is a naming word.',
+          correct: true,
+          hint: 'Does it name an animal?',
+          explanation: 'True! Elephant names an animal, so it is a naming word.',
+        },
+      ],
+    },
+    mentor: {
+      facts: ['Naming words (nouns) name a person, place, animal or thing.', 'Names of people, like Riya, are naming words too.'],
+      simpler: 'A naming word tells WHO or WHAT. Teacher is a who, school is a where, and ball is a what.',
+      examples: ['In "Riya plays in the park", Riya and park are naming words. Can you find a naming word in your room?'],
+      hints: {
+        play: 'Ask: is it a who (person), a where (place), or a what (animal or thing)?',
+        practice: 'Naming words name people, places, animals and things.',
+        default: 'Ask: does this word name something?',
+      },
+      faq: WORDS_FAQ,
+      practice: [{ question: 'Is "kitchen" a person, a place or a thing?', accept: ['place'], explanation: 'A kitchen is a place, so it is a naming word for a place.' }],
+    },
+  },
+  {
+    id: 'words-doing',
+    subjectId: 'english',
+    lessonId: 'naming-and-doing-words',
+    order: 2,
+    title: 'Doing words',
+    summary: 'Find the action words in a sentence.',
+    objectives: ['Identify doing words (verbs).', 'Tell naming words and doing words apart.'],
+    language: 'en',
+    icon: 'pen',
+    estimatedMinutes: 6,
+    watch: {
+      video: missingVideo('video-words-doing', 'Doing words'),
+      intro: "Now let's find the action words: the words that tell us what someone does!",
+      explainer: [
+        scene('Doing words (verbs) tell us about an action, like jump, read, eat and sing.', { kind: 'word-chips', words: ['jump', 'read', 'eat', 'sing'] }),
+        scene('In "The bird sings", bird is the naming word and sings is the doing word.', { kind: 'word-chips', words: ['The', 'bird', 'sings'] }),
+        scene('Try this test: can you do it? If yes, it is a doing word!', { kind: 'word-chips', words: ['Can', 'you', 'swim?'] }),
+      ],
+      keyIdeas: ['Doing words are also called verbs.', 'They show an action.', 'Many sentences have a naming word and a doing word.'],
+    },
+    play: {
+      title: 'Word Sort',
+      assessed: true,
+      weight: 1,
+      game: {
+        type: 'sort',
+        prompt: 'Is it a naming word or a doing word? Sort each word.',
+        bins: [
+          { id: 'noun', label: 'Naming word', description: 'Names a person, place, animal or thing', icon: 'book' },
+          { id: 'verb', label: 'Doing word', description: 'Shows an action', icon: 'footprints' },
+        ],
+        items: [
+          { id: 'teacher', label: 'teacher', binId: 'noun', explanation: 'A teacher is a person, so it is a naming word.' },
+          { id: 'river', label: 'river', binId: 'noun', explanation: 'A river is a place or thing, so it is a naming word.' },
+          { id: 'bicycle', label: 'bicycle', binId: 'noun', explanation: 'A bicycle is a thing, so it is a naming word.' },
+          { id: 'elephant', label: 'elephant', binId: 'noun', explanation: 'An elephant is an animal, so it is a naming word.' },
+          { id: 'jump', label: 'jump', binId: 'verb', explanation: 'Jump is an action, so it is a doing word.' },
+          { id: 'write', label: 'write', binId: 'verb', explanation: 'Write is an action, so it is a doing word.' },
+          { id: 'sing', label: 'sing', binId: 'verb', explanation: 'Sing is an action, so it is a doing word.' },
+          { id: 'swim', label: 'swim', binId: 'verb', explanation: 'Swim is an action, so it is a doing word.' },
+        ],
+      },
+      coach: {
+        start: 'Pick a word, then choose its box.',
+        'sort-correct': 'Great detective work!',
+        'sort-incorrect': 'Try the test: can you do it? If yes, it is a doing word.',
+        complete: 'All sorted! Those words are in the right homes.',
+        'complete:perfect': 'Perfect sorting. You are a super word detective!',
+      },
+    },
+    practice: {
+      weight: 3,
+      questions: [
+        {
+          id: 'q-doing',
+          type: 'single-choice',
+          prompt: 'Which word is a doing word?',
+          options: [
+            { id: 'tree', text: 'tree' },
+            { id: 'run', text: 'run' },
+            { id: 'chair', text: 'chair' },
+            { id: 'school', text: 'school' },
+          ],
+          correctOptionId: 'run',
+          hint: 'Which word is something you can do?',
+          explanation: 'Run is an action you can do, so it is a doing word.',
+        },
+        {
+          id: 'q-sentence',
+          type: 'single-choice',
+          prompt: 'In the sentence "The dog runs fast", which word is the doing word?',
+          options: [
+            { id: 'the', text: 'The' },
+            { id: 'dog', text: 'dog' },
+            { id: 'runs', text: 'runs' },
+            { id: 'fast', text: 'fast' },
+          ],
+          correctOptionId: 'runs',
+          hint: 'What is the dog doing?',
+          explanation: 'Runs is the action, so it is the doing word.',
+        },
+        {
+          id: 'q-swim',
+          type: 'true-false',
+          prompt: '"Swim" is a naming word.',
+          correct: false,
+          hint: 'Can you swim? Is it an action?',
+          explanation: 'False! Swim is an action, so it is a doing word.',
+        },
+        {
+          id: 'q-match',
+          type: 'match-pairs',
+          prompt: 'Match each word to what it does in a sentence.',
+          pairs: [
+            { id: 'a', left: 'Riya', right: 'Names a person' },
+            { id: 'b', left: 'kitchen', right: 'Names a place' },
+            { id: 'c', left: 'laughs', right: 'Shows an action' },
+          ],
+          hint: 'Ask: is it a who, a where, or an action?',
+          explanation: 'Riya is a person, kitchen is a place, and laughs is an action.',
+        },
+      ],
+    },
+    mentor: {
+      facts: ['Doing words (verbs) show an action.', 'Many sentences have both a naming word and a doing word, for example "The bird sings".'],
+      simpler: 'A doing word tells what someone DOES, like jump or eat. Test it: can you do it?',
+      examples: ['In "Riya reads a book", Riya and book are naming words, and reads is the doing word.'],
+      why: 'We check if a word names something (a person, place, animal or thing) or shows an action. If you can do it, it is a doing word.',
+      hints: {
+        play: 'Try the test: can you do it? If yes, it is a doing word. If it names something, it is a naming word.',
+        practice: 'Look for the action in the sentence. That word is the doing word.',
+        default: 'Ask: does this word name something, or show an action?',
+      },
+      faq: WORDS_FAQ,
+      practice: [
+        { question: 'Is "dance" a naming word or a doing word?', accept: ['doing', 'verb', 'action'], explanation: 'Dance is an action you can do, so it is a doing word.' },
+      ],
+    },
+  },
+];

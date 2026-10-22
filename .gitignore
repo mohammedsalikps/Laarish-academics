@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-server/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment and secrets: never commit real keys. .env.example documents every variable.
+.env
+.env.*
+!.env.example
+
+# Vercel project link (created by `vercel link`)
+.vercel/
+
+# Local tooling and working files
+.claude/
+dump.txt
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
