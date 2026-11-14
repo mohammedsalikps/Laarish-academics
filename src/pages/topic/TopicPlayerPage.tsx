@@ -176,7 +176,7 @@ function TopicPlayer() {
             </span>
           </button>
           <div className="min-w-0 flex-1">
-            <Link to={roadmapTo} className="block truncate text-xs font-extrabold uppercase tracking-wider hover:underline" style={{ color: subject.color }}>
+            <Link to={roadmapTo} className="-my-1 block truncate py-1 text-xs font-extrabold uppercase tracking-wider hover:underline" style={{ color: subject.color }}>
               {subject.name} · {lessonLabel(lesson)}
             </Link>
             <h1 className="truncate font-display text-base font-semibold leading-tight md:text-lg">{topicLabel(topic)}</h1>

@@ -51,7 +51,7 @@ export function MentorBubble({
           <button
             type="button"
             onClick={() => (speech.speaking ? speech.stop() : speech.speak(text))}
-            className={cn('-mr-1 grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-muted hover:bg-ink/5 hover:text-primary', autoRead && 'text-primary')}
+            className={cn('-my-1.5 -mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink-muted hover:bg-ink/5 hover:text-primary', autoRead && 'text-primary')}
             aria-label={speech.speaking ? 'Stop reading aloud' : `Hear ${persona.name} say this`}
           >
             {speech.speaking ? <VolumeX className="h-4 w-4" aria-hidden="true" /> : <Volume2 className="h-4 w-4" aria-hidden="true" />}

@@ -485,7 +485,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
                     {!surfaceChangeable && <span className="text-ink-muted"> (stays the same)</span>}
                   </span>
                   {surfaceChangeable && state.phase !== 'running' && (
-                    <button type="button" className="min-h-[40px] rounded-lg px-2 text-primary hover:bg-primary-soft" onClick={() => setChangingSurface(true)}>
+                    <button type="button" className="min-h-[44px] rounded-lg px-2 text-primary hover:bg-primary-soft" onClick={() => setChangingSurface(true)}>
                       Change
                     </button>
                   )}

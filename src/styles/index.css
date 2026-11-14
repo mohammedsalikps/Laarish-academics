@@ -102,6 +102,18 @@ html[data-motion='reduce'] *::after {
   scroll-behavior: auto !important;
 }
 
+/* Before the app has started (no data-motion yet), follow the OS setting. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion]) *,
+  html:not([data-motion]) *::before,
+  html:not([data-motion]) *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer components {
   /* Chunky, tactile game buttons. The bottom shadow compresses on press. */
   .btn {
@@ -120,11 +132,13 @@ html[data-motion='reduce'] *::after {
   .btn-primary:not(:disabled):active {
     box-shadow: 0 1px 0 rgb(var(--c-primary-strong));
   }
+  /* A deeper green than the success token so white button text passes WCAG AA (4.96:1; the token gives 3.59:1). */
   .btn-success {
-    @apply bg-success text-white shadow-press-success hover:bg-[rgb(26_142_87)];
+    @apply bg-[rgb(22_128_78)] text-white hover:bg-[rgb(20_118_72)];
+    box-shadow: 0 4px 0 rgb(14 92 56);
   }
   .btn-success:not(:disabled):active {
-    box-shadow: 0 1px 0 rgb(var(--c-success-strong));
+    box-shadow: 0 1px 0 rgb(14 92 56);
   }
   .btn-reward {
     @apply bg-reward text-ink shadow-press-reward hover:bg-[rgb(247_176_45)];
@@ -141,9 +155,10 @@ html[data-motion='reduce'] *::after {
   .btn-ghost {
     @apply bg-transparent text-ink-soft hover:bg-ink/5 hover:text-ink;
   }
+  /* Small buttons still meet the 44px touch target used across the app. */
   .btn-sm {
     @apply rounded-xl px-3.5 text-sm;
-    min-height: 40px;
+    min-height: 44px;
   }
   .btn-lg {
     @apply rounded-2xl px-7 text-lg;

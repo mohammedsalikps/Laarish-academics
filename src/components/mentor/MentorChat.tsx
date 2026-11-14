@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { suggestedPrompts } from '../../../shared/mentor/types';
 import { getLesson, getSubject, getTopic } from '../../content';
 import { MENTOR_LIMITS } from '../../../shared/mentor/safety';
-import { useSpeech } from '../../hooks/usePreferences';
+import { useReducedMotion, useSpeech } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
 import { useMentor, type ChatMessage } from '../../mentor/MentorProvider';
 import { useMentorPersona } from '../../mentor/useMentorPersona';
@@ -104,6 +104,7 @@ export function MentorChat({ className, autoFocus = false }: { className?: strin
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const speech = useSpeech();
   const { name } = useMentorPersona();
+  const reducedMotion = useReducedMotion();
 
   // If a question could not be answered, put it back in the box so nothing the child typed is lost.
   const [restored, setRestored] = useState<string | null>(null);
@@ -114,8 +115,8 @@ export function MentorChat({ className, autoFocus = false }: { className?: strin
 
   useEffect(() => {
     const el = listRef.current;
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [messages.length, pending]);
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: reducedMotion ? 'auto' : 'smooth' });
+  }, [messages.length, pending, reducedMotion]);
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
