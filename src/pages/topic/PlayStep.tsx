@@ -1,7 +1,9 @@
-import { CircleHelp, X } from 'lucide-react';
+import { Gamepad2 } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useState, type ComponentType } from 'react';
 import { RAMP_HEIGHT_NAMES } from '../../../shared/mentor/scienceModels';
 import { MentorBubble } from '../../components/mentor/MentorBubble';
+import { ErrorBoundary, type ErrorFallbackProps } from '../../components/ui/ErrorBoundary';
+import { ProblemCard, RetryButton, SAVED_NOTE } from '../../components/ui/ErrorFallbacks';
 import { Skeleton } from '../../components/ui/primitives';
 import type { GameResult } from '../../domain/results';
 import { coachLine, type GameEvent, type GameRecord, type MiniGameProps } from '../../games/framework';
@@ -9,7 +11,28 @@ import { BAND_LABELS, distanceBand, formatMetres, simulateRun } from '../../game
 import { GAMES } from '../../games/registry';
 import { useReducedMotion } from '../../hooks/usePreferences';
 import { useProgress } from '../../state/ProgressProvider';
+import { MissionCard } from './MissionCard';
 import { StepFooter, type StepViewProps } from './shared';
+
+function GameErrorFallback({ reset, chunkError, onRestart }: ErrorFallbackProps & { onRestart: () => void }) {
+  return (
+    <ProblemCard
+      icon={<Gamepad2 className="h-8 w-8" aria-hidden="true" />}
+      title={chunkError ? "The game didn't download" : 'The game stopped working'}
+      body={
+        chunkError
+          ? `Check your internet connection, then reload. ${SAVED_NOTE}`
+          : `${SAVED_NOTE} Start the game again. Stars and rewards you already earned are kept.`
+      }
+    >
+      {chunkError ? (
+        <RetryButton reset={reset} chunkError />
+      ) : (
+        <RetryButton reset={onRestart} chunkError={false} label="Restart the game" />
+      )}
+    </ProblemCard>
+  );
+}
 
 /** Remembers, for this browser session, whether the learner opened "How to play" for a topic. */
 function useHowToPlay(topicId: string) {
@@ -35,9 +58,10 @@ function useHowToPlay(topicId: string) {
 }
 
 /**
- * Step 2: one interactive game or experiment. The mentor gives one short
- * instruction at a time (it changes as the learner plays); full instructions
- * stay behind "How to play" until asked for.
+ * Step 2: one interactive game or experiment. The mission card keeps the goal
+ * on screen, the mentor gives one short instruction at a time (it changes as
+ * the learner plays), and full instructions stay behind "How to play" until
+ * asked for.
  */
 export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: StepViewProps) {
   const { actions } = useProgress();
@@ -46,6 +70,7 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
   const [attempt, setAttempt] = useState(0);
   const [coach, setCoach] = useState(() => play.coach.start ?? "Let's play!");
   const [finished, setFinished] = useState(false);
+  const [result, setResult] = useState<GameResult>();
   const [showHow, toggleHow] = useHowToPlay(topic.id);
   const def = GAMES[play.game.type];
   const Game = def.Component as ComponentType<MiniGameProps>;
@@ -87,6 +112,7 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
     (result: GameResult) => {
       actions.gameResult(topic.id, result);
       setFinished(true);
+      setResult(result);
       if (play.game.type !== 'friction-experiment') setMentorExtras({ recentResult: `${play.title}: ${result.summary}.` });
     },
     [actions, topic.id, play.game.type, play.title, setMentorExtras],
@@ -95,57 +121,38 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
   const restart = useCallback(() => {
     setAttempt((a) => a + 1);
     setFinished(false);
+    setResult(undefined);
   }, []);
 
   return (
     <div>
-      <div className="mb-3 flex items-start gap-2">
-        <MentorBubble text={coach} className="min-w-0 flex-1" />
-        <button
-          type="button"
-          onClick={toggleHow}
-          aria-expanded={showHow}
-          aria-controls="how-to-play"
-          className="mt-1 inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-2xl border border-line bg-surface px-3 text-sm font-extrabold text-ink-soft shadow-soft hover:text-primary"
-        >
-          <CircleHelp className="h-5 w-5" aria-hidden="true" />
-          <span className="sr-only sm:not-sr-only">How to play</span>
-        </button>
-      </div>
+      <MissionCard play={play} def={def} status={finished ? 'complete' : completed ? 'done-before' : 'playing'} result={result} showHow={showHow} onToggleHow={toggleHow} />
+      <MentorBubble text={coach} className="mb-3" />
 
-      {showHow && (
-        <section id="how-to-play" aria-label="How to play" className="relative mb-3 animate-fade-up rounded-3xl bg-surface p-4 pr-12 shadow-soft">
-          <button type="button" onClick={toggleHow} className="absolute right-2 top-2 grid h-10 w-10 place-items-center rounded-xl text-ink-muted hover:bg-ink/5" aria-label="Close how to play">
-            <X className="h-5 w-5" aria-hidden="true" />
-          </button>
-          <p className="font-display font-semibold">{play.title}</p>
-          <p className="mt-0.5 text-sm font-bold text-primary-strong">{def.goal(play.game as never)}</p>
-          <ol className="mt-2 space-y-1.5">
-            {def.instructions(play.game as never).map((step, i) => (
-              <li key={step} className="flex gap-2.5 text-[0.95rem]">
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      {/* A game that breaks (or fails to download) can be restarted without leaving the topic; a new attempt clears the error. */}
+      <ErrorBoundary resetKeys={[attempt]} fallback={(p) => <GameErrorFallback {...p} onRestart={restart} />}>
+        <Suspense fallback={<Skeleton className="h-[420px] w-full" />}>
+          <Game
+            key={attempt}
+            config={play.game}
+            topicId={topic.id}
+            attempt={attempt}
+            reducedMotion={reducedMotion}
+            onEvent={onEvent}
+            onRecord={onRecord}
+            onComplete={onComplete}
+            onRestart={restart}
+          />
+        </Suspense>
+      </ErrorBoundary>
 
-      <Suspense fallback={<Skeleton className="h-[420px] w-full" />}>
-        <Game
-          key={attempt}
-          config={play.game}
-          topicId={topic.id}
-          attempt={attempt}
-          reducedMotion={reducedMotion}
-          onEvent={onEvent}
-          onRecord={onRecord}
-          onComplete={onComplete}
-          onRestart={restart}
-        />
-      </Suspense>
-
-      <StepFooter onBack={onBack} onContinue={onNext} canContinue={completed || finished} continueLabel="Continue to Practice" hint="Finish the activity to unlock Practice" />
+      <StepFooter
+        onBack={onBack}
+        onContinue={onNext}
+        canContinue={completed || finished}
+        continueLabel="Continue to Practice"
+        hint="Finish the activity to unlock Practice"
+      />
     </div>
   );
 }
