@@ -54,7 +54,7 @@ Home ─► Subject overview (zigzag lesson roadmap of one class) ─► Lesson 
 | 2 | **Subjects** (`src/pages/Subjects.tsx`) | One card per subject: illustration, description, status, lessons completed / ready (from data), stars, next lesson (from the learner's class), Start/Continue/Review. |
 | 3 | **Subject overview** (`src/pages/SubjectRoadmap.tsx`) | Subject name and description; lessons and topics available and completed, stars and overall progress; a small class selector (the learner's class first, kept in the address as `?class=`); and that class's lessons as one winding, numbered path in labelled branch sections, each node completed, in progress (with a ring), available, locked (with what to finish first) or coming soon. Switching class only changes the view. |
 | 4 | **Lesson roadmap** (`src/pages/LessonRoadmap.tsx`) | Lesson intro, **where the lesson comes from** (official source and review status), progress, the connected topic path and topic list, Continue Learning. |
-| 5 | **Topic player** (`src/pages/topic/`) | Learn (video or labelled temporary explainer, key ideas and transcript), Play (one game, "How to play" on request), Practice (a one-on-one comic-style conversation with the chosen mentor: one question at a time, a kind reaction and explanation after each answer, a celebration at the end), Complete (rewards, stars, mastery, what unlocked). Play unlocks only after Learn is finished and Practice only after the game is finished. |
+| 5 | **Topic player** (`src/pages/topic/`) | Learn (video or labelled temporary explainer, key ideas and transcript), Play (a mission card with the game's goal, the skill it practises, whether it is scored and a read-aloud button, then the game; "How to play" on request), Practice (a one-on-one comic-style conversation with the chosen mentor: one question at a time, a kind reaction and explanation after each answer, a celebration at the end), Complete (rewards, stars, mastery; a "What you learned" recap of the key ideas, one real-life example and how each step went; an "Up next" card for the next topic or lesson; a lesson recap with every topic's stars after the last topic). Play unlocks only after Learn is finished and Practice only after the game is finished. |
 
 Deep links are guarded: a locked lesson or topic shows what to finish first, a step that is not open yet sends
 the learner to the furthest open step, and ids that do not belong together show "not found". Links saved before
@@ -326,9 +326,20 @@ public/media/        manifest.json, videos/, captions/ (generated WebVTT) and po
   it, so replays cannot duplicate rewards or make balances negative. Actions on locked topics, steps that are not open,
   unknown surfaces or incomplete quizzes are ignored.
 - **Persistence behind `ProgressRepository`** with versioned envelopes, migration (v1 lessons/stages → v2 topics keeps
-  XP, coins, achievements and avatars and explains the change), corrupted-data recovery and cross-tab sync.
+  XP, coins, achievements and avatars and explains the change), corrupted-data recovery and cross-tab sync. A save
+  written by the 22 Oct 2026 baseline (`src/state/__fixtures__/progress-v2-baseline.json`) must keep loading
+  unchanged (`src/state/savedProgressContract.test.tsx`); a change that breaks it needs a migration.
+- **Failures stay small.** Error boundaries wrap the whole app, each screen, each topic step and each game
+  (`src/components/ui/ErrorBoundary.tsx`): a crash shows a recovery card with Try again (or Reload when the app's
+  own code failed to download) while navigation keeps working, and the mentor panel steps aside quietly. Topic
+  content tells offline learners so and retries when the device is back online; a slow download explains the wait;
+  the media manifest gives up after 8s so the Watch step falls back to the explainer. None of this touches saved
+  progress.
 - **Accessibility:** keyboard-operable controls and games, visible focus, ARIA for steps, roadmaps and dialogs, live
-  regions, reduced motion (OS or in-app), larger text, read-aloud, 44px touch targets, no horizontal overflow.
+  regions (the open topic step is announced, and focus moves to a newly opened step), reduced motion (OS or in-app,
+  and the OS setting before the app has started), larger text, read-aloud, 44px touch targets, no horizontal
+  overflow. `src/styles/accessibility.test.ts` checks text contrast (WCAG AA), button heights and the reduced-motion
+  rules.
 
 ### Progress and reward rules (defaults in `src/engine/rules.ts`)
 
