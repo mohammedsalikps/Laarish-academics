@@ -1,9 +1,9 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
-import { getTopic } from '../../content';
+import { getTopic, loadTopicContent } from '../../content';
 import { topicPath } from '../../lib/paths';
 import { MemoryProgressRepository } from '../../state/persistence';
 import type { ProgressState } from '../../state/progressTypes';
@@ -97,6 +97,15 @@ afterEach(() => {
   FakeRecognition.last = null;
   vi.unstubAllGlobals();
 });
+
+// The topic player is a lazily loaded route and the science content is downloaded on demand. With a cold
+// transform cache the first test spent ~1s of its first 10s wait loading them (~0.35s with this warm-up); in the
+// first full-suite run on a new machine (a cold cache, every worker busy) that load overran the wait, and the
+// failure showed only the route's loading skeleton. Loading them here, with a generous timeout of its own,
+// keeps that one-off cost out of the tests' waits.
+beforeAll(async () => {
+  await Promise.all([import('./TopicPlayerPage'), loadTopicContent('science')]);
+}, 60_000);
 
 describe('Practice as a comic conversation', () => {
   it('welcomes, asks one question at a time, reacts kindly, explains, and finishes with the score and what to remember', async () => {
