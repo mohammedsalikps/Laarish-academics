@@ -1,10 +1,11 @@
-import { CloudOff, Lock, RotateCcw, X } from 'lucide-react';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { ArrowLeft, Lock, RotateCcw, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { MentorAvatar } from '../../components/mentor/MentorAvatar';
 import { StepIndicator, type StepId, type StepItem } from '../../components/navigation/StepIndicator';
-import { Skeleton } from '../../components/ui/primitives';
-import { getLesson, getSubject, getTopic, lessonLabel, topicLabel, useTopicContent } from '../../content';
+import { ErrorBoundary, type ErrorFallbackProps } from '../../components/ui/ErrorBoundary';
+import { ProblemCard, RetryButton, SAVED_NOTE } from '../../components/ui/ErrorFallbacks';
+import { getLesson, getSubject, getTopic, getTopicsForLesson, lessonLabel, topicLabel, useTopicContent } from '../../content';
 import { TOPIC_STEPS, type TopicStep } from '../../domain/types';
 import { isLessonUnlocked, isStepAccessible, isTopicUnlocked, missingLessonPrerequisites, missingTopicPrerequisites, passMastery, resumeStep } from '../../engine/progression';
 import { preloadGame } from '../../games/registry';
@@ -16,6 +17,7 @@ import { CompleteStep, type TopicSession } from './CompleteStep';
 import { PlayStep } from './PlayStep';
 import { PracticeStep } from './PracticeStep';
 import type { MentorExtras } from './shared';
+import { TopicContentError, TopicContentLoading } from './TopicContentStatus';
 import { WatchStep } from './WatchStep';
 
 const STEP_LABELS: Record<StepId, string> = { watch: 'Learn', play: 'Play', practice: 'Practice', complete: 'Complete' };
@@ -70,8 +72,17 @@ function TopicPlayer() {
     if (topic && unlocked && !showComplete && requestedOk) actions.openStep(topic.id, step);
   }, [topic, unlocked, showComplete, requestedOk, step, actions]);
 
+  // A new step starts at the top, and keyboard and screen-reader users land at its start
+  // (not on the first view, where focus stays where the browser put it).
+  const mainRef = useRef<HTMLElement>(null);
+  const firstView = useRef(true);
   useEffect(() => {
     window.scrollTo({ top: 0 });
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    mainRef.current?.focus({ preventScroll: true });
   }, [step, showComplete]);
 
   // Fetch the game's code while the learner is on Watch, so Play opens instantly.
@@ -132,6 +143,9 @@ function TopicPlayer() {
   }
 
   const index = TOPIC_STEPS.indexOf(step);
+  const roadmapTo = lessonPath(subject.id, lesson.id);
+  const topicCount = getTopicsForLesson(lesson.id).length;
+  const stepName = showComplete ? STEP_LABELS.complete : STEP_LABELS[step];
   const onNext = () => goTo(TOPIC_STEPS[index + 1] ?? 'complete');
   const onBack = index > 0 ? () => goTo(TOPIC_STEPS[index - 1]) : undefined;
   const completed = Boolean(record?.completedSteps.includes(step));
@@ -152,60 +166,85 @@ function TopicPlayer() {
         <div className="mx-auto flex max-w-4xl items-center gap-2 px-[var(--space-gutter)] pt-2">
           <button
             type="button"
-            onClick={() => navigate(lessonPath(subject.id, lesson.id))}
+            onClick={() => navigate(roadmapTo)}
             className="btn btn-ghost !min-h-[44px] !px-2.5"
             aria-label={`Exit topic and return to the ${lesson.title} roadmap`}
           >
             <X className="h-6 w-6" aria-hidden="true" />
+            <span className="hidden text-sm sm:inline" aria-hidden="true">
+              Exit
+            </span>
           </button>
           <div className="min-w-0 flex-1">
-            <Link to={lessonPath(subject.id, lesson.id)} className="block truncate text-xs font-extrabold uppercase tracking-wider hover:underline" style={{ color: subject.color }}>
+            <Link to={roadmapTo} className="block truncate text-xs font-extrabold uppercase tracking-wider hover:underline" style={{ color: subject.color }}>
               {subject.name} · {lessonLabel(lesson)}
             </Link>
             <h1 className="truncate font-display text-base font-semibold leading-tight md:text-lg">{topicLabel(topic)}</h1>
           </div>
+          {topicCount > 1 && (
+            <p className="shrink-0 rounded-full bg-canvas-sunken px-2.5 py-1 text-xs font-extrabold text-ink-soft">
+              <span className="sr-only">
+                Topic {topic.order} of {topicCount} in this lesson
+              </span>
+              <span aria-hidden="true">
+                {topic.order}/{topicCount}
+                <span className="hidden sm:inline"> topics</span>
+              </span>
+            </p>
+          )}
         </div>
+        {/* Announces the open step when it changes, for screen-reader users. */}
+        <p className="sr-only" aria-live="polite">
+          {showComplete ? `${stepName}: your results` : `Step ${index + 1} of ${TOPIC_STEPS.length}: ${stepName}`}
+        </p>
         <div className="mx-auto max-w-4xl px-[var(--space-gutter)] pb-2 pt-1.5">
           <StepIndicator steps={steps} onSelect={goTo} />
         </div>
       </header>
 
-      <main id="main" className="mx-auto w-full max-w-4xl px-[var(--space-gutter)] pb-6 pt-3 md:pb-10 md:pt-6">
+      <main id="main" ref={mainRef} tabIndex={-1} className="mx-auto w-full max-w-4xl px-[var(--space-gutter)] pb-6 pt-3 outline-none md:pb-10 md:pt-6">
         {session.practice && !showComplete && (
           <p className="mb-3 flex items-center gap-2 rounded-2xl bg-primary-soft px-3 py-2 text-xs font-bold text-primary-strong sm:text-sm">
             <RotateCcw className="h-4 w-4 shrink-0" aria-hidden="true" /> Replay: you can earn new stars, but rewards you already have won't repeat.
           </p>
         )}
-        {showComplete ? (
-          <CompleteStep subject={subject} lesson={lesson} topic={topic} session={session} onReplay={() => goTo('watch')} />
-        ) : content.status === 'ready' ? (
-          <div key={step} className="animate-fade-up">
-            {step === 'watch' && <WatchStep {...common} topic={content.topic} />}
-            {step === 'play' && <PlayStep {...common} topic={content.topic} />}
-            {step === 'practice' && <PracticeStep {...common} topic={content.topic} />}
-          </div>
-        ) : content.status === 'error' ? (
-          <div className="card mx-auto max-w-md p-6 text-center" role="alert">
-            <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full bg-canvas-sunken text-ink-muted">
-              <CloudOff className="h-7 w-7" aria-hidden="true" />
+        {/* A step that breaks shows a recovery card; the header and step buttons above keep working. */}
+        <ErrorBoundary resetKeys={[step, showComplete]} fallback={(p) => <StepErrorFallback {...p} stepName={stepName} roadmapTo={roadmapTo} />}>
+          {showComplete ? (
+            <CompleteStep subject={subject} lesson={lesson} topic={topic} session={session} onReplay={() => goTo('watch')} />
+          ) : content.status === 'ready' ? (
+            <div key={step} className="animate-fade-up">
+              {step === 'watch' && <WatchStep {...common} topic={content.topic} />}
+              {step === 'play' && <PlayStep {...common} topic={content.topic} />}
+              {step === 'practice' && <PracticeStep {...common} topic={content.topic} />}
             </div>
-            <h2 className="text-xl font-semibold">This topic didn't load</h2>
-            <p className="mt-1 text-ink-soft">Check your internet connection, then try again.</p>
-            <button type="button" onClick={content.retry} className="btn btn-primary mt-5">
-              <RotateCcw className="h-5 w-5" aria-hidden="true" /> Try again
-            </button>
-          </div>
-        ) : (
-          <div role="status" aria-live="polite">
-            <p className="sr-only">Loading {topicLabel(topic)}…</p>
-            <Skeleton className="h-6 w-56 max-w-full" />
-            <Skeleton className="mt-2 h-4 w-80 max-w-full" />
-            <Skeleton className="mt-4 aspect-video w-full rounded-3xl" />
-            <Skeleton className="mt-4 h-24 w-full" />
-          </div>
-        )}
+          ) : content.status === 'error' ? (
+            <TopicContentError retry={content.retry} roadmapTo={roadmapTo} />
+          ) : (
+            <TopicContentLoading label={topicLabel(topic)} />
+          )}
+        </ErrorBoundary>
       </main>
     </div>
+  );
+}
+
+function StepErrorFallback({ reset, chunkError, stepName, roadmapTo }: ErrorFallbackProps & { stepName: string; roadmapTo: string }) {
+  return (
+    <ProblemCard
+      icon={<MentorAvatar size={56} mood="thinking" />}
+      title={`The ${stepName} step hit a snag`}
+      body={
+        chunkError
+          ? `Part of this step didn't download. Check your internet connection, then reload. ${SAVED_NOTE}`
+          : `${SAVED_NOTE} Try this step again, or go back to the roadmap.`
+      }
+    >
+      <RetryButton reset={reset} chunkError={chunkError} />
+      <Link to={roadmapTo} className="btn btn-secondary">
+        <ArrowLeft className="h-5 w-5" aria-hidden="true" /> Back to the roadmap
+      </Link>
+    </ProblemCard>
   );
 }
 

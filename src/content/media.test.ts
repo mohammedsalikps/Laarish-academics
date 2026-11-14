@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 // The full topic (the app's catalog only has the topic index).
 import { getTopic } from '../../shared/curriculum';
 import { isAllowedMediaUrl, parseManifest, resolveVideo } from './media';
@@ -33,5 +33,44 @@ describe('media manifest', () => {
     const resolved = resolveVideo(video, { videos: { [video.id]: { src: 'https://cdn.example.org/rough-smooth.mp4' } } });
     expect(resolved.state).toBe('available');
     if (resolved.state === 'available') expect(resolved.asset.src).toBe('https://cdn.example.org/rough-smooth.mp4');
+  });
+});
+
+describe('loading the manifest', () => {
+  // The manifest is loaded once per visit, so each test starts from a fresh copy of the module.
+  let load: typeof import('./media').loadMediaManifest;
+  beforeEach(async () => {
+    vi.resetModules();
+    load = (await import('./media')).loadMediaManifest;
+  });
+  const ok = (videos: object) => new Response(JSON.stringify({ videos }), { status: 200, headers: { 'content-type': 'application/json' } });
+  const entry = { 'video-x': { src: '/media/x.mp4' } };
+
+  it('loads once and keeps it for the visit', async () => {
+    const fetchImpl = vi.fn(async () => ok(entry));
+    expect((await load(fetchImpl)).videos).toEqual(entry);
+    expect((await load(fetchImpl)).videos).toEqual(entry);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives up on a manifest that does not arrive, so the topic shows its explainer, and asks again next time', async () => {
+    const hanging = vi.fn(() => new Promise<Response>(() => {}));
+    expect(await load(hanging, 20)).toEqual({ videos: {} });
+    const fetchImpl = vi.fn(async () => ok(entry));
+    expect((await load(fetchImpl, 20)).videos).toEqual(entry);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks again after a network failure or a server error', async () => {
+    expect(await load(vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))).toEqual({ videos: {} });
+    expect(await load(vi.fn(async () => new Response('busy', { status: 503 })))).toEqual({ videos: {} });
+    expect((await load(vi.fn(async () => ok(entry)))).videos).toEqual(entry);
+  });
+
+  it('treats a missing manifest as "no official videos" for the rest of the visit', async () => {
+    const missing = vi.fn(async () => new Response('not found', { status: 404 }));
+    expect(await load(missing)).toEqual({ videos: {} });
+    expect(await load(missing)).toEqual({ videos: {} });
+    expect(missing).toHaveBeenCalledTimes(1);
   });
 });

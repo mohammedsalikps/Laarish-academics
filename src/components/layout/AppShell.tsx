@@ -1,6 +1,6 @@
 import { ChartColumn, Coins, Flame, House, LayoutGrid, MessageCircle, Settings, ShieldCheck, Trophy, X, type LucideIcon } from 'lucide-react';
 import { Suspense } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { localDateKey } from '../../lib/dates';
 import { cn } from '../../lib/cn';
 import { useMentor } from '../../mentor/MentorProvider';
@@ -10,6 +10,8 @@ import { Avatar } from '../art/Avatar';
 import { BrandMark } from '../art/Brand';
 import { useMentorPersona } from '../../mentor/useMentorPersona';
 import { MentorAvatar } from '../mentor/MentorAvatar';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
+import { ScreenErrorFallback } from '../ui/ErrorFallbacks';
 import { PageSkeleton } from '../ui/PageSkeleton';
 import { ProgressRing } from '../ui/primitives';
 
@@ -197,6 +199,7 @@ function StorageNotice() {
 
 /** Layout for signed-in learner screens. Lessons use their own immersive layout. */
 export function AppShell() {
+  const { pathname } = useLocation();
   return (
     <div className="min-h-dvh">
       <a href="#main" className="sr-only-focusable fixed left-3 top-3 z-50 rounded-xl bg-primary px-4 py-2 font-bold text-white">
@@ -209,9 +212,12 @@ export function AppShell() {
           <StorageNotice />
         </div>
         <main id="main" tabIndex={-1} className="outline-none">
-          <Suspense fallback={<PageSkeleton />}>
-            <Outlet />
-          </Suspense>
+          {/* Keeps the navigation usable when one screen breaks; moving to another page clears the error. */}
+          <ErrorBoundary resetKeys={[pathname]} fallback={(p) => <ScreenErrorFallback {...p} />}>
+            <Suspense fallback={<PageSkeleton />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
       <MobileTabBar />
