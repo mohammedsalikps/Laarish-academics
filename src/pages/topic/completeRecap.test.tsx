@@ -92,12 +92,14 @@ describe('lesson recap', () => {
     for (const t of topics) expect(within(recap).getByText(topicLabel(t))).toBeInTheDocument();
     expect(within(recap).getByText(`${topics.length * 3} of ${topics.length * 3} stars`)).toBeInTheDocument();
 
-    const nextLesson = nextLessonInSubject(lesson);
-    if (nextLesson?.status === 'ready') {
-      const card = screen.getByRole('region', { name: 'Up next' });
-      expect(within(card).getByText(lessonLabel(nextLesson))).toBeInTheDocument();
-      expect(within(card).getByRole('link', { name: /next lesson/i })).toBeInTheDocument();
-    }
+    // Finishing Friction opens the next lesson, named once, in the "Up next" card.
+    const nextLesson = nextLessonInSubject(lesson)!;
+    expect(nextLesson.status).toBe('ready');
+    expect(screen.getByText('Your next lesson is ready.')).toBeInTheDocument();
+    const card = screen.getByRole('region', { name: 'Up next' });
+    expect(within(card).getByText(lessonLabel(nextLesson))).toBeInTheDocument();
+    expect(within(card).getByRole('link', { name: /next lesson/i })).toBeInTheDocument();
+    expect(screen.getAllByText(lessonLabel(nextLesson))).toHaveLength(1);
   });
 });
 

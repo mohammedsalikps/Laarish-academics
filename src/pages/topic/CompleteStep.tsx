@@ -171,7 +171,10 @@ export function CompleteStep({
               {nextLessonView
                 ? nextLessonView.state === 'in-development'
                   ? `Next up is ${lessonLabel(nextLessonView.lesson)}. It is still being built, so explore another subject meanwhile!`
-                  : `${lessonLabel(nextLessonView.lesson)} is unlocked.`
+                  : nextLessonView.state === 'locked'
+                    ? `${lessonLabel(nextLessonView.lesson)} opens once the lessons before it are finished. Check the roadmap.`
+                    : // The "Up next" card below names the unlocked lesson and opens it.
+                      'Your next lesson is ready.'
                 : `You have finished every lesson in ${lessonParentName(lesson)} that is ready so far.`}
             </span>
           </NextCard>
