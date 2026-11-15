@@ -35,11 +35,13 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
     "@fontsource-variable/fredoka": "^5.3.0",
+    "@fontsource-variable/manrope": "5.3.0",
     "@fontsource-variable/nunito": "^5.3.0",
     "lucide-react": "^1.60.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.4"
+    "react-router-dom": "^7.18.4",
+    "three": "0.187.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -49,6 +51,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "0.187.0",
     "@vitejs/plugin-react": "^6.1.2",
     "autoprefixer": "^10.6.1",
     "esbuild": "^0.28.2",

@@ -30,6 +30,8 @@ const Settings = lazy(() => import('../pages/Settings'));
 const Parents = lazy(() => import('../pages/Parents'));
 const MentorPage = lazy(() => import('../pages/MentorPage'));
 const NotFound = lazy(() => import('../pages/NotFound'));
+const WorldPage = lazy(() => import('../pages/world/WorldPage'));
+const ChapterPage = lazy(() => import('../pages/world/ChapterPage'));
 
 /** Applies motion and text-size preferences to the document. */
 function DocumentPreferences() {
@@ -146,6 +148,23 @@ function AppRoutesInner() {
           element={
             <RequireLearner>
               <TopicRoute />
+            </RequireLearner>
+          }
+        />
+        {/* Subject worlds and chapter paths (wireframe S2–S4): full screen, no tabs. */}
+        <Route
+          path="/world/:subjectId"
+          element={
+            <RequireLearner>
+              <WorldPage />
+            </RequireLearner>
+          }
+        />
+        <Route
+          path="/world/:subjectId/chapter/:lessonId/topic?/:topicId?"
+          element={
+            <RequireLearner>
+              <ChapterPage />
             </RequireLearner>
           }
         />

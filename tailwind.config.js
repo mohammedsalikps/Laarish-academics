@@ -29,6 +29,7 @@ export default {
         reward: { DEFAULT: token('reward'), strong: token('reward-strong'), soft: token('reward-soft') },
         coral: { DEFAULT: token('coral'), strong: token('coral-strong'), soft: token('coral-soft') },
         sky: { DEFAULT: token('sky'), soft: token('sky-soft') },
+        grownup: { DEFAULT: token('grownup'), soft: token('grownup-soft') },
       },
       fontFamily: {
         sans: [
@@ -42,7 +43,9 @@ export default {
           '"Nirmala UI"',
           'sans-serif',
         ],
-        display: ['"Fredoka Variable"', 'Fredoka', '"Nunito Variable"', 'ui-rounded', 'system-ui', 'sans-serif'],
+        // Wireframe type scale: Nunito for Classes 1–6 (headings 800), Manrope for Mini Makers and grown-ups.
+        display: ['"Nunito Variable"', 'Nunito', 'ui-rounded', 'system-ui', '"Noto Sans Devanagari"', '"Noto Sans Kannada"', '"Nirmala UI"', 'sans-serif'],
+        grown: ['"Manrope Variable"', 'Manrope', '"Segoe UI"', 'system-ui', '"Noto Sans Devanagari"', '"Noto Sans Kannada"', '"Nirmala UI"', 'sans-serif'],
       },
       borderRadius: {
         xl: '14px',

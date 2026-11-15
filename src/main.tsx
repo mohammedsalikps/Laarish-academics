@@ -1,5 +1,6 @@
 import '@fontsource-variable/nunito';
 import '@fontsource-variable/fredoka';
+import '@fontsource-variable/manrope';
 import './styles/index.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

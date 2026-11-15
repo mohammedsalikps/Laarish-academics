@@ -12,22 +12,27 @@
   --c-line: 233 226 214;
   --c-line-strong: 214 205 189;
 
-  --c-ink: 29 26 74; /* deep indigo */
-  --c-ink-soft: 70 67 122;
-  --c-ink-muted: 105 102 142;
+  /* Laarish Brand System 2026 (wireframe page 1): navy for structure and text,
+     teal for progress and learning, gold for primary actions and mastery. */
+  --c-ink: 20 40 75; /* navy */
+  --c-ink-soft: 61 78 112;
+  --c-ink-muted: 94 107 133;
 
-  --c-primary: 88 71 224; /* violet-blue */
-  --c-primary-strong: 64 49 184;
-  --c-primary-soft: 238 235 255;
-  --c-primary-tint: 216 210 255;
+  --c-primary: 15 116 121; /* teal: progress, learning, selection */
+  --c-primary-strong: 10 90 95;
+  --c-primary-soft: 224 243 243;
+  --c-primary-tint: 184 226 228;
 
-  --c-success: 30 154 95;
-  --c-success-strong: 18 112 69;
-  --c-success-soft: 225 245 235;
+  --c-success: 39 130 79;
+  --c-success-strong: 26 100 58;
+  --c-success-soft: 226 243 230;
 
-  --c-reward: 242 165 22; /* amber */
-  --c-reward-strong: 158 98 0;
-  --c-reward-soft: 255 243 214;
+  --c-reward: 246 190 50; /* gold: the action colour and mastery */
+  --c-reward-strong: 140 92 0;
+  --c-reward-soft: 253 240 200;
+
+  --c-grownup: 106 76 178; /* purple: grown-ups only */
+  --c-grownup-soft: 238 233 250;
 
   --c-coral: 240 106 77;
   --c-coral-strong: 176 64 40;
@@ -120,17 +125,30 @@ html[data-motion='reduce'] *::after {
     @apply relative inline-flex select-none items-center justify-center gap-2 rounded-2xl px-5 font-extrabold
       transition-[transform,box-shadow,background-color,color] duration-150 ease-out
       disabled:cursor-not-allowed disabled:opacity-50;
-    min-height: 48px;
+    /* Child tap target (wireframe: 56 px for children, 48 px for grown-ups). */
+    min-height: 56px;
     -webkit-tap-highlight-color: transparent;
   }
   .btn:not(:disabled):active {
     transform: translateY(3px);
   }
+  /* The one primary action on a screen: gold with navy text (8.6:1). */
   .btn-primary {
-    @apply bg-primary text-white shadow-press-primary hover:bg-[rgb(76_60_214)];
+    @apply bg-reward text-ink hover:bg-[rgb(240_180_35)];
+    box-shadow: 0 4px 0 rgb(196 146 22);
   }
   .btn-primary:not(:disabled):active {
-    box-shadow: 0 1px 0 rgb(var(--c-primary-strong));
+    box-shadow: 0 1px 0 rgb(196 146 22);
+  }
+  /* Teal, for learning actions that sit beside a gold one. */
+  .btn-teal {
+    @apply bg-primary text-white shadow-press-primary hover:bg-primary-strong;
+  }
+  /* Grown-ups area (Manrope, purple, 48 px targets). */
+  .btn-grownup {
+    @apply bg-grownup font-grown text-white hover:bg-[rgb(92_64_160)];
+    min-height: 48px;
+    box-shadow: 0 3px 0 rgb(72 50 128);
   }
   /* A deeper green than the success token so white button text passes WCAG AA (4.96:1; the token gives 3.59:1). */
   .btn-success {

@@ -3,6 +3,11 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 
+/** Scrolling, padded content area for a Dialog (the panel itself does not scroll). */
+export function DialogBody({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-3 sm:px-6', className)}>{children}</div>;
+}
+
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**

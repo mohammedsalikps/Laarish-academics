@@ -65,7 +65,24 @@ describe('text contrast (WCAG AA)', () => {
   });
 });
 
+describe('brand palette (wireframe page 1)', () => {
+  it('navy text on the gold primary button', () => {
+    expect(rule('.btn-primary')).toMatch(/bg-reward text-ink/);
+    expect(contrast(token('ink'), token('reward'))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('white text on the grown-ups purple', () => {
+    expect(rule('.btn-grownup')).toMatch(/bg-grownup/);
+    expect(contrast(WHITE, token('grownup'))).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
 describe('touch targets', () => {
+  it('child buttons are 56px and grown-up buttons 48px', () => {
+    expect(Number(rule('.btn').match(/min-height:\s*(\d+)px/)![1])).toBeGreaterThanOrEqual(56);
+    expect(Number(rule('.btn-grownup').match(/min-height:\s*(\d+)px/)![1])).toBeGreaterThanOrEqual(48);
+  });
+
   it.each(['.btn', '.btn-sm', '.btn-lg'])('%s is at least 44px tall', (selector) => {
     const m = rule(selector).match(/min-height:\s*(\d+)px/);
     expect(m).not.toBeNull();
