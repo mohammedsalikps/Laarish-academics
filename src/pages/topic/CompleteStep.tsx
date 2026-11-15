@@ -1,17 +1,18 @@
-import { ArrowLeft, ArrowRight, Coins, Lock, PartyPopper, RotateCcw, Sparkles, Trophy, Zap } from 'lucide-react';
+import { ArrowLeft, Coins, ListChecks, Lock, PartyPopper, RotateCcw, Trophy, Zap } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { MentorAvatar } from '../../components/mentor/MentorAvatar';
 import { Confetti } from '../../components/ui/Confetti';
 import { Icon } from '../../components/ui/Icon';
 import { ProgressRing, StarRow } from '../../components/ui/primitives';
-import { lessonLabel, nextLessonInSubject, nextTopicInLesson, topicLabel } from '../../content';
+import { getTopicsForLesson, lessonLabel, nextLessonInSubject, nextTopicInLesson, topicLabel, useTopicContent } from '../../content';
 import type { Lesson, Subject, TopicMeta } from '../../domain/types';
 import { getAchievement } from '../../engine/achievements';
 import { isTopicMastered, lessonView, passMastery, resumeStep, topicView } from '../../engine/progression';
 import { useReducedMotion } from '../../hooks/usePreferences';
 import { lessonParentName, lessonPath, topicPath } from '../../lib/paths';
 import { useProgress } from '../../state/ProgressProvider';
+import { LessonRecap, TopicMetaLine, TopicRecap, UpNextCard } from './CompleteRecap';
 
 export interface TopicSession {
   ledgerIndex: number;
@@ -36,6 +37,8 @@ export function CompleteStep({
   const { state } = useProgress();
   const reducedMotion = useReducedMotion();
   const record = state.topics[topic.id];
+  // The recap uses the topic's full content; it is usually already downloaded, and the rest of the page never waits for it.
+  const content = useTopicContent(topic);
 
   if (!record || record.status !== 'completed') {
     return (
@@ -77,6 +80,7 @@ export function CompleteStep({
       : nextLessonView && nextLessonView.state !== 'locked' && nextLessonView.state !== 'in-development'
         ? { to: lessonPath(subject.id, nextLessonView.lesson.id), label: 'Next Lesson' }
         : null;
+  const nextLessonTopics = primary && nextLessonView && !nextTopicView ? getTopicsForLesson(nextLessonView.lesson.id).length : 0;
 
   return (
     <div className="relative">
@@ -139,18 +143,26 @@ export function CompleteStep({
         </div>
       )}
 
+      {content.status === 'ready' && <TopicRecap topic={content.topic} record={record} />}
+
       <div className="mx-auto mt-4 max-w-3xl space-y-3">
         {!passed && (
           <NextCard tone="reward" icon={<Lock className="h-6 w-6" aria-hidden="true" />}>
             Reach <strong>{pass}% mastery</strong> to unlock {nextTopic ? <strong>{topicLabel(nextTopic)}</strong> : 'the next lesson'}. You are at {Math.round(mastery * 100)}%. Try Practice
             again. You can do it!
+            <Link to={topicPath(topic, 'practice')} className="btn btn-reward btn-sm mt-2 flex w-fit">
+              <ListChecks className="h-4 w-4" aria-hidden="true" /> Go to Practice
+            </Link>
           </NextCard>
         )}
-        {passed && nextTopicView && nextTopicView.state !== 'locked' && (
-          <NextCard tone="success" icon={<Sparkles className="h-6 w-6" aria-hidden="true" />}>
-            <span className="font-extrabold">Unlocked: {topicLabel(nextTopicView.topic)}</span>
-            <span className="block text-sm text-ink-soft">{nextTopicView.topic.summary}</span>
-          </NextCard>
+        {primary && nextTopicView && (
+          <UpNextCard
+            to={primary.to}
+            actionLabel={primary.label}
+            title={`Unlocked: ${topicLabel(nextTopicView.topic)}`}
+            summary={nextTopicView.topic.summary}
+            meta={<TopicMetaLine topic={nextTopicView.topic} />}
+          />
         )}
         {passed && !nextTopic && lessonNow.state === 'completed' && (
           <NextCard tone="success" icon={<PartyPopper className="h-6 w-6" aria-hidden="true" />}>
@@ -159,7 +171,10 @@ export function CompleteStep({
               {nextLessonView
                 ? nextLessonView.state === 'in-development'
                   ? `Next up is ${lessonLabel(nextLessonView.lesson)}. It is still being built, so explore another subject meanwhile!`
-                  : `${lessonLabel(nextLessonView.lesson)} is unlocked.`
+                  : nextLessonView.state === 'locked'
+                    ? `${lessonLabel(nextLessonView.lesson)} opens once the lessons before it are finished. Check the roadmap.`
+                    : // The "Up next" card below names the unlocked lesson and opens it.
+                      'Your next lesson is ready.'
                 : `You have finished every lesson in ${lessonParentName(lesson)} that is ready so far.`}
             </span>
           </NextCard>
@@ -169,14 +184,20 @@ export function CompleteStep({
             Master every topic in {lessonLabel(lesson)} to finish the lesson. Check the roadmap for topics that need more practice.
           </NextCard>
         )}
+        {primary && nextLessonView && !nextTopicView && (
+          <UpNextCard
+            to={primary.to}
+            actionLabel={primary.label}
+            title={lessonLabel(nextLessonView.lesson)}
+            summary={nextLessonView.lesson.summary}
+            meta={nextLessonTopics > 0 ? <span>{nextLessonTopics} topics</span> : undefined}
+          />
+        )}
       </div>
 
+      {passed && !nextTopic && lessonNow.state === 'completed' && <LessonRecap lesson={lesson} view={lessonNow} />}
+
       <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row sm:justify-center">
-        {primary && (
-          <Link to={primary.to} className="btn btn-primary btn-lg">
-            {primary.label} <ArrowRight className="h-5 w-5" aria-hidden="true" />
-          </Link>
-        )}
         <Link to={lessonPath(subject.id, lesson.id)} className={primary ? 'btn btn-secondary btn-lg' : 'btn btn-primary btn-lg'}>
           <ArrowLeft className="h-5 w-5" aria-hidden="true" /> Back to Lesson Roadmap
         </Link>

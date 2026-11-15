@@ -21,7 +21,7 @@ export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: 
   return (
     <nav aria-label="Breadcrumb" className={cn('text-sm font-bold', className)}>
       {parent?.to && (
-        <Link to={parent.to} className="inline-flex min-h-[40px] items-center gap-1 text-ink-soft hover:text-ink sm:hidden">
+        <Link to={parent.to} className="inline-flex min-h-[44px] items-center gap-1 text-ink-soft hover:text-ink sm:hidden">
           <ChevronLeft className="h-4 w-4" aria-hidden="true" /> {parent.label}
         </Link>
       )}

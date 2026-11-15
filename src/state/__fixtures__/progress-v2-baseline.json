@@ -1,0 +1,1389 @@
+{
+  "schemaVersion": 2,
+  "savedAt": "2026-10-20T10:00:00.000Z",
+  "state": {
+    "schemaVersion": 2,
+    "learner": {
+      "id": "learner-1",
+      "displayName": "Asha",
+      "grade": 6,
+      "language": "en",
+      "avatarId": "fox",
+      "mentorId": "ayra",
+      "interests": [
+        "science"
+      ],
+      "dailyGoalXp": 50,
+      "createdAt": "2026-10-20T10:00:00.000Z",
+      "mode": "demo"
+    },
+    "ledger": [
+      {
+        "key": "topic:friction-what-is:watch",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Learn: What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "achievement:first-steps",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: First Steps",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "topic:friction-what-is:play",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Play: What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-what-is:q-what:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-what-is:q-what:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-what-is:q-against-motion:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-what-is:q-against-motion:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-what-is:q-stuck-box:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-what-is:q-stuck-box:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-what-is:practice",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Practice: What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-what-is:complete",
+        "kind": "reward",
+        "xp": 30,
+        "coins": 5,
+        "reason": "Topic complete: What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-what-is:star:1",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 1 on What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-what-is:star:2",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 2 on What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-what-is:star:3",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 3 on What is friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is",
+        "lessonId": "friction"
+      },
+      {
+        "key": "achievement:quiz-whiz",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Quiz Whiz",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "achievement:topic-champion",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Topic Champion",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "achievement:goal-getter",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Goal Getter",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "topic:friction-rough-smooth:watch",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Learn: Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "exp:friction-rough-smooth:wood:tested",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Tested Polished wood",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "exp:friction-rough-smooth:wood:predicted",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Correct prediction on Polished wood",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-rough-smooth:play",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Play: Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-rough-smooth:q-distance:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-rough-smooth:q-distance:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-rough-smooth:q-ball-carpet:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-rough-smooth:q-ball-carpet:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-rough-smooth:q-ice-gravel:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-rough-smooth:q-ice-gravel:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-rough-smooth:practice",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Practice: Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-rough-smooth:complete",
+        "kind": "reward",
+        "xp": 30,
+        "coins": 5,
+        "reason": "Topic complete: Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-rough-smooth:star:1",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 1 on Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-rough-smooth:star:2",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 2 on Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-rough-smooth:star:3",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 3 on Rough and smooth surfaces",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth",
+        "lessonId": "friction"
+      },
+      {
+        "key": "achievement:star-collector",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Star Collector",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "topic:friction-helps-us:watch",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Learn: Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-helps-us:play",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Play: Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "game:friction-helps-us:complete",
+        "kind": "reward",
+        "xp": 15,
+        "coins": 0,
+        "reason": "Finished Friction Detectives",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "game:friction-helps-us:perfect",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Perfect game: Friction Detectives",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "achievement:perfect-play",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Perfect Play",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "quiz:friction-helps-us:q-shoes:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-helps-us:q-shoes:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-helps-us:q-heat:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-helps-us:q-heat:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-helps-us:q-brakes:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-helps-us:q-brakes:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-helps-us:practice",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Practice: Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-helps-us:complete",
+        "kind": "reward",
+        "xp": 30,
+        "coins": 5,
+        "reason": "Topic complete: Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-helps-us:star:1",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 1 on Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-helps-us:star:2",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 2 on Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-helps-us:star:3",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 3 on Friction helps us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us",
+        "lessonId": "friction"
+      },
+      {
+        "key": "achievement:rising-star",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Rising Star",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "topic:friction-reducing:watch",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Learn: Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-reducing:play",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Play: Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "game:friction-reducing:complete",
+        "kind": "reward",
+        "xp": 15,
+        "coins": 0,
+        "reason": "Finished More grip or less friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "game:friction-reducing:perfect",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Perfect game: More grip or less friction?",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-reducing:q-drawer:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-reducing:q-drawer:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-reducing:q-suitcase:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-reducing:q-suitcase:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-reducing:q-sand-ice:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "quiz:friction-reducing:q-sand-ice:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-reducing:practice",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Practice: Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-reducing:complete",
+        "kind": "reward",
+        "xp": 30,
+        "coins": 5,
+        "reason": "Topic complete: Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-reducing:star:1",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 1 on Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-reducing:star:2",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 2 on Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "topic:friction-reducing:star:3",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 3 on Reducing friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing",
+        "lessonId": "friction"
+      },
+      {
+        "key": "lesson:friction:complete",
+        "kind": "reward",
+        "xp": 50,
+        "coins": 15,
+        "reason": "Lesson complete: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "lessonId": "friction"
+      },
+      {
+        "key": "achievement:lesson-complete",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 5,
+        "reason": "Achievement: Lesson Complete",
+        "at": "2026-10-20T10:00:00.000Z"
+      },
+      {
+        "key": "topic:m1-ten-and-more:watch",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Learn: Ten and some more",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "topic:m1-ten-and-more:play",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Play: Ten and some more",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "game:m1-ten-and-more:complete",
+        "kind": "reward",
+        "xp": 15,
+        "coins": 0,
+        "reason": "Finished Ten and More Match",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-bangles:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-bangles:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-seventeen:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-twenty:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-twenty:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-match-teens:correct",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question correct",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "quiz:m1-ten-and-more:q-match-teens:first-try",
+        "kind": "reward",
+        "xp": 5,
+        "coins": 0,
+        "reason": "Quiz question right first try",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "topic:m1-ten-and-more:practice",
+        "kind": "reward",
+        "xp": 10,
+        "coins": 0,
+        "reason": "Practice: Ten and some more",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "topic:m1-ten-and-more:complete",
+        "kind": "reward",
+        "xp": 30,
+        "coins": 5,
+        "reason": "Topic complete: Ten and some more",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      },
+      {
+        "key": "topic:m1-ten-and-more:star:1",
+        "kind": "reward",
+        "xp": 0,
+        "coins": 3,
+        "reason": "Star 1 on Ten and some more",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more",
+        "lessonId": "m1-numbers-to-20"
+      }
+    ],
+    "topics": {
+      "friction-what-is": {
+        "topicId": "friction-what-is",
+        "status": "completed",
+        "currentStep": "watch",
+        "completedSteps": [
+          "watch",
+          "play",
+          "practice"
+        ],
+        "scores": {
+          "play": 1,
+          "practice": 1
+        },
+        "startedAt": "2026-10-20T10:00:00.000Z",
+        "lastPlayedAt": "2026-10-20T10:00:00.000Z",
+        "timesCompleted": 1,
+        "bestMastery": 1,
+        "stars": 3,
+        "completedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "friction-rough-smooth": {
+        "topicId": "friction-rough-smooth",
+        "status": "completed",
+        "currentStep": "watch",
+        "completedSteps": [
+          "watch",
+          "play",
+          "practice"
+        ],
+        "scores": {
+          "play": 1,
+          "practice": 1
+        },
+        "startedAt": "2026-10-20T10:00:00.000Z",
+        "lastPlayedAt": "2026-10-20T10:00:00.000Z",
+        "timesCompleted": 1,
+        "bestMastery": 1,
+        "stars": 3,
+        "completedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "friction-helps-us": {
+        "topicId": "friction-helps-us",
+        "status": "completed",
+        "currentStep": "watch",
+        "completedSteps": [
+          "watch",
+          "play",
+          "practice"
+        ],
+        "scores": {
+          "play": 1,
+          "practice": 1
+        },
+        "startedAt": "2026-10-20T10:00:00.000Z",
+        "lastPlayedAt": "2026-10-20T10:00:00.000Z",
+        "timesCompleted": 1,
+        "bestMastery": 1,
+        "stars": 3,
+        "completedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "friction-reducing": {
+        "topicId": "friction-reducing",
+        "status": "completed",
+        "currentStep": "watch",
+        "completedSteps": [
+          "watch",
+          "play",
+          "practice"
+        ],
+        "scores": {
+          "play": 1,
+          "practice": 1
+        },
+        "startedAt": "2026-10-20T10:00:00.000Z",
+        "lastPlayedAt": "2026-10-20T10:00:00.000Z",
+        "timesCompleted": 1,
+        "bestMastery": 1,
+        "stars": 3,
+        "completedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "m1-ten-and-more": {
+        "topicId": "m1-ten-and-more",
+        "status": "completed",
+        "currentStep": "watch",
+        "completedSteps": [
+          "watch",
+          "play",
+          "practice"
+        ],
+        "scores": {
+          "play": 0.6,
+          "practice": 0.7
+        },
+        "startedAt": "2026-10-20T10:00:00.000Z",
+        "lastPlayedAt": "2026-10-20T10:00:00.000Z",
+        "timesCompleted": 1,
+        "bestMastery": 0.6749999999999999,
+        "stars": 1,
+        "completedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "hi1-swar-a-to-oo": {
+        "topicId": "hi1-swar-a-to-oo",
+        "status": "in-progress",
+        "currentStep": "watch",
+        "completedSteps": [],
+        "scores": {},
+        "startedAt": "2026-10-20T10:00:00.000Z",
+        "lastPlayedAt": "2026-10-20T10:00:00.000Z",
+        "timesCompleted": 0,
+        "bestMastery": 0,
+        "stars": 0
+      }
+    },
+    "quizAttempts": [
+      {
+        "id": "quiz-friction-what-is-a",
+        "topicId": "friction-what-is",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "correctFirstTry": 3,
+        "total": 3,
+        "mode": "first",
+        "answers": [
+          {
+            "questionId": "q-what",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-against-motion",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-stuck-box",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          }
+        ]
+      },
+      {
+        "id": "quiz-friction-rough-smooth-a",
+        "topicId": "friction-rough-smooth",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "correctFirstTry": 3,
+        "total": 3,
+        "mode": "first",
+        "answers": [
+          {
+            "questionId": "q-distance",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-ball-carpet",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-ice-gravel",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          }
+        ]
+      },
+      {
+        "id": "quiz-friction-helps-us-a",
+        "topicId": "friction-helps-us",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "correctFirstTry": 3,
+        "total": 3,
+        "mode": "first",
+        "answers": [
+          {
+            "questionId": "q-shoes",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-heat",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-brakes",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          }
+        ]
+      },
+      {
+        "id": "quiz-friction-reducing-a",
+        "topicId": "friction-reducing",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "correctFirstTry": 3,
+        "total": 3,
+        "mode": "first",
+        "answers": [
+          {
+            "questionId": "q-drawer",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-suitcase",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-sand-ice",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          }
+        ]
+      },
+      {
+        "id": "quiz-m1-ten-and-more-b",
+        "topicId": "m1-ten-and-more",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 0.7,
+        "correctFirstTry": 3,
+        "total": 5,
+        "mode": "first",
+        "answers": [
+          {
+            "questionId": "q-bangles",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-seventeen",
+            "credit": 0.5,
+            "attempts": 2,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-thirteen",
+            "credit": 0,
+            "attempts": 2,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-twenty",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          },
+          {
+            "questionId": "q-match-teens",
+            "credit": 1,
+            "attempts": 1,
+            "usedHint": false
+          }
+        ]
+      }
+    ],
+    "gameAttempts": [
+      {
+        "id": "game-friction-what-is-a",
+        "topicId": "friction-what-is",
+        "gameType": "push-box",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "completed": true,
+        "mode": "first",
+        "summary": "test"
+      },
+      {
+        "id": "run-friction-rough-smooth-a",
+        "topicId": "friction-rough-smooth",
+        "gameType": "friction-experiment",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "completed": false,
+        "mode": "first",
+        "summary": "Tested Polished wood (prediction correct)"
+      },
+      {
+        "id": "game-friction-rough-smooth-a",
+        "topicId": "friction-rough-smooth",
+        "gameType": "friction-experiment",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "completed": true,
+        "mode": "first",
+        "summary": "test"
+      },
+      {
+        "id": "game-friction-helps-us-a",
+        "topicId": "friction-helps-us",
+        "gameType": "concept-match",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "completed": true,
+        "mode": "first",
+        "summary": "test"
+      },
+      {
+        "id": "game-friction-reducing-a",
+        "topicId": "friction-reducing",
+        "gameType": "sort",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 1,
+        "completed": true,
+        "mode": "first",
+        "summary": "test"
+      },
+      {
+        "id": "game-m1-ten-and-more-b",
+        "topicId": "m1-ten-and-more",
+        "gameType": "concept-match",
+        "at": "2026-10-20T10:00:00.000Z",
+        "score": 0.6,
+        "completed": true,
+        "mode": "first",
+        "summary": "test"
+      }
+    ],
+    "achievements": {
+      "first-steps": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "quiz-whiz": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "topic-champion": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "goal-getter": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "star-collector": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "perfect-play": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "rising-star": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      },
+      "lesson-complete": {
+        "unlockedAt": "2026-10-20T10:00:00.000Z"
+      }
+    },
+    "activity": [
+      {
+        "id": "topic:2026-10-20T10:00:00.000Z:23:m1-ten-and-more",
+        "kind": "topic",
+        "title": "Completed Topic 1: Ten and some more",
+        "detail": "Numbers to 20 · 1 star",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:22:m1-ten-and-more",
+        "kind": "step",
+        "title": "Play: Ten and some more",
+        "detail": "Lesson 1: Numbers to 20",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:21:m1-ten-and-more",
+        "kind": "step",
+        "title": "Learn: Ten and some more",
+        "detail": "Lesson 1: Numbers to 20",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "m1-ten-and-more"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:20:lesson-complete",
+        "kind": "achievement",
+        "title": "Unlocked Lesson Complete",
+        "detail": "Complete every topic in a lesson.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "lesson-complete"
+      },
+      {
+        "id": "lesson:2026-10-20T10:00:00.000Z:19:friction",
+        "kind": "lesson",
+        "title": "Completed Lesson 1: Friction",
+        "detail": "Every topic mastered",
+        "at": "2026-10-20T10:00:00.000Z",
+        "lessonId": "friction"
+      },
+      {
+        "id": "topic:2026-10-20T10:00:00.000Z:18:friction-reducing",
+        "kind": "topic",
+        "title": "Completed Topic 4: Reducing friction",
+        "detail": "Friction · 3 stars",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:17:friction-reducing",
+        "kind": "step",
+        "title": "Play: Reducing friction",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:16:friction-reducing",
+        "kind": "step",
+        "title": "Learn: Reducing friction",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-reducing"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:15:rising-star",
+        "kind": "achievement",
+        "title": "Unlocked Rising Star",
+        "detail": "Reach Level 3.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "rising-star"
+      },
+      {
+        "id": "topic:2026-10-20T10:00:00.000Z:14:friction-helps-us",
+        "kind": "topic",
+        "title": "Completed Topic 3: Friction helps us",
+        "detail": "Friction · 3 stars",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:13:perfect-play",
+        "kind": "achievement",
+        "title": "Unlocked Perfect Play",
+        "detail": "Finish a game with no mistakes.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "perfect-play"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:12:friction-helps-us",
+        "kind": "step",
+        "title": "Play: Friction helps us",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:11:friction-helps-us",
+        "kind": "step",
+        "title": "Learn: Friction helps us",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-helps-us"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:10:star-collector",
+        "kind": "achievement",
+        "title": "Unlocked Star Collector",
+        "detail": "Earn 5 stars across your topics.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "star-collector"
+      },
+      {
+        "id": "topic:2026-10-20T10:00:00.000Z:9:friction-rough-smooth",
+        "kind": "topic",
+        "title": "Completed Topic 2: Rough and smooth surfaces",
+        "detail": "Friction · 3 stars",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:8:friction-rough-smooth",
+        "kind": "step",
+        "title": "Play: Rough and smooth surfaces",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:7:friction-rough-smooth",
+        "kind": "step",
+        "title": "Learn: Rough and smooth surfaces",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-rough-smooth"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:6:goal-getter",
+        "kind": "achievement",
+        "title": "Unlocked Goal Getter",
+        "detail": "Reach your daily XP goal.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "goal-getter"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:5:topic-champion",
+        "kind": "achievement",
+        "title": "Unlocked Topic Champion",
+        "detail": "Complete your first topic.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "topic-champion"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:4:quiz-whiz",
+        "kind": "achievement",
+        "title": "Unlocked Quiz Whiz",
+        "detail": "Answer every question in a quiz right on the first try.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "quiz-whiz"
+      },
+      {
+        "id": "topic:2026-10-20T10:00:00.000Z:3:friction-what-is",
+        "kind": "topic",
+        "title": "Completed Topic 1: What is friction?",
+        "detail": "Friction · 3 stars",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:2:friction-what-is",
+        "kind": "step",
+        "title": "Play: What is friction?",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is"
+      },
+      {
+        "id": "achievement:2026-10-20T10:00:00.000Z:1:first-steps",
+        "kind": "achievement",
+        "title": "Unlocked First Steps",
+        "detail": "Complete your first learning step.",
+        "at": "2026-10-20T10:00:00.000Z",
+        "ref": "first-steps"
+      },
+      {
+        "id": "step:2026-10-20T10:00:00.000Z:0:friction-what-is",
+        "kind": "step",
+        "title": "Learn: What is friction?",
+        "detail": "Lesson 1: Friction",
+        "at": "2026-10-20T10:00:00.000Z",
+        "topicId": "friction-what-is"
+      }
+    ],
+    "activeDays": [
+      "2026-10-20"
+    ],
+    "ownedAvatars": [
+      "fox",
+      "panda",
+      "bunny"
+    ],
+    "stats": {
+      "mentorQuestions": 0,
+      "mentorQuestionsByDay": {},
+      "surfacesTested": [
+        "friction-rough-smooth:wood"
+      ],
+      "correctPredictions": 1,
+      "experimentRuns": 1,
+      "perfectGames": 2,
+      "perfectQuizzes": 4,
+      "subjectsVisited": []
+    },
+    "settings": {
+      "motion": "reduce",
+      "textSize": "large",
+      "sound": false,
+      "readAloud": false,
+      "mentorLanguage": "en",
+      "voiceAnswers": false
+    }
+  }
+}

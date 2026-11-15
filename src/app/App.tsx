@@ -3,6 +3,8 @@ import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-do
 import { AppShell } from '../components/layout/AppShell';
 import { MentorPanel } from '../components/mentor/MentorPanel';
 import { getLesson, getTopic, preloadTopicContent } from '../content';
+import { ErrorBoundary } from '../components/ui/ErrorBoundary';
+import { ScreenErrorFallback } from '../components/ui/ErrorFallbacks';
 import { PageSkeleton, SplashScreen } from '../components/ui/PageSkeleton';
 import { useReducedMotion } from '../hooks/usePreferences';
 import { isMentorId } from '../../shared/mentor/personas';
@@ -85,7 +87,27 @@ function RequireLearner({ children, needsMentor = true }: { children: ReactNode;
   return <>{children}</>;
 }
 
+/** Optional extras (the mentor panel, reward toasts): if one breaks, the learner keeps learning without it. */
+function OptionalFeature({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  return (
+    <ErrorBoundary resetKeys={[pathname]} fallback={() => null}>
+      {children}
+    </ErrorBoundary>
+  );
+}
+
 export function AppRoutes() {
+  const { pathname } = useLocation();
+  return (
+    // A screen that breaks (or fails to download) shows a recovery card; moving to another page clears it.
+    <ErrorBoundary resetKeys={[pathname]} fallback={(p) => <ScreenErrorFallback {...p} />}>
+      <AppRoutesInner />
+    </ErrorBoundary>
+  );
+}
+
+function AppRoutesInner() {
   return (
     <Suspense fallback={<SplashScreen />}>
       <Routes>
@@ -141,8 +163,12 @@ export function App({ repository }: { repository: ProgressRepository }) {
         <DocumentPreferences />
         <ScrollToTop />
         <AppRoutes />
-        <MentorPanel />
-        <RewardFeed />
+        <OptionalFeature>
+          <MentorPanel />
+        </OptionalFeature>
+        <OptionalFeature>
+          <RewardFeed />
+        </OptionalFeature>
       </MentorProvider>
     </ProgressProvider>
   );

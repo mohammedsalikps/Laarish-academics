@@ -117,7 +117,7 @@ export function Dialog({
               )}
             </div>
             {!hideTitle && (
-              <button type="button" onClick={onClose} className="btn btn-ghost btn-sm -mr-2 -mt-1 !min-h-[40px] !px-2.5" aria-label="Close">
+              <button type="button" onClick={onClose} className="btn btn-ghost btn-sm -mr-2 -mt-1 !min-h-[44px] !min-w-[44px] !px-2.5" aria-label="Close">
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
             )}

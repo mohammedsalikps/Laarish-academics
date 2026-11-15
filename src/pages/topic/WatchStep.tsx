@@ -70,7 +70,7 @@ export function WatchStep({ topic, completed, practice, onNext, onBack }: StepVi
         )}
         <button
           type="button"
-          className="inline-flex min-h-[40px] items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-primary hover:bg-primary-soft"
+          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-primary hover:bg-primary-soft"
           aria-expanded={showMore}
           onClick={() => setShowMore((s) => !s)}
         >

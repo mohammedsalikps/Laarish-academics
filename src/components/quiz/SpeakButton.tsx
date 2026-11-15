@@ -14,7 +14,7 @@ export function SpeakButton({ text, label, speech, className }: { text: string; 
     const language = SPEECH_LANGUAGE_NAMES[textLanguage(text)];
     return (
       <span
-        className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink-muted/60', className)}
+        className={cn('grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink-muted', className)}
         role="img"
         aria-label={`No ${language} voice on this device, so read the words on screen`}
         title={`No ${language} voice on this device`}
@@ -29,7 +29,7 @@ export function SpeakButton({ text, label, speech, className }: { text: string; 
       onClick={() => (speech.speaking ? speech.stop() : speech.speak(text))}
       aria-label={speech.speaking ? 'Stop reading aloud' : label}
       className={cn(
-        'grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-ink/10 bg-surface text-primary hover:border-primary/40 hover:bg-primary-soft',
+        'grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-ink/10 bg-surface text-primary hover:border-primary/40 hover:bg-primary-soft',
         speech.speaking && 'border-primary bg-primary-soft',
         className,
       )}
