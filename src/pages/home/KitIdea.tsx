@@ -29,11 +29,11 @@ export function KitIdea({ lessonId }: { lessonId: string | undefined }) {
   const kit = lessonId ? KITS[lessonId] : undefined;
   if (!kit || hidden) return null;
   return (
-    <section aria-label="Kit idea" className="card flex items-center gap-3 p-3 pr-2">
+    <section aria-label="Kit idea" className="card flex flex-wrap items-center gap-x-3 gap-y-2 p-3 pr-2">
       <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-canvas-sunken text-ink" aria-hidden="true">
         <Box className="h-6 w-6" />
       </span>
-      <p className="min-w-0 flex-1 text-[0.95rem] font-bold leading-snug text-ink">
+      <p className="min-w-[180px] flex-1 text-[0.95rem] font-bold leading-snug text-ink">
         Have the {kit.kit} kit? {kit.idea}
       </p>
       <button type="button" onClick={() => setGate(true)} className="btn btn-secondary btn-sm shrink-0">

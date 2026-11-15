@@ -70,7 +70,7 @@ export function WorldHub({ worlds, className }: { worlds: ClassWorld[]; classNam
           onReady={setStats}
           onFail={() => setFailed(true)}
           label="Six subject worlds floating in the clouds, joined by rope bridges. Use the world buttons to open one."
-          className="h-[260px] rounded-3xl bg-[linear-gradient(180deg,#cfe6f2_0%,#f6e3cf_62%,#f8d9bd_100%)] shadow-soft sm:h-[340px] lg:h-[380px]"
+          className="h-[300px] rounded-3xl bg-[linear-gradient(180deg,#cfe6f2_0%,#f6e3cf_62%,#f8d9bd_100%)] shadow-soft sm:h-[340px] lg:h-[380px]"
         >
           <p className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-ink/70 px-3 py-1 text-xs font-bold text-white">
             <Hand className="h-3.5 w-3.5" aria-hidden="true" /> Drag to spin · Tap a world to fly in

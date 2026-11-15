@@ -1,6 +1,7 @@
 import * as matchers from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach, expect } from 'vitest';
+import { resetPrefsCache } from '../state/academicsPrefs';
 
 expect.extend(matchers);
 
@@ -15,6 +16,9 @@ afterEach(() => {
   if (!hasDom) return;
   cleanup();
   window.localStorage.clear();
+  window.sessionStorage.clear();
+  // Academics preferences are cached in memory; the next test starts from (cleared) storage.
+  resetPrefsCache();
 });
 
 if (hasDom) {

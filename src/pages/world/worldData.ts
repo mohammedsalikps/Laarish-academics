@@ -161,3 +161,14 @@ export function chapterLabel(c: ChapterInfo): string {
   if (c.thisWeek) parts.push('this week');
   return parts.join(', ');
 }
+
+/**
+ * The chapters pinned on the 3D island: every ready chapter plus one "coming
+ * soon" (wireframe: 4–6 landmarks per world, one dashed "soon" pin). List view
+ * still shows all of them.
+ */
+export function pinnedChapters(world: ClassWorld): ChapterInfo[] {
+  const ready = world.chapters.filter((c) => c.state !== 'coming-soon');
+  const soon = world.chapters.find((c) => c.state === 'coming-soon');
+  return soon ? [...ready, soon] : ready;
+}

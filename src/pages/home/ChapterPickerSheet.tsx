@@ -24,6 +24,8 @@ interface PickerProps {
   /** Pre-select a chapter (e.g. the next one after "We moved on"). */
   preselect?: string;
   focusDate?: boolean;
+  /** Who is changing it (grown-ups see the child's last change, and the other way round). */
+  changedBy?: 'child' | 'grown-up';
 }
 
 export function ChapterPickerSheet({ open, ...props }: PickerProps & { open: boolean }) {
@@ -31,7 +33,7 @@ export function ChapterPickerSheet({ open, ...props }: PickerProps & { open: boo
   return open ? <Picker {...props} /> : null;
 }
 
-function Picker({ onClose, worlds, initialSubject, preselect, focusDate = false }: PickerProps) {
+function Picker({ onClose, worlds, initialSubject, preselect, focusDate = false, changedBy = 'child' }: PickerProps) {
   const prefs = useAcademicsPrefs();
   const start = initialSubject ?? (worlds[0]?.subject.id as SubjectId | undefined) ?? 'science';
   const [subject, setSubject] = useState<SubjectId>(start);
@@ -50,7 +52,7 @@ function Picker({ onClose, worlds, initialSubject, preselect, focusDate = false 
     updatePrefs({
       schoolChapters: chapters,
       testDates: cleanTests,
-      chaptersChangedBy: 'child',
+      chaptersChangedBy: changedBy,
       // The child has just told Rishi this week's chapters, so no Monday check-in today.
       checkInWeek: weekKey(today),
     });

@@ -1,3 +1,4 @@
+import { AcademicsControls } from './grownups/AcademicsControls';
 import { Lightbulb, Printer, ShieldCheck } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Avatar } from '../components/art/Avatar';
@@ -206,6 +207,8 @@ function ParentSummary() {
           </tbody>
         </table>
       </section>
+
+      <AcademicsControls />
 
       <section className="mt-5 rounded-3xl border border-line bg-surface p-5 text-sm text-ink-soft" aria-labelledby="privacy">
         <h2 id="privacy" className="text-lg font-semibold text-ink">

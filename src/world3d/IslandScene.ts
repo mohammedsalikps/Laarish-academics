@@ -113,6 +113,8 @@ export class IslandScene {
   private firstFrameMs: number | null = null;
   private reducedMotion: boolean;
   private bounds = 2.6;
+  /** Extra camera distance so the whole ring fits narrow (phone) panels. */
+  private fit = 1;
   private visible = true;
   private observer: IntersectionObserver | null = null;
 
@@ -248,7 +250,7 @@ export class IslandScene {
   /** Island centre (hub) or landmark anchors (world), in scene coordinates. */
   hubAnchor(subjectId: string): THREE.Vector3 {
     const mesh = this.islands.get(subjectId);
-    return mesh ? mesh.position.clone().add(new THREE.Vector3(0, 2.0, 0)) : new THREE.Vector3();
+    return mesh ? mesh.position.clone().add(new THREE.Vector3(0, 1.7, 0)) : new THREE.Vector3();
   }
 
   islandCentre(subjectId: string): THREE.Vector3 {
@@ -388,6 +390,8 @@ export class IslandScene {
     this.camera.aspect = w / h;
     // Keep the whole ring in view on narrow (portrait) screens.
     this.camera.fov = this.mode === 'hub' ? (w / h < 1 ? 52 : 36) : w / h < 0.8 ? 50 : 38;
+    // Narrow screens: pull back so the ring (hub) or the island (world) fits.
+    this.fit = this.mode === 'hub' ? (w < 440 ? 1.14 : 1) : w / h < 0.7 ? 1.3 : 1;
     this.camera.updateProjectionMatrix();
     this.dirty = true;
     this.wake();
@@ -565,7 +569,8 @@ export class IslandScene {
   };
 
   private render() {
-    const { target, distance, pitch, yaw } = this.pose;
+    const { target, pitch, yaw } = this.pose;
+    const distance = this.pose.distance * this.fit;
     const p = THREE.MathUtils.degToRad(pitch);
     this.camera.position.set(target.x + Math.sin(yaw) * Math.cos(p) * distance, target.y + Math.sin(p) * distance, target.z + Math.cos(yaw) * Math.cos(p) * distance);
     this.camera.lookAt(target);

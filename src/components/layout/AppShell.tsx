@@ -14,6 +14,7 @@ import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { ScreenErrorFallback } from '../ui/ErrorFallbacks';
 import { PageSkeleton } from '../ui/PageSkeleton';
 import { ProgressRing } from '../ui/primitives';
+import { OfflineBanner } from './OfflineBanner';
 
 interface NavItem {
   to: string;
@@ -210,6 +211,7 @@ export function AppShell() {
         <TopBar />
         <div className="px-[var(--space-gutter)]">
           <StorageNotice />
+          <OfflineBanner className="mt-3" />
         </div>
         <main id="main" tabIndex={-1} className="outline-none">
           {/* Keeps the navigation usable when one screen breaks; moving to another page clears the error. */}

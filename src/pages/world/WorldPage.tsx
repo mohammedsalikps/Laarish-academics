@@ -15,7 +15,7 @@ import { useLiteMode } from '../../world3d/useLiteMode';
 import { WorldIcon } from '../../world3d/WorldChip';
 import { isWorldId } from '../../world3d/worlds';
 import { ChapterBadge, ChapterPin } from './pins';
-import { chapterLabel, classWorld, percent, type ChapterInfo } from './worldData';
+import { chapterLabel, classWorld, percent, pinnedChapters, type ChapterInfo } from './worldData';
 
 const VIEW_KEY = 'laarish-academics:world-view';
 
@@ -88,9 +88,11 @@ export default function WorldPage() {
   };
   const open = (c: ChapterInfo) => navigate(chapterPathUrl(world.subject.id, c.lesson.id));
   const anchors = (count: number) => (scene: Parameters<OverlayPin['anchor']>[0]) => scene.worldAnchors(world.theme.style, count);
-  const pins: OverlayPin[] = world.chapters.map((c, i) => ({
+  const pinned = pinnedChapters(world);
+  const hiddenSoon = world.chapters.length - pinned.length;
+  const pins: OverlayPin[] = pinned.map((c, i) => ({
     id: c.lesson.id,
-    anchor: (scene) => anchors(world.chapters.length)(scene)[i],
+    anchor: (scene) => anchors(pinned.length)(scene)[i],
     node: <ChapterPin chapter={c} onOpen={() => open(c)} />,
   }));
   const rishiLine = world.thisWeek ? `${world.thisWeek.lesson.title} is this week's chapter. Let's go!` : 'Pick a landmark to start.';
@@ -193,6 +195,11 @@ export default function WorldPage() {
         >
           <List className="h-4 w-4" aria-hidden="true" /> List view
         </button>
+      )}
+      {!lite && !failed && view === 'world' && hiddenSoon > 0 && (
+        <p className="absolute right-3 top-[198px] z-30 rounded-full bg-white/85 px-3 py-1 text-xs font-bold text-ink-soft shadow-soft">
+          +{hiddenSoon} more coming soon in List view
+        </p>
       )}
 
       {/* Rishi's line */}

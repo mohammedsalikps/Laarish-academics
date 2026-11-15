@@ -20,7 +20,7 @@ import { useLiteMode } from '../../world3d/useLiteMode';
 import { dayKey } from '../home/schoolWeek';
 import { PathNode, type NodeKind } from './pins';
 import { TopicSheet } from './TopicSheet';
-import { chapterPath, percent } from './worldData';
+import { chapterPath, percent, pinnedChapters } from './worldData';
 
 /** Chapters with a matching Laarish kit get a "Make with your kit" checkpoint on the path (S3 note 6). */
 const KIT_CHAPTERS = new Set(['magnets']);
@@ -84,12 +84,14 @@ export default function ChapterPage() {
     else navigate(topicSheetUrl(world.subject.id, lesson.id, id));
   };
 
+  // The same landmark as this chapter's pin on the world (S2).
+  const pinned = pinnedChapters(world);
   const chapterIndex = Math.max(
     0,
-    world.chapters.findIndex((c) => c.lesson.id === lesson.id),
+    pinned.findIndex((c) => c.lesson.id === lesson.id),
   );
   const anchorsFor = (scene: IslandScene): Vector3[] => {
-    const landmark = scene.worldAnchors(world.theme.style, Math.max(world.chapters.length, chapterIndex + 1))[chapterIndex];
+    const landmark = scene.worldAnchors(world.theme.style, Math.max(pinned.length, chapterIndex + 1))[chapterIndex];
     return scene.pathAnchors(world.theme.style, landmark, nodes.length);
   };
   const pins: OverlayPin[] = nodes.map((n, i) => ({
