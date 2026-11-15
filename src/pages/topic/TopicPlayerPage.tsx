@@ -20,6 +20,9 @@ import type { MentorExtras } from './shared';
 import { TopicContentError, TopicContentLoading } from './TopicContentStatus';
 import { WatchStep } from './WatchStep';
 import { chapterReturnUrl } from '../../world3d/paths';
+import { useReducedMotion } from '../../hooks/usePreferences';
+import { getPrefs } from '../../state/academicsPrefs';
+import { lowEndDevice } from '../../world3d/capability';
 
 const STEP_LABELS: Record<StepId, string> = { watch: 'Learn', play: 'Play', practice: 'Practice', complete: 'Complete' };
 
@@ -88,9 +91,16 @@ function TopicPlayer() {
 
   // Fetch the game's code while the learner is on Watch, so Play opens instantly.
   const gameType = topic?.play.game.type;
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
     if (gameType && unlocked) preloadGame(gameType);
-  }, [gameType, unlocked]);
+    // The magnet experiment's 3D bench (and three.js) too, when this device will show it.
+    if (gameType === 'magnet-lab' && unlocked && !reducedMotion && getPrefs().liteMode !== 'on' && !lowEndDevice()) {
+      void import('../../world3d/MagnetBenchScene').catch(() => {
+        /* the bench falls back to 2D if it cannot load */
+      });
+    }
+  }, [gameType, unlocked, reducedMotion]);
 
   useMentorContext(
     valid && unlocked && topic

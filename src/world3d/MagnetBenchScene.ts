@@ -197,6 +197,7 @@ export class MagnetBenchScene {
   private raf = 0;
   private dirty = true;
   private ready = false;
+  private readyMs: number | null = null;
   private reducedMotion: boolean;
   private readonly canvas: HTMLCanvasElement;
   private readonly plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.25);
@@ -244,6 +245,12 @@ export class MagnetBenchScene {
     canvas.addEventListener('pointercancel', this.onCancel);
     this.resize();
     this.loop();
+  }
+
+  /** Measurements for the engine test. */
+  stats() {
+    const info = this.renderer.info;
+    return { scene: 'bench', firstFrameMs: this.readyMs, drawCalls: info.render.calls, triangles: info.render.triangles, geometries: info.memory.geometries, textures: info.memory.textures };
   }
 
   setReducedMotion(v: boolean) {
@@ -427,7 +434,11 @@ export class MagnetBenchScene {
       this.dirty = false;
       if (!this.ready) {
         this.ready = true;
-        this.opts.onReady?.(Math.round(performance.now() - this.createdAt));
+        performance.mark('laarish:bench-first-frame');
+        this.readyMs = Math.round(performance.now() - this.createdAt);
+        const w = window as unknown as { __laarishScenes?: { stats(): unknown }[] };
+        if (new URLSearchParams(window.location.search).has('perf')) (w.__laarishScenes ??= []).push(this);
+        this.opts.onReady?.(this.readyMs);
       }
     }
     this.raf = requestAnimationFrame(this.loop);

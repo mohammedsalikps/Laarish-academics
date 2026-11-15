@@ -5,6 +5,7 @@ import { useReducedMotion } from '../hooks/usePreferences';
 import { cn } from '../lib/cn';
 import type { IslandStyle } from './islands';
 import type { CameraPose, IslandScene, PinScreen, SceneMode, SceneStats } from './IslandScene';
+import { separatePins, type PinBox } from './pinLayout';
 
 export interface OverlayPin {
   id: string;
@@ -30,6 +31,8 @@ export function IslandCanvas({
   onFail,
   label,
   className,
+  safeTop = 0,
+  lift = true,
   children,
 }: {
   mode: SceneMode;
@@ -46,6 +49,10 @@ export function IslandCanvas({
   onFail: () => void;
   /** Accessible name for the 3D view. */
   label: string;
+  /** Pixels at the top covered by other UI; pins stay below it. */
+  safeTop?: number;
+  /** World mode on tall screens: lower the island below the header (off for the chapter path). */
+  lift?: boolean;
   className?: string;
   children?: ReactNode;
 }) {
@@ -55,9 +62,9 @@ export function IslandCanvas({
   const [scene, setScene] = useState<IslandScene | null>(null);
   const [ready, setReady] = useState(false);
   const reducedMotion = useReducedMotion();
-  const latest = useRef({ onIslandTap, onReady, onFail, onScene });
+  const latest = useRef({ onIslandTap, onReady, onFail, onScene, safeTop });
   useLayoutEffect(() => {
-    latest.current = { onIslandTap, onReady, onFail, onScene };
+    latest.current = { onIslandTap, onReady, onFail, onScene, safeTop };
   });
 
   // Create the scene once per mode/island.
@@ -78,12 +85,20 @@ export function IslandCanvas({
             latest.current.onReady?.(stats);
           },
           onPins: (screens: Map<string, PinScreen>) => {
+            // Read every pin's size first (one layout), then move them apart where they overlap, then write.
+            const boxes: PinBox[] = [];
             for (const [id, s] of screens) {
               const el = pinRefs.current.get(id);
-              if (!el) continue;
-              el.style.transform = `translate(${Math.round(s.x)}px, ${Math.round(s.y)}px) translate(-50%, -100%)`;
-              el.style.visibility = s.visible ? 'visible' : 'hidden';
-              el.style.zIndex = String(10 + Math.round((1 - s.depth) * 50));
+              if (el) boxes.push({ id, x: s.x, y: s.y, w: el.offsetWidth, h: el.offsetHeight, depth: s.depth, visible: s.visible });
+            }
+            const canvas = canvasRef.current;
+            const placed = separatePins(boxes, { width: canvas?.clientWidth ?? 0, height: canvas?.clientHeight ?? 0, top: latest.current.safeTop });
+            for (const box of boxes) {
+              const el = pinRefs.current.get(box.id)!;
+              const p = placed.get(box.id)!;
+              el.style.transform = `translate(${Math.round(p.x)}px, ${Math.round(p.y)}px) translate(-50%, -100%)`;
+              el.style.visibility = box.visible ? 'visible' : 'hidden';
+              el.style.zIndex = String(10 + Math.round((1 - box.depth) * 50));
             }
           },
         });
@@ -110,6 +125,10 @@ export function IslandCanvas({
   useEffect(() => {
     scene?.setReducedMotion(reducedMotion);
   }, [scene, reducedMotion]);
+
+  useEffect(() => {
+    scene?.setLiftEnabled(lift);
+  }, [scene, lift]);
 
   const pinKey = pins.map((p) => p.id).join('|');
   useEffect(() => {

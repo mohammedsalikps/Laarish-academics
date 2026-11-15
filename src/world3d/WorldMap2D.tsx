@@ -11,7 +11,11 @@ import { WORLDS } from './worlds';
 export function WorldMap2D({ worlds, onOpen }: { worlds: ClassWorld[]; onOpen: (subjectId: string) => void }) {
   const byId = new Map(worlds.map((w) => [w.subject.id, w]));
   const ordered = WORLDS.map((t) => byId.get(t.subjectId)).filter((w): w is ClassWorld => !!w);
-  const trail = ordered.map((w) => `${w.theme.map.x},${w.theme.map.y}`).join(' ');
+  // The trail goes round the map as a ring (sorted by angle around the centre), so it never crosses itself.
+  const trail = [...ordered]
+    .sort((a, b) => Math.atan2(a.theme.map.y - 50, a.theme.map.x - 50) - Math.atan2(b.theme.map.y - 50, b.theme.map.x - 50))
+    .map((w) => `${w.theme.map.x},${w.theme.map.y}`)
+    .join(' ');
   return (
     <div className="relative h-full min-h-[230px] w-full overflow-hidden rounded-3xl bg-[#EAF4F1]" role="group" aria-label="Your worlds, 2D map">
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">

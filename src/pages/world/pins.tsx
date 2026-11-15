@@ -63,7 +63,7 @@ export function ChapterPin({ chapter, onOpen }: { chapter: ChapterInfo; onOpen: 
       )}
       <span
         className={cn(
-          'max-w-[150px] truncate rounded-full px-2.5 py-1 text-[13px] font-extrabold shadow-soft',
+          'max-w-[118px] truncate sm:max-w-[150px] rounded-full px-2.5 py-1 text-[13px] font-extrabold shadow-soft',
           chapter.thisWeek || chapter.state === 'in-progress' ? 'bg-ink text-white' : soon ? 'bg-canvas-sunken text-ink-muted' : 'bg-white text-ink',
         )}
       >
@@ -148,7 +148,7 @@ export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; on
           ))}
         </span>
       )}
-      <span className={cn('truncate rounded-full px-2.5 py-1 font-extrabold shadow-soft', compact ? 'max-w-none flex-1 bg-transparent px-0 text-base shadow-none' : 'max-w-[170px] text-[13px]', !compact && pillClass)}>
+      <span className={cn('truncate rounded-full px-2.5 py-1 font-extrabold shadow-soft', compact ? 'max-w-none flex-1 bg-transparent px-0 text-base shadow-none' : 'max-w-[130px] text-[13px] sm:max-w-[170px]', !compact && pillClass)}>
         {pill}
       </span>
     </button>

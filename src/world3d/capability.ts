@@ -10,6 +10,8 @@ let webgl: boolean | null = null;
 export function webglAvailable(): boolean {
   if (webgl !== null) return webgl;
   if (typeof window === 'undefined' || typeof document === 'undefined' || /jsdom/i.test(navigator.userAgent)) return (webgl = false);
+  // QA switch: `?nowebgl` behaves like a device without WebGL (Lite mode must still offer everything).
+  if (new URLSearchParams(window.location.search).has('nowebgl')) return (webgl = false);
   try {
     const canvas = document.createElement('canvas');
     const ctx = (canvas.getContext('webgl2') ?? canvas.getContext('webgl')) as WebGLRenderingContext | null;

@@ -1,5 +1,5 @@
 import { ArrowLeft, Check, Flame, Star, Trophy } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { Vector3 } from 'three';
 import { MentorAvatar } from '../../components/mentor/MentorAvatar';
@@ -16,6 +16,7 @@ import { currentStreak } from '../../state/selectors';
 import { IslandCanvas, type OverlayPin } from '../../world3d/IslandCanvas';
 import type { IslandScene } from '../../world3d/IslandScene';
 import { chapterPathUrl, rememberChapter, topicSheetUrl, worldPath } from '../../world3d/paths';
+import { useHeaderBottom } from '../../world3d/useHeaderBottom';
 import { useLiteMode } from '../../world3d/useLiteMode';
 import { dayKey } from '../home/schoolWeek';
 import { PathNode, type NodeKind } from './pins';
@@ -39,6 +40,8 @@ export default function ChapterPage() {
   const { lite } = useLiteMode();
   const [failed, setFailed] = useState(false);
   const [makeOpen, setMakeOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const headerBottom = useHeaderBottom(headerRef, 180);
   const lesson = getLesson(lessonId);
   const path = lesson && lesson.subjectId === subjectId ? chapterPath(state, lesson, prefs) : undefined;
   useDocumentTitle(lesson ? lesson.title : 'Chapter');
@@ -141,9 +144,11 @@ export default function ChapterPage() {
           onFail={() => setFailed(true)}
           label={`${lesson.title} chapter path in ${world.theme.name}. Topics are listed as buttons in order.`}
           className="absolute inset-0"
+          safeTop={headerBottom}
+          lift={false}
         />
       ) : (
-        <main id="main" className="absolute inset-0 overflow-y-auto px-4 pb-44 pt-[188px]">
+        <main id="main" className="absolute inset-0 overflow-y-auto px-4 pb-44" style={{ paddingTop: headerBottom + 12 }}>
           <h2 className="sr-only">Topics in order</h2>
           <ol className="mx-auto max-w-xl space-y-2">
             {nodes.map((n) => (
@@ -156,7 +161,7 @@ export default function ChapterPage() {
       )}
 
       {/* Sticky top panel: back, chapter, streak, chapter progress */}
-      <header className="absolute inset-x-3 top-3 z-30 mx-auto max-w-xl space-y-2">
+      <header ref={headerRef} className="absolute inset-x-3 top-3 z-30 mx-auto max-w-xl space-y-2">
         <div className="flex items-center gap-2 rounded-full bg-white/95 p-1.5 pr-2 shadow-lift backdrop-blur">
           <Link
             to={worldPath(world.subject.id)}

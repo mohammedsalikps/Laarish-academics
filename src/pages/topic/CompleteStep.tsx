@@ -13,6 +13,7 @@ import { useReducedMotion } from '../../hooks/usePreferences';
 import { lessonParentName, lessonPath, topicPath } from '../../lib/paths';
 import { useProgress } from '../../state/ProgressProvider';
 import { LessonRecap, TopicMetaLine, TopicRecap, UpNextCard } from './CompleteRecap';
+import { chapterReturnUrl } from '../../world3d/paths';
 
 export interface TopicSession {
   ledgerIndex: number;
@@ -198,7 +199,7 @@ export function CompleteStep({
       {passed && !nextTopic && lessonNow.state === 'completed' && <LessonRecap lesson={lesson} view={lessonNow} />}
 
       <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row sm:justify-center">
-        <Link to={lessonPath(subject.id, lesson.id)} className={primary ? 'btn btn-secondary btn-lg' : 'btn btn-primary btn-lg'}>
+        <Link to={chapterReturnUrl(lesson.id) ?? lessonPath(subject.id, lesson.id)} className={primary ? 'btn btn-secondary btn-lg' : 'btn btn-primary btn-lg'}>
           <ArrowLeft className="h-5 w-5" aria-hidden="true" /> Back to Lesson Roadmap
         </Link>
         <button type="button" className="btn btn-ghost btn-lg" onClick={onReplay}>

@@ -126,8 +126,10 @@ export function TopicSheet({
                 >
                   {isDone ? <Check className="h-5 w-5" aria-hidden="true" /> : <Icon className="h-5 w-5" aria-hidden="true" />}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-[1.05rem] font-extrabold text-ink">{describe[step]}</span>
-                {right && <span className="shrink-0 text-sm font-bold text-ink-muted">{right}</span>}
+                <span className="min-w-0 flex-1 py-1">
+                  <span className="line-clamp-2 text-[1.05rem] font-extrabold leading-snug text-ink">{describe[step]}</span>
+                  {right && <span className="block text-sm font-bold text-ink-muted">{right}</span>}
+                </span>
               </>
             );
             return (

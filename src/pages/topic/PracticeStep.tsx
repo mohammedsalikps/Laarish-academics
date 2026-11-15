@@ -21,6 +21,7 @@ import { canAnswerByVoice } from '../../voice/matchAnswer';
 import { questionSpeech } from '../../voice/speech';
 import { isRecognitionSupported } from '../../voice/useSpeechRecognition';
 import { StepFooter, StepHeading, type StepViewProps } from './shared';
+import { chapterReturnUrl } from '../../world3d/paths';
 
 /** The answer as curriculum ids, for the mentor (the server checks it against the answer key). */
 function answerId(answer: QuizAnswer | undefined): string | undefined {
@@ -152,7 +153,7 @@ export function PracticeStep({ subject, lesson, topic, completed, practice, onNe
             <button type="button" className="btn btn-secondary" onClick={restart}>
               <RotateCcw className="h-4 w-4" aria-hidden="true" /> Try again
             </button>
-            <Link to={lessonPath(subject.id, lesson.id)} className="btn btn-ghost">
+            <Link to={chapterReturnUrl(lesson.id) ?? lessonPath(subject.id, lesson.id)} className="btn btn-ghost">
               Back to the lesson
             </Link>
           </div>

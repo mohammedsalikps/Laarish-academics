@@ -46,6 +46,9 @@ export interface SceneStats {
   fps: number | null;
   drawCalls: number;
   triangles: number;
+  /** GPU resources held (renderer.info.memory). */
+  geometries?: number;
+  textures?: number;
 }
 
 export interface IslandSceneOptions {
@@ -115,6 +118,9 @@ export class IslandScene {
   private bounds = 2.6;
   /** Extra camera distance so the whole ring fits narrow (phone) panels. */
   private fit = 1;
+  /** Raise the look-at point on tall screens so the island sits below the header. */
+  private lift = 0;
+  private liftEnabled = true;
   private visible = true;
   private observer: IntersectionObserver | null = null;
 
@@ -335,6 +341,12 @@ export class IslandScene {
     this.wake();
   }
 
+  /** The chapter path frames its own camera; the world overview lifts the island clear of the header. */
+  setLiftEnabled(value: boolean) {
+    this.liftEnabled = value;
+    this.resize();
+  }
+
   setReducedMotion(value: boolean) {
     this.reducedMotion = value;
     this.wake();
@@ -379,7 +391,8 @@ export class IslandScene {
 
   stats(): SceneStats {
     const fps = this.frameTimes.length >= 20 ? Math.round(1000 / (this.frameTimes.reduce((s, t) => s + t, 0) / this.frameTimes.length)) : null;
-    return { firstFrameMs: this.firstFrameMs, fps, drawCalls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles };
+    const info = this.renderer.info;
+    return { firstFrameMs: this.firstFrameMs, fps, drawCalls: info.render.calls, triangles: info.render.triangles, geometries: info.memory.geometries, textures: info.memory.textures };
   }
 
   resize() {
@@ -392,6 +405,7 @@ export class IslandScene {
     this.camera.fov = this.mode === 'hub' ? (w / h < 1 ? 52 : 36) : w / h < 0.8 ? 50 : 38;
     // Narrow screens: pull back so the ring (hub) or the island (world) fits.
     this.fit = this.mode === 'hub' ? (w < 440 ? 1.14 : 1) : w / h < 0.7 ? 1.3 : 1;
+    this.lift = this.liftEnabled && this.mode === 'world' && w / h < 0.7 ? 1.5 : 0;
     this.camera.updateProjectionMatrix();
     this.dirty = true;
     this.wake();
@@ -572,11 +586,15 @@ export class IslandScene {
     const { target, pitch, yaw } = this.pose;
     const distance = this.pose.distance * this.fit;
     const p = THREE.MathUtils.degToRad(pitch);
-    this.camera.position.set(target.x + Math.sin(yaw) * Math.cos(p) * distance, target.y + Math.sin(p) * distance, target.z + Math.cos(yaw) * Math.cos(p) * distance);
-    this.camera.lookAt(target);
+    const look = target.clone().setY(target.y + this.lift);
+    this.camera.position.set(look.x + Math.sin(yaw) * Math.cos(p) * distance, look.y + Math.sin(p) * distance, look.z + Math.cos(yaw) * Math.cos(p) * distance);
+    this.camera.lookAt(look);
     this.renderer.render(this.scene, this.camera);
     if (this.firstFrameMs === null) {
       this.firstFrameMs = Math.round(performance.now() - this.createdAt);
+      // Engine-test measurements (wireframe Z: "set after the engine test").
+      performance.mark(`laarish:${this.mode}-first-frame`);
+      registerForPerf(this);
       this.opts.onReady?.(this.stats());
     }
     this.projectPins();
@@ -597,6 +615,13 @@ export class IslandScene {
     });
     this.opts.onPins(out);
   }
+}
+
+/** With `?perf` in the URL, scenes are listed on window.__laarishScenes so their stats can be read. */
+export function registerForPerf(scene: { stats(): unknown }) {
+  if (typeof window === 'undefined' || !new URLSearchParams(window.location.search).has('perf')) return;
+  const w = window as unknown as { __laarishScenes?: { stats(): unknown }[] };
+  (w.__laarishScenes ??= []).push(scene);
 }
 
 function clonePose(p: CameraPose): CameraPose {

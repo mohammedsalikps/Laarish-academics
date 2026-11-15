@@ -1,5 +1,5 @@
 import { ArrowLeft, ChevronRight, List, Map as MapIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { MentorPose } from '../../components/mentor/MentorPose';
 import { ProgressBar } from '../../components/ui/primitives';
@@ -12,6 +12,7 @@ import { useProgress } from '../../state/ProgressProvider';
 import { IslandCanvas, type OverlayPin } from '../../world3d/IslandCanvas';
 import { chapterPathUrl } from '../../world3d/paths';
 import { useLiteMode } from '../../world3d/useLiteMode';
+import { useHeaderBottom } from '../../world3d/useHeaderBottom';
 import { WorldIcon } from '../../world3d/WorldChip';
 import { isWorldId } from '../../world3d/worlds';
 import { ChapterBadge, ChapterPin } from './pins';
@@ -64,16 +65,19 @@ export default function WorldPage() {
   const reduced = useReducedMotion();
   const { lite } = useLiteMode();
   const [failed, setFailed] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const [view, setView] = useState<'world' | 'list'>(rememberedView);
   const [grade, setGrade] = useState<Grade>(state.learner?.grade ?? 6);
   const [arrival, setArrival] = useState(true);
+  const headerBottom = useHeaderBottom(headerRef);
   const world = isWorldId(subjectId) ? classWorld(state, subjectId, prefs, grade) : undefined;
   useDocumentTitle(world ? world.theme.name : 'World');
 
   useEffect(() => {
-    const t = window.setTimeout(() => setArrival(false), reduced ? 200 : 1600);
+    // S1: the name card stays 1.6 s with the 3D fly-in; reduced motion and Lite mode get a 200 ms cross-fade.
+    const t = window.setTimeout(() => setArrival(false), reduced || lite ? 200 : 1600);
     return () => window.clearTimeout(t);
-  }, [reduced]);
+  }, [reduced, lite]);
 
   if (!world) return <Navigate to="/home" replace />;
 
@@ -107,9 +111,10 @@ export default function WorldPage() {
           onFail={() => setFailed(true)}
           label={`${world.theme.name}, the ${world.subject.name} world for Class ${world.grade}. Chapter landmarks are listed as buttons.`}
           className="absolute inset-0"
+          safeTop={headerBottom}
         />
       ) : (
-        <main id="main" className="absolute inset-0 overflow-y-auto px-4 pb-40 pt-[156px]">
+        <main id="main" className="absolute inset-0 overflow-y-auto px-4 pb-40" style={{ paddingTop: headerBottom + 12 }}>
           <h2 className="sr-only">Chapters</h2>
           <ul className="mx-auto max-w-xl space-y-2" aria-label={`${world.subject.name} Class ${world.grade} chapters`}>
             {world.chapters.map((c) => {
@@ -154,7 +159,7 @@ export default function WorldPage() {
       )}
 
       {/* Header card (fixed while the world pans) */}
-      <header className="absolute inset-x-3 top-3 z-30 mx-auto max-w-xl rounded-3xl bg-white/95 p-3 shadow-lift backdrop-blur">
+      <header ref={headerRef} className="absolute inset-x-3 top-3 z-30 mx-auto max-w-xl rounded-3xl bg-white/95 p-3 shadow-lift backdrop-blur">
         <div className="flex items-center gap-2">
           <Link to="/home" aria-label="Back to Home" className="grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-line text-ink hover:bg-canvas">
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
@@ -185,22 +190,15 @@ export default function WorldPage() {
           <span className="shrink-0 text-sm font-extrabold text-ink-soft">Mastery {percent(world.mastery)}%</span>
           <ProgressBar value={world.mastery} size="sm" label={`${world.subject.name} Class ${world.grade} mastery`} className="flex-1" />
         </div>
+        {!lite && !failed && view === 'world' && (
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <p className="min-w-0 text-xs font-bold text-ink-muted">{hiddenSoon > 0 ? `+${hiddenSoon} more coming soon in List view` : 'Tap a landmark to open its chapter'}</p>
+            <button type="button" onClick={() => chooseView('list')} className="flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border-2 border-line bg-white px-3.5 text-sm font-extrabold text-ink">
+              <List className="h-4 w-4" aria-hidden="true" /> List view
+            </button>
+          </div>
+        )}
       </header>
-
-      {!lite && !failed && view === 'world' && (
-        <button
-          type="button"
-          onClick={() => chooseView('list')}
-          className="absolute right-3 top-[148px] z-30 flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/95 px-3.5 text-sm font-extrabold text-ink shadow-soft"
-        >
-          <List className="h-4 w-4" aria-hidden="true" /> List view
-        </button>
-      )}
-      {!lite && !failed && view === 'world' && hiddenSoon > 0 && (
-        <p className="absolute right-3 top-[198px] z-30 rounded-full bg-white/85 px-3 py-1 text-xs font-bold text-ink-soft shadow-soft">
-          +{hiddenSoon} more coming soon in List view
-        </p>
-      )}
 
       {/* Rishi's line */}
       <div className="pointer-events-none absolute bottom-3 left-2 z-20 flex items-end gap-1">
