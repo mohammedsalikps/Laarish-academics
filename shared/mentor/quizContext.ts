@@ -33,13 +33,19 @@ function correctText(q: QuizQuestion): string {
       return q.correct ? 'True' : 'False';
     case 'match-pairs':
       return q.pairs.map((p) => `${p.left} → ${p.right}`).join('; ');
+    case 'picture-choice':
+      return q.options.find((o) => o.id === q.correctOptionId)?.text ?? '';
+    case 'sort':
+      return q.bins.map((b) => `${b.text}: ${q.items.filter((i) => i.binId === b.id).map((i) => i.text).join(', ')}`).join('; ');
+    case 'true-false-reason':
+      return `${q.correct ? 'True' : 'False'}, because ${q.reasons.find((r) => r.id === q.correctReasonId)?.text ?? ''}`;
   }
 }
 
 /** The answer text and whether it is right, for an option id or "true"/"false". */
 function checkAnswer(q: QuizQuestion, answer: string | undefined): { text?: string; correct?: boolean } {
   if (!answer) return {};
-  if (q.type === 'single-choice') {
+  if (q.type === 'single-choice' || q.type === 'picture-choice') {
     const option = q.options.find((o) => o.id === answer);
     return option ? { text: option.text, correct: option.id === q.correctOptionId } : {};
   }
@@ -57,7 +63,15 @@ export function quizFacts(topic: Topic | undefined, quiz: MentorQuizContext | un
   return {
     prompt: q.prompt,
     choices:
-      q.type === 'single-choice' ? q.options.map((o, i) => `${LETTERS[i]}) ${o.text}`) : q.type === 'true-false' ? ['True or false'] : q.pairs.map((p) => `Match: ${p.left}`),
+      q.type === 'single-choice' || q.type === 'picture-choice'
+        ? q.options.map((o, i) => `${LETTERS[i]}) ${o.text}`)
+        : q.type === 'true-false'
+          ? ['True or false']
+          : q.type === 'true-false-reason'
+            ? ['True or false', ...q.reasons.map((r) => `Reason: ${r.text}`)]
+            : q.type === 'sort'
+              ? [`Sort into ${q.bins.map((b) => b.text).join(' or ')}: ${q.items.map((i) => i.text).join(', ')}`]
+              : q.pairs.map((p) => `Match: ${p.left}`),
     answerText: checked.text,
     correct: checked.correct,
     answerShown: checked.correct === true || quiz.answerShown === true,

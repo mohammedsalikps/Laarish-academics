@@ -2,6 +2,7 @@ import { Check, X } from 'lucide-react';
 import type { QuizAnswer, QuizQuestion } from '../../domain/types';
 import { cn } from '../../lib/cn';
 import { LETTERS } from '../../quiz/answerText';
+import { PictureChoice, SortTrays, TrueFalseReason } from './ExtraAnswers';
 
 /**
  * The answer choices of one question: big tappable cards (single choice), True
@@ -87,6 +88,10 @@ export function AnswerChoices({
       </div>
     );
   }
+
+  if (question.type === 'picture-choice') return <PictureChoice question={question} draft={draft} last={last} resolved={resolved} onChange={onChange} />;
+  if (question.type === 'sort') return <SortTrays question={question} draft={draft} resolved={resolved} onChange={onChange} />;
+  if (question.type === 'true-false-reason') return <TrueFalseReason question={question} draft={draft} last={last} resolved={resolved} onChange={onChange} />;
 
   const mapping = draft?.type === 'match-pairs' ? draft.mapping : {};
   // Right-hand options in a stable but mixed order.

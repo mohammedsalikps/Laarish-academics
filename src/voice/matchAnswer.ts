@@ -82,14 +82,14 @@ export function matchSpokenAnswer(question: QuizQuestion, heard: readonly string
       if (hasPhrase(said, TRUE_WORDS)) return { type: 'true-false', value: true };
       continue;
     }
-    if (question.type === 'single-choice') {
+    if (question.type === 'single-choice' || question.type === 'picture-choice') {
       const n = question.options.length;
       const i = letterIndex(said, n) ?? ordinalIndex(said, n) ?? optionByWords(said, question.options);
-      if (i !== null) return { type: 'single-choice', optionId: question.options[i].id };
+      if (i !== null) return { type: question.type, optionId: question.options[i].id };
     }
   }
   return null;
 }
 
-/** Matching questions are answered by tapping only. */
-export const canAnswerByVoice = (question: QuizQuestion): boolean => question.type !== 'match-pairs';
+/** Matching, sorting and "true/false with a reason" questions are answered by tapping only. */
+export const canAnswerByVoice = (question: QuizQuestion): boolean => question.type === 'single-choice' || question.type === 'true-false' || question.type === 'picture-choice';

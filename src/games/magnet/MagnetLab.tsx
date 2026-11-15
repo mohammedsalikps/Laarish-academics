@@ -17,6 +17,9 @@ import { ObjectPicture } from '../../components/art/ObjectArt';
 import type { MagnetLabConfig, MagnetPole } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { useAcademicsPrefs } from '../../state/academicsPrefs';
+import { lowEndDevice, webglAvailable } from '../../world3d/capability';
+import { MagnetBench3D } from '../../world3d/MagnetBench3D';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 // Pointer geometry shared with the other drag games (pure helpers, unit tested in match/dragMath.test.ts).
 import { dropTargetAt, ghostTransform, grabOffset, passedDragThreshold, toBox, type Point } from '../match/dragMath';
@@ -111,6 +114,10 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
   const uid = useId().replace(/:/g, '');
   const animate = !reducedMotion;
   const round = currentRound(config, state);
+  // The 3D bench (wireframe L2), unless Lite mode is on, motion is reduced or WebGL is missing.
+  const prefs = useAcademicsPrefs();
+  const [bench2d, setBench2d] = useState(false);
+  const use3d = !bench2d && animate && prefs.liteMode !== 'on' && (prefs.liteMode === 'off' ? webglAvailable() : !lowEndDevice());
 
   const callbacks = useRef({ onEvent, onRecord, onComplete });
   useEffect(() => {
@@ -465,7 +472,26 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
       </div>
 
       <div onKeyDown={onPlayKeyDown} className={cn('card space-y-4 p-3 sm:p-6', correct && 'ring-4 ring-success/30')}>
-        {round.kind === 'test' && (
+        {round.kind === 'test' && use3d && (
+          <MagnetBench3D
+            row={round.objectIds
+              .filter((id) => !state.tested.includes(id) && id !== state.atMagnet)
+              .map((id) => findObject(config, id))
+              .filter((o): o is MagnetObject => Boolean(o))
+              .map((o) => ({ id: o.id, art: o.art, label: o.label }))}
+            atMagnet={(() => {
+              const o = findObject(config, state.atMagnet);
+              return o ? { object: { id: o.id, art: o.art, label: o.label }, pulled: o.magnetic, testKey: String(state.tested.length) } : null;
+            })()}
+            reducedMotion={!animate}
+            label={benchLabel(findObject(config, state.atMagnet), state.tested.length)}
+            onTest={testObject}
+            onFail={() => setBench2d(true)}
+            zoneRef={magnetZone}
+            over={over === 'magnet'}
+          />
+        )}
+        {round.kind === 'test' && !use3d && (
           <Workbench
             object={findObject(config, state.atMagnet)}
             testCount={state.tested.length}
@@ -729,9 +755,7 @@ function Workbench({
   }, [last, animate]);
 
   const spot = pulled ? TOUCHING : TEST_SPOT;
-  const label = object
-    ? `Workbench with a horseshoe magnet. ${object.label} is next to the magnet. ${pulled ? 'The magnet pulled it and it is stuck to the magnet.' : 'The magnet does not pull it.'}`
-    : `Workbench with a horseshoe magnet. Bring an object close to the magnet to test it. ${testCount} tested so far.`;
+  const label = benchLabel(object, testCount);
   return (
     <svg viewBox="0 0 320 180" className="mx-auto h-auto w-full max-w-xl touch-none select-none" role="img" aria-label={label}>
       <defs>
@@ -770,6 +794,12 @@ function Workbench({
       <rect ref={zoneRef} data-drop-zone="magnet" x="20" y="10" width="300" height="160" fill="transparent" pointerEvents="none" />
     </svg>
   );
+}
+
+function benchLabel(object: MagnetObject | undefined, testCount: number): string {
+  return object
+    ? `Workbench with a horseshoe magnet. ${object.label} is next to the magnet. ${object.magnetic ? 'The magnet pulled it and it is stuck to the magnet.' : 'The magnet does not pull it.'}`
+    : `Workbench with a horseshoe magnet. Bring an object close to the magnet to test it. ${testCount} tested so far.`;
 }
 
 /** Test rounds: what each tested object did. */

@@ -29,6 +29,15 @@ function answerIsValid(q: QuizQuestion): boolean {
       return typeof q.correct === 'boolean';
     case 'match-pairs':
       return q.pairs.length >= 2 && new Set(q.pairs.map((p) => p.id)).size === q.pairs.length;
+    case 'picture-choice':
+      return q.options.length >= 2 && q.options.some((o) => o.id === q.correctOptionId) && new Set(q.options.map((o) => o.id)).size === q.options.length;
+    case 'sort': {
+      const bins = new Set(q.bins.map((b) => b.id));
+      // Two different trays, every item in one of them, and something to put in each.
+      return bins.size === 2 && q.items.length >= 3 && q.items.every((i) => bins.has(i.binId)) && q.bins.every((b) => q.items.some((i) => i.binId === b.id)) && new Set(q.items.map((i) => i.id)).size === q.items.length;
+    }
+    case 'true-false-reason':
+      return typeof q.correct === 'boolean' && q.reasons.length >= 2 && q.reasons.some((r) => r.id === q.correctReasonId) && new Set(q.reasons.map((r) => r.id)).size === q.reasons.length;
     default:
       return false;
   }

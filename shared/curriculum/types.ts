@@ -224,13 +224,42 @@ export interface MatchPairsQuestion extends QuestionBase {
   pairs: { id: string; left: string; right: string }[];
 }
 
-export type QuizQuestion = SingleChoiceQuestion | TrueFalseQuestion | MatchPairsQuestion;
+/** A choice shown as a picture card (wireframe L3a). Give `art` only when the drawing matches the material. */
+export interface PictureOption extends ChoiceOption {
+  art?: ObjectArt;
+}
+
+export interface PictureChoiceQuestion extends QuestionBase {
+  type: 'picture-choice';
+  options: PictureOption[];
+  correctOptionId: string;
+}
+
+/** Sort every item into one of two trays (wireframe L3b): drag, or tap an item then a tray. */
+export interface SortQuestion extends QuestionBase {
+  type: 'sort';
+  bins: [ChoiceOption, ChoiceOption];
+  items: { id: string; text: string; art?: ObjectArt; binId: string }[];
+}
+
+/** True or false, then pick the reason (wireframe L3c). Both must be right. */
+export interface TrueFalseReasonQuestion extends QuestionBase {
+  type: 'true-false-reason';
+  correct: boolean;
+  reasons: ChoiceOption[];
+  correctReasonId: string;
+}
+
+export type QuizQuestion = SingleChoiceQuestion | TrueFalseQuestion | MatchPairsQuestion | PictureChoiceQuestion | SortQuestion | TrueFalseReasonQuestion;
 
 /** Learner answer shapes, one per question type. */
 export type QuizAnswer =
   | { type: 'single-choice'; optionId: string }
   | { type: 'true-false'; value: boolean }
-  | { type: 'match-pairs'; mapping: Record<string, string> };
+  | { type: 'match-pairs'; mapping: Record<string, string> }
+  | { type: 'picture-choice'; optionId: string }
+  | { type: 'sort'; placement: Record<string, string> }
+  | { type: 'true-false-reason'; value?: boolean; reasonId?: string };
 
 /* ------------------------------------------------------------- Illustrations */
 

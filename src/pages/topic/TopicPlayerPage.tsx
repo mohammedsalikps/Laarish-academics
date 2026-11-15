@@ -19,6 +19,7 @@ import { PracticeStep } from './PracticeStep';
 import type { MentorExtras } from './shared';
 import { TopicContentError, TopicContentLoading } from './TopicContentStatus';
 import { WatchStep } from './WatchStep';
+import { chapterReturnUrl } from '../../world3d/paths';
 
 const STEP_LABELS: Record<StepId, string> = { watch: 'Learn', play: 'Play', practice: 'Practice', complete: 'Complete' };
 
@@ -143,7 +144,8 @@ function TopicPlayer() {
   }
 
   const index = TOPIC_STEPS.indexOf(step);
-  const roadmapTo = lessonPath(subject.id, lesson.id);
+  // Back to the 3D chapter path when the topic was opened from it, else the lesson roadmap.
+  const roadmapTo = chapterReturnUrl(lesson.id) ?? lessonPath(subject.id, lesson.id);
   const topicCount = getTopicsForLesson(lesson.id).length;
   const stepName = showComplete ? STEP_LABELS.complete : STEP_LABELS[step];
   const onNext = () => goTo(TOPIC_STEPS[index + 1] ?? 'complete');

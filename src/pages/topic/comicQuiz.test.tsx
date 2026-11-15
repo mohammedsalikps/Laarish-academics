@@ -41,7 +41,14 @@ function renderPractice(topicId: string, state: ProgressState) {
   return repository;
 }
 
-const choice = (name: RegExp | string) => within(screen.getByRole('radiogroup', { name: /answer choices|true or false/i })).getByRole('radio', { name });
+const choice = (name: RegExp | string) => {
+  // Every answer group on screen (true/false with a reason has two), but exactly one matching choice.
+  const radios = screen
+    .getAllByRole('radiogroup', { name: /answer choices|true or false|picture choices|pick a reason/i })
+    .flatMap((group) => within(group).queryAllByRole('radio', { name }));
+  expect(radios).toHaveLength(1);
+  return radios[0];
+};
 const check = () => screen.getByRole('button', { name: /^check answer$/i });
 const start = async (user: ReturnType<typeof userEvent.setup>) => user.click(await screen.findByRole('button', { name: /let's start/i }));
 
@@ -113,13 +120,13 @@ describe('Practice as a comic conversation', () => {
     const repository = renderPractice(MAGNETS, readyForPractice(MAGNETS));
 
     // Step 1: Ayra (the chosen mentor) welcomes the learner with the topic's own opening.
-    expect(await screen.findByText(/^Ready for a magnet challenge\? .* I'll ask you 3 questions, one at a time\. Let's look closely!$/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Ready for a magnet challenge\? .* I'll ask you 6 questions, one at a time\. Let's look closely!$/)).toBeInTheDocument();
     expect(screen.getAllByRole('img', { name: 'Ayra' }).length).toBeGreaterThan(0);
     expect(screen.queryByRole('img', { name: 'Rishi' })).toBeNull();
     await start(user);
 
     // Step 2: one question in a speech bubble, with four clear choices.
-    expect(screen.getByRole('region', { name: 'Question 1 of 3' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Question 1 of 6' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Which of these will a magnet attract?' })).toBeInTheDocument();
     expect(within(screen.getByRole('radiogroup', { name: 'Answer choices' })).getAllByRole('radio')).toHaveLength(4);
     expect(check()).toBeDisabled();
@@ -136,7 +143,7 @@ describe('Practice as a comic conversation', () => {
     expect(screen.getByText('The iron nail is made of iron, so the magnet attracts it.')).toBeInTheDocument();
 
     // Step 6: the next question comes only when the learner continues.
-    expect(screen.getByRole('region', { name: 'Question 1 of 3' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Question 1 of 6' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /next question/i }));
     expect(screen.getByRole('heading', { name: 'All metals stick to magnets.' })).toHaveFocus();
 
@@ -154,24 +161,61 @@ describe('Practice as a comic conversation', () => {
     await user.click(check());
     expect(screen.getByText("That's okay, this one was tricky. The answer is: The door has steel in it.")).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ask Ayra to explain more' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /next question/i }));
+
+    // Picture choice (wireframe L3a): picture cards, one is right.
+    expect(screen.getByRole('heading', { name: 'Which of these will a magnet pull?' })).toBeInTheDocument();
+    expect(within(screen.getByRole('radiogroup', { name: 'Picture choices' })).getAllByRole('radio')).toHaveLength(4);
+    await user.click(choice(/steel spoon/i));
+    await user.click(check());
+    expect(screen.getByText(/Steel is mostly iron/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /next question/i }));
+
+    // Sort into two trays (L3b): tap an object, then tap a tray. Check waits until everything is sorted.
+    expect(screen.getByRole('heading', { name: 'Sort them: magnetic or not?' })).toBeInTheDocument();
+    const trays: [string, string][] = [
+      ['Iron nail', 'Magnetic'],
+      ['Steel paper clip', 'Magnetic'],
+      ['Plastic ruler', 'Not magnetic'],
+      ['Wooden block', 'Not magnetic'],
+      ['Rubber eraser', 'Not magnetic'],
+      ['Safety pin', 'Magnetic'],
+    ];
+    for (const [item, tray] of trays) {
+      expect(check()).toBeDisabled();
+      await user.click(screen.getByRole('button', { name: new RegExp(`^${item}, not sorted yet`) }));
+      await user.click(screen.getByRole('button', { name: `Put ${item} in ${tray}` }));
+    }
+    await user.click(check());
+    expect(screen.getByText(/the safety pin have iron in them/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /next question/i }));
+
+    // True or false with a reason (L3c): both parts must be chosen, and both must be right.
+    expect(screen.getByRole('heading', { name: 'A magnet pulls a wooden block.' })).toBeInTheDocument();
+    await user.click(choice('False'));
+    expect(check()).toBeDisabled();
+    await user.click(choice('Wood is not made of iron'));
+    await user.click(check());
+    expect(screen.getByText(/wood has no iron in it/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /^finish/i }));
 
     // Step 7: the celebration, the score, the key idea, and retry or back to the lesson.
     expect(screen.getByText('Practice complete!')).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Practice results' })).toHaveTextContent('You scored 50%, with 1 of 3 right on the first try.');
+    // 0.5 + 1 + 0 (shown) + 1 + 1 + 1 = 4.5 of 6.
+    expect(screen.getByRole('region', { name: 'Practice results' })).toHaveTextContent('You scored 75%, with 4 of 6 right on the first try.');
     expect(screen.getByText('Remember')).toBeInTheDocument();
     expect(screen.getByText('Magnets attract things made of iron and steel.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to the lesson' })).toHaveAttribute('href', '/subjects/science/magnets');
     await waitFor(async () => {
       const saved = (await repository.load()) as { status: string; state?: ProgressState };
       expect(saved.state?.quizAttempts).toHaveLength(1);
-      expect(saved.state?.quizAttempts[0]).toMatchObject({ topicId: MAGNETS, score: 0.5, correctFirstTry: 1, total: 3 });
+      expect(saved.state?.quizAttempts[0]).toMatchObject({ topicId: MAGNETS, score: 0.75, correctFirstTry: 4, total: 6 });
       expect(saved.state?.topics[MAGNETS].completedSteps).toContain('practice');
     });
 
     // Try again starts at question 1 straight away.
     await user.click(screen.getByRole('button', { name: /try again/i }));
-    expect(screen.getByRole('region', { name: 'Question 1 of 3' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Question 1 of 6' })).toBeInTheDocument();
   });
 
   it('speaks with Rishi for a learner who chose Rishi', async () => {
@@ -204,12 +248,12 @@ describe('read aloud', () => {
     expect((synth.speak.mock.calls.at(-1)?.[0] as FakeUtterance).lang).toBe('en-IN');
     const count = synth.speak.mock.calls.length;
     // While a line is being read its button stops it; when it ends, the button replays it.
-    const question = () => screen.getByRole('region', { name: 'Question 1 of 3' });
+    const question = () => screen.getByRole('region', { name: 'Question 1 of 6' });
     expect(within(question()).getAllByRole('button', { name: 'Stop reading aloud' }).length).toBeGreaterThan(0);
     act(() => (synth.speak.mock.calls.at(-1)?.[0] as FakeUtterance).onend?.());
 
     // Replay on request.
-    await user.click(within(screen.getByRole('region', { name: 'Question 1 of 3' })).getAllByRole('button', { name: 'Hear Ayra say this' })[0]);
+    await user.click(within(screen.getByRole('region', { name: 'Question 1 of 6' })).getAllByRole('button', { name: 'Hear Ayra say this' })[0]);
     expect(synth.speak.mock.calls.length).toBe(count + 1);
 
     // Off: speech stops and new lines are not spoken by themselves.

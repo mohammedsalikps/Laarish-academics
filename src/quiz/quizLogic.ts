@@ -32,6 +32,9 @@ export function isAnswerComplete(question: QuizQuestion, answer: QuizAnswer | nu
   if (answer.type === 'match-pairs' && question.type === 'match-pairs') {
     return question.pairs.every((p) => Boolean(answer.mapping[p.id]));
   }
+  // "Check turns gold when every object is in a tray" (L3b), and when both parts are chosen (L3c).
+  if (answer.type === 'sort' && question.type === 'sort') return question.items.every((i) => Boolean(answer.placement[i.id]));
+  if (answer.type === 'true-false-reason') return answer.value !== undefined && Boolean(answer.reasonId);
   return true;
 }
 
@@ -44,6 +47,12 @@ export function isAnswerCorrect(question: QuizQuestion, answer: QuizAnswer): boo
     case 'match-pairs':
       // Each left item (keyed by pair id) must map to its own pair id on the right.
       return answer.type === 'match-pairs' && question.pairs.every((p) => answer.mapping[p.id] === p.id);
+    case 'picture-choice':
+      return answer.type === 'picture-choice' && answer.optionId === question.correctOptionId;
+    case 'sort':
+      return answer.type === 'sort' && question.items.every((i) => answer.placement[i.id] === i.binId);
+    case 'true-false-reason':
+      return answer.type === 'true-false-reason' && answer.value === question.correct && answer.reasonId === question.correctReasonId;
     default:
       return false;
   }

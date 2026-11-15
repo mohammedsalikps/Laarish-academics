@@ -1,5 +1,5 @@
 import { ArrowLeft, Check, Flame, Star, Trophy } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { Vector3 } from 'three';
 import { MentorAvatar } from '../../components/mentor/MentorAvatar';
@@ -15,7 +15,7 @@ import { useProgress } from '../../state/ProgressProvider';
 import { currentStreak } from '../../state/selectors';
 import { IslandCanvas, type OverlayPin } from '../../world3d/IslandCanvas';
 import type { IslandScene } from '../../world3d/IslandScene';
-import { chapterPathUrl, topicSheetUrl, worldPath } from '../../world3d/paths';
+import { chapterPathUrl, rememberChapter, topicSheetUrl, worldPath } from '../../world3d/paths';
 import { useLiteMode } from '../../world3d/useLiteMode';
 import { dayKey } from '../home/schoolWeek';
 import { PathNode, type NodeKind } from './pins';
@@ -42,6 +42,9 @@ export default function ChapterPage() {
   const lesson = getLesson(lessonId);
   const path = lesson && lesson.subjectId === subjectId ? chapterPath(state, lesson, prefs) : undefined;
   useDocumentTitle(lesson ? lesson.title : 'Chapter');
+  useEffect(() => {
+    if (lesson && subjectId) rememberChapter(lesson.id, chapterPathUrl(subjectId, lesson.id));
+  }, [lesson, subjectId]);
   if (!lesson || !path) return <Navigate to={subjectId ? worldPath(subjectId) : '/home'} replace />;
 
   const { world, topics, current } = path;
