@@ -24,7 +24,8 @@ as an Explore more topic after the chapter trophy.
 | Grown-ups: weekly school report, daily goal, chapters and tests, Lite mode | Done, tested, pushed |
 | Mini Makers (Classes 7-8): Manrope, evening hub, numbered nodes | Done, tested, pushed |
 | Mini Makers worked-solution reveal (M3) | Not started: needs solution steps in content |
-| Per-engine fixes from the audit (friction "X of N tested", friction scene text at 375 px, area-grid cell size at 10-12 columns, balance label width) | Not started |
+| Per-engine fixes from the audit: friction "Surfaces tested X of N" and scene text/overlays at 375 px; area grid squares ≥ 24 px at 320 px for 10 columns; balance pan labels never clipped | Done, tested, pushed (checked by hand at 375 and 320 px) |
+| "Need a hint?" button inside Play (audit item 6) | Not started: most games show a hint after a wrong answer, but there is no on-demand button yet |
 | Downloadable worlds / service worker (X4) | Not started: not safe tonight; the app says only what is true |
 | Official videos (Magnets, Halves and Quarters, Plant from Seed, Building Sentences) | Not started: no verified assets; labelled animated explainers stay |
 | Preview deployment | Blocked: Vercel CLI not installed or signed in; project not linked to GitHub |
@@ -95,7 +96,7 @@ run `vercel login`, then `vercel link` (choosing the existing project, never a n
 ## Verification (final run on this branch)
 
 - Typecheck, lint, production build, lesson media check: all pass.
-- Tests: 1,058 of 1,058 in 74 files, including every route, all 14 game engines, the saved-progress
+- Tests: 1,060 of 1,060 in 74 files, including every route, all 14 game engines, the saved-progress
   contract, 60 % unlock, the Lite-mode journey, the weekly report, Mini Makers and pin layout.
 - Secret scan (API keys, tokens, private keys) of tracked files, the built bundle and this branch's
   history: no matches; no `.env` file is tracked.
@@ -107,6 +108,6 @@ run `vercel login`, then `vercel link` (choosing the existing project, never a n
 2. `npm ci`, then `npm run typecheck`, `npm run lint`, `npx vitest run`, `npm run build`.
 3. `npm run dev` for development; `npm run build && npm run preview` (port 4173) for measurements.
    The measurement method is described above; add `?perf` to read scene stats.
-4. Next tasks, in order: the per-engine fixes listed in the ledger; a real Android phone test;
+4. Next tasks, in order: a "Need a hint?" button in Play; a real Android phone test;
    a preview deployment once someone signs in to Vercel; official videos when assets exist;
    the Mini Makers worked-solution reveal once lessons have solution steps.
