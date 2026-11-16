@@ -24,6 +24,7 @@ import {
   type FractionState,
 } from './fractionLogic';
 import { RoundDots } from '../RoundDots';
+import { fractionHints, useHintContext } from '../hints';
 
 const SHADE = '#5847E0';
 const ROTI = { crust: '#E9C48A', fill: '#F5D9A8', label: '#7A4A1E' };
@@ -53,7 +54,7 @@ function sliceCentre(i: number, parts: number, cx: number, cy: number, r: number
  * painted by dragging across them. Extra help (the equal-parts view, hints)
  * appears only when asked for or after a wrong Check.
  */
-export default function FractionBuilder({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<FractionBuilderConfig>) {
+export default function FractionBuilder({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<FractionBuilderConfig>) {
   const reducer = useMemo(() => createFractionReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialFractionState);
   // The round the "Equal parts?" view is open for, so it closes itself on the next round.
@@ -63,6 +64,7 @@ export default function FractionBuilder({ config, reducedMotion, onEvent, onComp
   const play = useSound();
   const helpId = useId();
   const round = currentRound(config, state);
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : fractionHints(round));
   const animate = !reducedMotion;
 
   const callbacks = useRef({ onEvent, onComplete });

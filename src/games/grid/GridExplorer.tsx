@@ -35,6 +35,7 @@ import {
   type Direction,
   type GridState,
 } from './gridLogic';
+import { gridHints, useHintContext } from '../hints';
 
 const KEY_DIRECTIONS: Record<string, Direction> = { ArrowUp: 'north', ArrowDown: 'south', ArrowRight: 'east', ArrowLeft: 'west' };
 const ARROWS: Record<Direction, LucideIcon> = { north: ArrowUp, south: ArrowDown, east: ArrowRight, west: ArrowLeft };
@@ -63,7 +64,7 @@ const TONE_STYLE: Record<Feedback['tone'], string> = {
 };
 
 /** Treasure Trail: walk the map using North, South, East and West. */
-export default function GridExplorer({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<GridExplorerConfig>) {
+export default function GridExplorer({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<GridExplorerConfig>) {
   const reducer = useMemo(() => createGridReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, config, createGridState);
   const [feedback, setFeedback] = useState<Feedback>({ id: 0, tone: 'info', text: FIRST_TIP });
@@ -76,6 +77,7 @@ export default function GridExplorer({ config, reducedMotion, onEvent, onComplet
   const { state: progress } = useProgress();
   const avatarId = progress.learner?.avatarId ?? 'fox';
   const task = config.tasks[Math.min(state.task, config.tasks.length - 1)];
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : gridHints(task));
   const target = config.landmarks.find((l) => l.id === task.targetId)!;
 
   const gridRef = useRef<HTMLDivElement>(null);

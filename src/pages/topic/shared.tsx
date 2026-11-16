@@ -69,6 +69,7 @@ export function StepFooter({
   continueLabel = 'Continue',
   hint,
   extra,
+  above,
 }: {
   onBack?: () => void;
   onContinue: () => void;
@@ -76,9 +77,12 @@ export function StepFooter({
   continueLabel?: string;
   hint?: string;
   extra?: ReactNode;
+  /** Shown above the buttons, e.g. Play's "Need a hint?". */
+  above?: ReactNode;
 }) {
   return (
     <div className="sticky bottom-0 z-20 -mx-[var(--space-gutter)] mt-6 border-t border-line bg-canvas/95 px-[var(--space-gutter)] pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur">
+      {above}
       {hint && !canContinue && <p className="mb-1.5 text-center text-xs font-bold text-ink-muted md:text-right md:text-sm">{hint}</p>}
       <div className="flex items-center gap-2 sm:gap-2.5">
         {onBack && (

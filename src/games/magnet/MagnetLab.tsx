@@ -46,6 +46,7 @@ import {
   type Tray,
 } from './magnetLogic';
 import { RoundDots } from '../RoundDots';
+import { magnetHints, useHintContext } from '../hints';
 
 const EASE_OUT = 'cubic-bezier(.2,.8,.2,1)';
 /** Objects speed up as they get closer to a magnet, because the pull gets stronger. */
@@ -88,7 +89,7 @@ function animateEl(el: Element | null | undefined, keyframes: Keyframe[], option
  * another one, turning it around to see attraction and repulsion.
  * Keyboard: every object, tray and control is a button; Escape takes an object off the magnet.
  */
-export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, onComplete, onRestart }: MiniGameProps<MagnetLabConfig>) {
+export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, onComplete, onRestart, onHintContext }: MiniGameProps<MagnetLabConfig>) {
   const reducer = useMemo(() => createMagnetReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, config, initialMagnetState);
   const [tooSoon, setTooSoon] = useState(false);
@@ -99,6 +100,7 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
   const uid = useId().replace(/:/g, '');
   const animate = !reducedMotion;
   const round = currentRound(config, state);
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : magnetHints(round));
   // The 3D bench (wireframe L2), unless Lite mode is on, motion is reduced or WebGL is missing.
   const prefs = useAcademicsPrefs();
   const [bench2d, setBench2d] = useState(false);
@@ -593,7 +595,9 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
             </span>
           </p>
         ) : (
-          !correct && (
+          // Inside Play the shared "Need a hint?" (with its gentler first step) replaces this button.
+          !correct &&
+          !onHintContext && (
             <div className="flex justify-center">
               <button type="button" className="btn btn-ghost btn-sm min-h-[44px]" onClick={() => dispatch({ type: 'hint' })}>
                 <Lightbulb className="h-4 w-4 text-reward" aria-hidden="true" /> Need a hint?

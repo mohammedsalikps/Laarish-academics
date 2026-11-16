@@ -21,6 +21,7 @@ import {
   type RunRecord,
 } from './frictionGame';
 import { BAND_LABELS, BAND_TITLES, formatMetres, positionAt, speedAt } from './simulation';
+import { frictionHints, useHintContext } from '../hints';
 
 /* Scene geometry (SVG user units). */
 const VIEW_W = 680;
@@ -83,7 +84,7 @@ const RAMP_ANGLE = (Math.atan2(TRACK_Y - RAMP_TOP[1], TRACK_X0 - RAMP_TOP[0]) * 
  * lets the child change it. One question at the end checks the idea itself.
  * Results and the model note stay folded away until asked for.
  */
-export default function FrictionExperiment({ config, reducedMotion, onEvent, onRecord, onComplete }: MiniGameProps<FrictionExperimentConfig>) {
+export default function FrictionExperiment({ config, reducedMotion, onEvent, onRecord, onComplete, onHintContext }: MiniGameProps<FrictionExperimentConfig>) {
   const reducer = useMemo(() => createFrictionReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialFrictionState);
   const uid = useId().replace(/:/g, '');
@@ -106,6 +107,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
   const testedCount = testedSurfaceIds(state).length;
   const surfacesNeeded = Math.min(config.minSurfacesToComplete, config.surfaces.length);
   const testProgress = state.mode === 'explore' ? { tested: testedCount, need: surfacesNeeded } : undefined;
+  useHintContext(onHintContext, labComplete ? null : frictionHints(config, { challenge, check: showCheck }));
   const [showResults, setShowResults] = useState(false);
   const [changingSurface, setChangingSurface] = useState(false);
 

@@ -6,7 +6,7 @@ import { ErrorBoundary, type ErrorFallbackProps } from '../../components/ui/Erro
 import { ProblemCard, RetryButton, SAVED_NOTE } from '../../components/ui/ErrorFallbacks';
 import { Skeleton } from '../../components/ui/primitives';
 import type { GameResult } from '../../domain/results';
-import { coachLine, type GameEvent, type GameRecord, type MiniGameProps } from '../../games/framework';
+import { coachLine, type GameEvent, type GameRecord, type HintContext, type MiniGameProps } from '../../games/framework';
 import { BAND_LABELS, distanceBand, formatMetres, simulateRun } from '../../games/friction/simulation';
 import { GAMES } from '../../games/registry';
 import { useReducedMotion } from '../../hooks/usePreferences';
@@ -14,6 +14,18 @@ import { useProgress } from '../../state/ProgressProvider';
 import { MissionCard } from './MissionCard';
 import { StepFooter, type StepViewProps } from './shared';
 import { feedbackTone, type FeedbackTone } from '../../games/feedback';
+import { useMentor } from '../../mentor/MentorProvider';
+import { useMentorPersona } from '../../mentor/useMentorPersona';
+import { PlayHint } from './PlayHint';
+
+/** The hints for the question on screen: which one is showing, and whether the panel is open. */
+interface HintState {
+  /** Undefined until the game first reports (older games never do: the topic's own play hint is used). */
+  context: HintContext | null | undefined;
+  shown: number;
+  open: boolean;
+}
+const NO_HINT: HintState = { context: undefined, shown: 0, open: false };
 
 function GameErrorFallback({ reset, chunkError, onRestart }: ErrorFallbackProps & { onRestart: () => void }) {
   return (
@@ -74,13 +86,24 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
   const [finished, setFinished] = useState(false);
   const [result, setResult] = useState<GameResult>();
   const [showHow, toggleHow] = useHowToPlay(topic.id);
+  const [hint, setHint] = useState<HintState>(NO_HINT);
+  const mentor = useMentor();
+  const { name: mentorName } = useMentorPersona();
   const def = GAMES[play.game.type];
   const Game = def.Component as ComponentType<MiniGameProps>;
 
-  // The mentor knows which game the learner is in and what they are trying to do now.
+  // A new question starts its hints again from the first one; the same question keeps its place.
+  const onHintContext = useCallback((context: HintContext | null) => {
+    setHint((h) => (h.context && context && h.context.key === context.key ? { ...h, context } : { context, shown: 0, open: false }));
+  }, []);
+  const fallbackHint = topic.mentor?.hints.play ?? topic.mentor?.hints.default;
+  const hintSteps = hint.context === undefined ? (fallbackHint ? [fallbackHint] : []) : (hint.context?.steps ?? []);
+  const question = hint.context?.question;
+
+  // The mentor knows which game the learner is in, the question on screen and what they are trying to do now.
   useEffect(() => {
-    setMentorExtras({ activity: `${play.title} (${def.name}). Current instruction: ${coach}` });
-  }, [coach, play.title, def.name, setMentorExtras]);
+    setMentorExtras({ activity: `${play.title} (${def.name}).${question ? ` Current question: ${question}` : ''} Current instruction: ${coach}` });
+  }, [coach, question, play.title, def.name, setMentorExtras]);
 
   const onEvent = useCallback(
     (e: GameEvent) => {
@@ -130,6 +153,7 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
     setResult(undefined);
     setCoach(play.coach.start ?? "Let's play!");
     setTone('neutral');
+    setHint(NO_HINT);
   }, [play.coach.start]);
 
   return (
@@ -160,6 +184,7 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
             onRecord={onRecord}
             onComplete={onComplete}
             onRestart={restart}
+            onHintContext={onHintContext}
           />
         </Suspense>
       </ErrorBoundary>
@@ -170,6 +195,21 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
         canContinue={completed || finished}
         continueLabel="Continue to Practice"
         hint="Finish the activity to unlock Practice"
+        above={
+          !finished && (
+            <PlayHint
+              steps={hintSteps}
+              shown={hint.shown}
+              open={hint.open}
+              mentorName={mentorName}
+              animate={!reducedMotion}
+              onOpen={() => setHint((h) => ({ ...h, open: true, shown: Math.max(h.shown, 1) }))}
+              onShowMore={() => setHint((h) => ({ ...h, open: true, shown: Math.min(h.shown + 1, hintSteps.length) }))}
+              onClose={() => setHint((h) => ({ ...h, open: false }))}
+              onAskMentor={() => mentor.open({ intent: 'hint' })}
+            />
+          )
+        }
       />
     </div>
   );

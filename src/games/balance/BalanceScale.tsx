@@ -6,6 +6,7 @@ import { cn } from '../../lib/cn';
 import type { MiniGameProps } from '../framework';
 import { balanceHint, balanceResult, createBalanceReducer, initialBalanceState, sideTotal, tilt, wrongTries } from './balanceLogic';
 import { RoundDots } from '../RoundDots';
+import { balanceHints, useHintContext } from '../hints';
 
 const PIVOT = { x: 180, y: 64 };
 const ARM = 118;
@@ -53,7 +54,7 @@ function Pan({ x, y, label, highlight, animate }: { x: number; y: number; label:
  * Balance Scale: find the number that makes both sides of the scale equal.
  * One scale at a time: tap a number, watch the scale tip, press Check.
  */
-export default function BalanceScale({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<BalanceGameConfig>) {
+export default function BalanceScale({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<BalanceGameConfig>) {
   const reducer = useMemo(() => createBalanceReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialBalanceState);
   // Set when Check is pressed before it can be used, so the child is told why nothing happened.
@@ -61,6 +62,7 @@ export default function BalanceScale({ config, reducedMotion, onEvent, onComplet
   const play = useSound();
   const helpId = useId();
   const round = config.rounds[Math.min(state.round, config.rounds.length - 1)];
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : balanceHints(round));
   const animate = !reducedMotion;
 
   const callbacks = useRef({ onEvent, onComplete });

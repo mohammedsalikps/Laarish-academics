@@ -6,6 +6,7 @@ import { useSound, useSpeech } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import { createWordOrder, insertIndex, sentenceText, wordOrderResult } from './wordOrderLogic';
+import { wordOrderHints, useHintContext } from '../hints';
 
 const DRAG_THRESHOLD = 6;
 
@@ -20,12 +21,13 @@ interface Drag {
 }
 
 /** Sentence Builder: tap or drag word tiles into order to build a sentence. */
-export default function WordOrder({ config, attempt, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<WordOrderConfig>) {
+export default function WordOrder({ config, attempt, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<WordOrderConfig>) {
   const { initial, reducer } = useMemo(() => createWordOrder(config, attempt), [config, attempt]);
   const [state, dispatch] = useReducer(reducer, initial);
   const play = useSound();
   const speech = useSpeech();
   const round = config.rounds[state.roundIndex];
+  useHintContext(onHintContext, state.status === 'correct' || state.status === 'finished' || !round ? null : wordOrderHints(round));
   const stripRef = useRef<HTMLOListElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const suppressClick = useRef(false);

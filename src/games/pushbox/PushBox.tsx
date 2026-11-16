@@ -26,6 +26,7 @@ import {
   type PushBoxState,
   type PushOutcome,
 } from './pushBoxLogic';
+import { pushBoxHints, useHintContext } from '../hints';
 
 /* Scene geometry (SVG units). */
 const W = 480;
@@ -64,7 +65,7 @@ interface PrimaryAction {
   onClick?: () => void;
 }
 
-export default function PushBox({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<PushBoxConfig>) {
+export default function PushBox({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<PushBoxConfig>) {
   const reducer = useMemo(() => createPushBoxReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialPushBoxState);
   const [pushTouched, setPushTouched] = useState(false);
@@ -74,6 +75,7 @@ export default function PushBox({ config, reducedMotion, onEvent, onComplete, on
   const play = useSound();
   const labels = config.pushLabels;
   const floor = config.floors.find((f) => f.id === state.floorId);
+  useHintContext(onHintContext, pushBoxHints(config, state.floorId));
   const completedOnce = useRef(false);
   const timers = useRef<number[]>([]);
   const callbacks = useRef({ onEvent, onComplete });

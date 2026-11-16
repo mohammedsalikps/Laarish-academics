@@ -34,6 +34,7 @@ import {
   type CircuitItem,
 } from './circuitLogic';
 import { RoundDots } from '../RoundDots';
+import { circuitHints, useHintContext } from '../hints';
 
 /** A drop this close (px) to the gap still counts, which forgives small fingers. */
 const GAP_TOLERANCE = 32;
@@ -78,7 +79,7 @@ function animateEl(el: Element | null | undefined, keyframes: Keyframe[], option
  * switch is on and the object lets electricity through.
  * Keyboard: the object cards and the switch are buttons; Escape takes the object out.
  */
-export default function CircuitLab({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<CircuitConfig>) {
+export default function CircuitLab({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<CircuitConfig>) {
   const reducer = useMemo(() => createCircuitReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialCircuitState);
   // Set when the main button is pressed before it can be used, so the child is told why nothing happened.
@@ -88,6 +89,7 @@ export default function CircuitLab({ config, reducedMotion, onEvent, onComplete,
   const uid = useId().replace(/:/g, '');
   const animate = !reducedMotion;
   const round = config.rounds[Math.min(state.round, config.rounds.length - 1)];
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : circuitHints(round));
 
   const callbacks = useRef({ onEvent, onComplete });
   useEffect(() => {

@@ -34,6 +34,7 @@ import {
   type NumberLineState,
 } from './numberLineLogic';
 import { RoundDots } from '../RoundDots';
+import { numberLineHints, useHintContext } from '../hints';
 
 const SNAP = 'cubic-bezier(.3,1.4,.5,1)';
 /** Teardrop pin with its tip at (0, -3), just above the line. */
@@ -54,7 +55,7 @@ interface DragState {
  * The line is one keyboard slider (arrow keys, Home/End, Enter to Check).
  * Help appears only after a wrong Check: first a nudge, then the round's hint.
  */
-export default function NumberLineGame({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<NumberLineConfig>) {
+export default function NumberLineGame({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<NumberLineConfig>) {
   const reducer = useMemo(() => createNumberLineReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialNumberLineState);
   // Set when Check is pressed before it can be used, so the child is told why nothing happened.
@@ -63,6 +64,7 @@ export default function NumberLineGame({ config, reducedMotion, onEvent, onCompl
   const play = useSound();
   const helpId = useId();
   const round = currentRound(config, state);
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : numberLineHints(round));
   const animate = !reducedMotion;
 
   const callbacks = useRef({ onEvent, onComplete });

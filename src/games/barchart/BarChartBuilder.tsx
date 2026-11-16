@@ -38,6 +38,7 @@ import {
   type BarRound,
 } from './barChartLogic';
 import { RoundDots } from '../RoundDots';
+import { barChartHints, useHintContext } from '../hints';
 
 /*
  * Chart geometry in SVG units. The HTML layers on top (sliders, bar buttons) and below
@@ -63,7 +64,7 @@ const columnsStyle = (n: number): CSSProperties => ({
  *  - Read: tap the bar that answers the question.
  * Then press Check. A data nudge follows the first wrong Check, the round's hint the second.
  */
-export default function BarChartBuilder({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<BarChartConfig>) {
+export default function BarChartBuilder({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<BarChartConfig>) {
   const reducer = useMemo(() => createBarChartReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, config, initialBarChartState);
   // The bar the learner last touched in a build round, so it resets itself on the next round.
@@ -74,6 +75,7 @@ export default function BarChartBuilder({ config, reducedMotion, onEvent, onComp
   const helpId = useId();
   const clipId = `bar-plot-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const round = currentRound(config, state);
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : barChartHints(round));
   const animate = !reducedMotion;
 
   const callbacks = useRef({ onEvent, onComplete });

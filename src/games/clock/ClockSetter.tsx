@@ -25,6 +25,7 @@ import {
   type ClockState,
 } from './clockLogic';
 import { RoundDots } from '../RoundDots';
+import { clockHints, useHintContext } from '../hints';
 
 /* Clock face geometry, in SVG units (the face is drawn about 240 px wide). */
 const C = 120;
@@ -48,7 +49,7 @@ function polar(r: number, deg: number): [number, number] {
  * the short hand follows the minutes like a real clock. The digital readout
  * underneath shows the time the clock says. One Check / Next button.
  */
-export default function ClockSetter({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<ClockConfig>) {
+export default function ClockSetter({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<ClockConfig>) {
   const reducer = useMemo(() => createClockReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, config, initialClockState);
   // Set when Check is pressed before it can be used, so the child is told why nothing happened.
@@ -58,6 +59,7 @@ export default function ClockSetter({ config, reducedMotion, onEvent, onComplete
   const helpId = useId();
   const keysId = useId();
   const round = currentRound(config, state);
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : clockHints(round));
   const step = config.minuteStep;
   const animate = !reducedMotion;
 

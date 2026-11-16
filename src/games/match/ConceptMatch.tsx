@@ -19,6 +19,7 @@ import { cn } from '../../lib/cn';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import { connectorPath, dropTargetAt, ghostTransform, grabOffset, passedDragThreshold, toBox, type Point } from './dragMath';
 import { createMatchReducer, createMatchState, hintLevel, matchResult, nearestUnmatched, stepUnmatched } from './matchLogic';
+import { matchHints, useHintContext } from '../hints';
 
 const PAIR_COLORS = ['#5847E0', '#0E9F8E', '#E5603F', '#D9820A', '#2F86D6', '#D23F6E'];
 const pairColor = (index: number) => PAIR_COLORS[index % PAIR_COLORS.length];
@@ -69,7 +70,7 @@ const quote = (s: string) => `“${s}”`;
  * one short status line. The task itself is explained by the mentor and "How to play";
  * clues appear only after a wrong try, and the end is one line plus an optional recap.
  */
-export default function ConceptMatch({ config, attempt, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<ConceptMatchConfig>) {
+export default function ConceptMatch({ config, attempt, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<ConceptMatchConfig>) {
   const reducer = useMemo(() => createMatchReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, undefined, () => createMatchState(config, attempt + 1));
   const play = useSound();
@@ -305,6 +306,7 @@ export default function ConceptMatch({ config, attempt, reducedMotion, onEvent, 
   // The example the learner is working on: being dragged, selected, or just tried.
   const activeLeft = drag?.id ?? state.selectedLeft ?? (fb?.kind === 'incorrect' ? fb.leftId : null);
   const level = activeLeft ? hintLevel(state, activeLeft) : 0;
+  useHintContext(onHintContext, done ? null : matchHints(config, state.selectedLeft, state.matched));
   const suggested = level === 2 ? activeLeft : null;
   const idle = !drag && !fb && !state.selectedLeft && !state.selectedRight;
   // A wordless cue for the very first move: the first example glows until the learner starts.

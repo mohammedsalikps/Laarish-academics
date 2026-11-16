@@ -20,6 +20,7 @@ import { beginPointerDrag, type MiniGameProps } from '../framework';
 // The pointer geometry is shared with Concept Match (pure helpers, unit tested in match/dragMath.test.ts).
 import { dropTargetAt, ghostTransform, grabOffset, passedDragThreshold, toBox, type Point } from '../match/dragMath';
 import { createSortReducer, createSortState, currentItem, sortResult } from './sortLogic';
+import { sortHints, useHintContext } from '../hints';
 
 type Tone = 'active' | 'good' | 'retry';
 const TONE_CLASS: Record<Tone, string> = {
@@ -66,7 +67,7 @@ type Item = SortGameConfig['items'][number];
  * tap the box (tapping the item first picks it up). Keyboard: Tab to the boxes and
  * press Enter; arrow keys move between the card and the boxes.
  */
-export default function SortGame({ config, attempt, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<SortGameConfig>) {
+export default function SortGame({ config, attempt, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<SortGameConfig>) {
   const reducer = useMemo(() => createSortReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, undefined, () => createSortState(config, attempt + 11));
   const play = useSound();
@@ -120,6 +121,7 @@ export default function SortGame({ config, attempt, reducedMotion, onEvent, onCo
   }, [state, config, items, bins, play, reducedMotion]);
 
   const current = currentItem(state);
+  useHintContext(onHintContext, state.phase === 'complete' ? null : sortHints(config, current));
   const done = state.phase === 'complete';
 
   /* ------------------------------------------------------- drag and drop */

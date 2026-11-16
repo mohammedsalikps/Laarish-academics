@@ -26,6 +26,7 @@ import {
   type Size,
 } from './areaLogic';
 import { RoundDots } from '../RoundDots';
+import { areaHints, useHintContext } from '../hints';
 
 /* Grid drawing, in SVG units. The SVG scales to the card's width, so cells stay square on any phone. */
 const CELL = 40;
@@ -49,7 +50,7 @@ const ARROWS: Record<string, [keyof Size, 1 | -1]> = { ArrowRight: ['width', 1],
  * drag (or tap a square) to set its opposite corner, or use the Width and
  * Height steppers. One task per round, one Check / Next button.
  */
-export default function AreaBuilder({ config, reducedMotion, onEvent, onComplete, onRestart }: MiniGameProps<AreaGridConfig>) {
+export default function AreaBuilder({ config, reducedMotion, onEvent, onComplete, onRestart, onHintContext }: MiniGameProps<AreaGridConfig>) {
   const reducer = useMemo(() => createAreaReducer(config), [config]);
   const [state, dispatch] = useReducer(reducer, initialAreaState);
   // Set when Check is pressed before it can be used, so the child is told why nothing happened.
@@ -58,6 +59,7 @@ export default function AreaBuilder({ config, reducedMotion, onEvent, onComplete
   const helpId = useId();
   const keysId = useId();
   const round = currentRound(config, state);
+  useHintContext(onHintContext, state.phase === 'correct' || state.phase === 'complete' ? null : areaHints(round));
   const animate = !reducedMotion;
 
   const callbacks = useRef({ onEvent, onComplete });

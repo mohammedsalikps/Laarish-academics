@@ -32,6 +32,16 @@ export type GameRecord =
   /** What the learner just saw happen, in one sentence built from the game's real state, so the mentor can talk about it. */
   | { kind: 'observation'; text: string };
 
+/** The question the learner is on now, so Play's "Need a hint?" helps with exactly that question. */
+export interface HintContext {
+  /** Changes with the question (a new round, task or item); hints then start again from the first. */
+  key: string;
+  /** What the learner is being asked, in words the mentor can use. */
+  question: string;
+  /** From a gentle nudge to the most specific help. Never the answer itself. */
+  steps: string[];
+}
+
 export interface MiniGameProps<C extends GameConfig = GameConfig> {
   config: C;
   topicId: string;
@@ -43,6 +53,8 @@ export interface MiniGameProps<C extends GameConfig = GameConfig> {
   onComplete(result: GameResult): void;
   /** Starts the game again from scratch (new attempt). */
   onRestart(): void;
+  /** Reports the current question and its hints; null when there is nothing to answer (between rounds, or done). */
+  onHintContext?(context: HintContext | null): void;
 }
 
 export interface MiniGameDefinition<C extends GameConfig = GameConfig> {
