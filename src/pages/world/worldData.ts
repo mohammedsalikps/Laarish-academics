@@ -86,13 +86,13 @@ export function classWorld(state: ProgressState, subjectId: SubjectId, prefs: Ac
       lesson: view.lesson,
       view,
       state: chapterState(view),
-      mastery: average(view.topics.map((t) => t.mastery)),
+      mastery: average(view.topics.filter((t) => !t.topic.extension).map((t) => t.mastery)),
       thisWeek: view.lesson.id === chosen,
       suggested: false,
     }));
   const suggested = suggestion(chapters);
   if (suggested) suggested.suggested = true;
-  const playable = chapters.filter((c) => c.state !== 'coming-soon').flatMap((c) => c.view.topics.map((t) => t.mastery));
+  const playable = chapters.filter((c) => c.state !== 'coming-soon').flatMap((c) => c.view.topics.filter((t) => !t.topic.extension).map((t) => t.mastery));
   return {
     subject,
     theme: worldFor(subjectId),
@@ -131,7 +131,8 @@ export function chapterPath(state: ProgressState, lesson: Lesson, prefs: Academi
   const topics = getTopicsForLesson(lesson.id).map((t) => topicView(t, state.topics));
   const current =
     topics.find((t) => t.state === 'in-progress') ?? topics.find((t) => t.state === 'available') ?? topics.find((t) => t.needsPractice) ?? topics[topics.length - 1];
-  return { world, chapter, topics, current, mastered: topics.filter((t) => isTopicMastered(t.topic, state.topics)).length };
+  // Mastered counts the topics that decide the chapter ("Explore more" topics are extra).
+  return { world, chapter, topics, current, mastered: topics.filter((t) => !t.topic.extension && isTopicMastered(t.topic, state.topics)).length };
 }
 
 export function percent(value: number): number {

@@ -47,8 +47,13 @@ export function isTopicMastered(topic: TopicMeta, topics: TopicRecords): boolean
   return isTopicCompleted(record) && (record?.bestMastery ?? 0) >= passMastery(topic);
 }
 
+/** The topics that decide whether a lesson is complete ("Explore more" extension topics do not). */
+export function requiredTopics(lessonId: string): TopicMeta[] {
+  return getTopicsForLesson(lessonId).filter((t) => !t.extension);
+}
+
 export function isLessonComplete(lesson: Lesson, topics: TopicRecords): boolean {
-  const list = getTopicsForLesson(lesson.id);
+  const list = requiredTopics(lesson.id);
   return lesson.status === 'ready' && list.length > 0 && list.every((t) => isTopicMastered(t, topics));
 }
 
@@ -140,7 +145,9 @@ export interface LessonView {
 
 export function lessonView(lesson: Lesson, topics: TopicRecords): LessonView {
   const views = getTopicsForLesson(lesson.id).map((t) => topicView(t, topics));
-  const mastered = views.filter((v) => isTopicMastered(v.topic, topics)).length;
+  // Progress and stars count the topics that decide completion; "Explore more" topics are listed but extra.
+  const required = views.filter((v) => !v.topic.extension);
+  const mastered = required.filter((v) => isTopicMastered(v.topic, topics)).length;
   const started = views.some((v) => v.record);
   let state: LessonState;
   if (lesson.status !== 'ready' || views.length === 0) state = 'in-development';
@@ -157,10 +164,10 @@ export function lessonView(lesson: Lesson, topics: TopicRecords): LessonView {
     state,
     topics: views,
     topicsMastered: mastered,
-    topicsTotal: views.length,
-    stars: views.reduce((s, v) => s + v.stars, 0),
-    maxStars: views.length * 3,
-    progress: views.length ? mastered / views.length : 0,
+    topicsTotal: required.length,
+    stars: required.reduce((s, v) => s + v.stars, 0),
+    maxStars: required.length * 3,
+    progress: required.length ? mastered / required.length : 0,
     missing: missingLessonPrerequisites(lesson, topics),
     nextTopic: state === 'locked' || state === 'in-development' ? undefined : next?.topic,
   };

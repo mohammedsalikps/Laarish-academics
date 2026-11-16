@@ -50,8 +50,8 @@ describe('test dates (H4)', () => {
     expect(plan.path.chapter.lesson.id).toBe('magnets');
     expect(plan.test).toBeDefined();
     expect(testEyebrow(plan.test!)).toBe('Test tomorrow');
-    // Topic 1 is mastered; topic 2 still needs revising.
-    expect(plan.test!.toRevise).toBe(1);
+    // Topic 1 is mastered; topics 2 and 3 still need revising.
+    expect(plan.test!.toRevise).toBe(2);
     expect(plan.test!.days.map((d) => [d.label, d.state])).toEqual([
       ['Thu', 'today'],
       ['Fri', 'later'],

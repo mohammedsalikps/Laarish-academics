@@ -93,7 +93,7 @@ Cells: playable lessons / all lessons · playable topics.
 
 | Branch | Lesson | Status | Topics | Source | Alignment |
 |---|---|---|---|---|---|
-| Forces and Energy | 1. Magnets | Playable | 2 | NCERT Curiosity, Class 6: Exploring Magnets (2026-27) | aligned |
+| Forces and Energy | 1. Magnets | Playable | 3 | NCERT Curiosity, Class 6: Exploring Magnets (2026-27) | aligned |
 | Forces and Energy | 2. Temperature and its Measurement | Playable | 3 | NCERT Curiosity, Class 6: Temperature and its Measurement (2026-27) | aligned |
 | Forces and Energy | 3. Measurement of Length and Motion | Planned | 0 | NCERT Curiosity, Class 6: Measurement of Length and Motion (2026-27) | aligned |
 | Materials and Matter | 1. Separating Mixtures | Playable | 2 | NCERT Curiosity, Class 6: Methods of Separation in Everyday Life (2026-27) | aligned |
@@ -472,8 +472,9 @@ Cells: playable lessons / all lessons · playable topics.
 | Science | 8 | Friction | Rough and smooth surfaces | Temporary explainer | friction-experiment (exploratory) | 3 questions |
 | Science | 8 | Friction | Friction helps us | Temporary explainer | concept-match | 3 questions |
 | Science | 8 | Friction | Reducing friction | Temporary explainer | sort | 3 questions |
-| Science | 6 | Magnets | What do magnets attract? | Temporary explainer | sort | 3 questions |
-| Science | 6 | Magnets | Poles: attract and repel | Temporary explainer | sort | 3 questions |
+| Science | 6 | Magnets | What do magnets attract? | Temporary explainer | magnet-lab (3D bench) | 6 questions |
+| Science | 6 | Magnets | Poles: attract and repel | Temporary explainer | magnet-lab | 3 questions |
+| Science | 6 | Magnets | Finding directions with a magnet (Explore more: added after launch, does not decide lesson completion) | Temporary explainer | concept-match | 6 questions |
 | Mathematics | 3 | Halves and Quarters | Equal parts and halves | Temporary explainer | fraction-builder | 3 questions |
 | Mathematics | 3 | Halves and Quarters | Quarters | Temporary explainer | concept-match | 4 questions |
 | Mathematics | 1 | Adding within 20 | Counting on | Temporary explainer | concept-match | 3 questions |

@@ -33,14 +33,15 @@ describe('worlds from real data', () => {
     expect(magnets.thisWeek).toBe(true);
     expect(science.thisWeek?.lesson.id).toBe('magnets');
     expect(magnets.state).toBe('in-progress');
-    expect(magnets.mastery).toBeGreaterThan(0.4);
+    // One of the two required topics mastered (the "Explore more" topic is extra).
+    expect(magnets.mastery).toBeCloseTo(0.5, 2);
     expect(chapterLabel(magnets)).toMatch(/^Magnets, in progress, \d+ percent, this week$/);
     expect(science.mastery).toBeGreaterThan(0);
   });
 
   it('puts the chapter path at the first unfinished topic, with the next one locked until 60%', () => {
     const fresh = chapterPath(learnerState({ grade: 6 }), getLesson('magnets')!, prefs())!;
-    expect(fresh.topics.map((t) => t.topic.id)).toEqual(['magnets-what-they-attract', 'magnets-poles']);
+    expect(fresh.topics.map((t) => t.topic.id)).toEqual(['magnets-what-they-attract', 'magnets-poles', 'magnets-directions']);
     expect(fresh.current?.topic.id).toBe('magnets-what-they-attract');
     expect(fresh.topics[1].state).toBe('locked');
 

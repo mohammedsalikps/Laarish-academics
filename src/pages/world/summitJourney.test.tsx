@@ -62,6 +62,8 @@ describe('Home → this week → chapter path → topic (Lite mode)', () => {
     await user.click(plan);
     expect(await screen.findByRole('heading', { level: 1, name: 'Magnets' })).toBeInTheDocument();
     expect(screen.getByText('Topic 1 of 2 · 0%')).toBeInTheDocument();
+    // The compass topic is an "Explore more" topic after the chapter trophy.
+    expect(screen.getByRole('button', { name: 'Topic 3, Finding directions with a magnet, locked, explore more' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Topic 2, Poles: attract and repel, locked' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Make with your kit, or try it at home' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Magnets champion, master every topic to earn it' })).toBeInTheDocument();

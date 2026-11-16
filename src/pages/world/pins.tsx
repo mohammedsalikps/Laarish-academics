@@ -75,7 +75,7 @@ export function ChapterPin({ chapter, onOpen }: { chapter: ChapterInfo; onOpen: 
 
 const STEP_ICON: Record<TopicStep, typeof Play> = { watch: Play, play: Gamepad2, practice: Pencil };
 
-export type NodeKind = { kind: 'topic'; view: TopicView; index: number; current: boolean } | { kind: 'make' } | { kind: 'trophy'; done: boolean; title: string };
+export type NodeKind = { kind: 'topic'; view: TopicView; index: number; current: boolean; extension?: boolean } | { kind: 'make' } | { kind: 'trophy'; done: boolean; title: string };
 
 /** StepNode (wireframe page 1 + S3): done (green tick + stars), current (gold, pulsing), locked (white + lock). */
 export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; onOpen: () => void; compact?: boolean }) {
@@ -102,9 +102,9 @@ export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; on
     pillClass = 'bg-primary-soft text-primary-strong';
     name = 'Make with your kit, or try it at home';
   } else {
-    const { view, index, current } = node;
+    const { view, index, current, extension } = node;
     const StepIcon = STEP_ICON[resumeStep(view.record)];
-    pill = `${index} · ${view.topic.title}`;
+    pill = extension ? `Explore more · ${view.topic.title}` : `${index} · ${view.topic.title}`;
     if (view.state === 'locked') {
       circle = (
         <span className="grid h-14 w-14 place-items-center rounded-full bg-white text-ink-muted shadow-soft">
@@ -137,6 +137,7 @@ export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; on
       name = `Topic ${index}, ${view.topic.title}, ${view.state === 'in-progress' ? 'in progress' : 'ready'}`;
     }
   }
+  if (node.kind === 'topic' && node.extension) name += ', explore more';
   const stars = node.kind === 'topic' && node.view.state === 'completed' ? node.view.stars : null;
   return (
     <button type="button" onClick={onOpen} aria-label={name} className={cn('group flex items-center focus-visible:outline-none', compact ? 'w-full gap-3 text-left' : 'flex-col gap-1')}>

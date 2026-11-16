@@ -51,22 +51,26 @@ export default function ChapterPage() {
   if (!lesson || !path) return <Navigate to={subjectId ? worldPath(subjectId) : '/home'} replace />;
 
   const { world, topics, current } = path;
-  const total = topics.length;
+  // Required topics decide the chapter trophy; "Explore more" topics come after it.
+  const required = topics.filter((t) => !t.topic.extension);
+  const total = required.length;
   const progress = total ? path.mastered / total : 0;
-  const currentIndex = current ? topics.indexOf(current) + 1 : total;
+  const currentIndex = current && required.includes(current) ? required.indexOf(current) + 1 : total;
   const chapterDone = total > 0 && path.mastered === total;
   const hasKit = KIT_CHAPTERS.has(lesson.id);
 
-  // Nodes in path order: topics, a kit checkpoint halfway, the trophy at the landmark.
-  const nodes: { id: string; node: NodeKind }[] = topics.map((view, i) => ({
+  // Nodes in path order: topics, a kit checkpoint halfway, the trophy at the landmark, then "Explore more".
+  const topicNode = (view: (typeof topics)[number]) => ({
     id: view.topic.id,
     node: {
-      kind: 'topic',
+      kind: 'topic' as const,
       view,
-      index: i + 1,
+      index: topics.indexOf(view) + 1,
       current: view === current && view.state !== 'completed',
+      extension: view.topic.extension === true,
     },
-  }));
+  });
+  const nodes: { id: string; node: NodeKind }[] = required.map(topicNode);
   if (hasKit)
     nodes.splice(Math.ceil(total / 2), 0, {
       id: 'make',
@@ -80,6 +84,7 @@ export default function ChapterPage() {
       title: `${lesson.title} champion`,
     },
   });
+  for (const extra of topics.filter((t) => t.topic.extension)) nodes.push(topicNode(extra));
 
   const openNode = (id: string) => {
     if (id === 'make') setMakeOpen(true);

@@ -418,3 +418,16 @@ CBSE's curriculum pages do not cover Classes I–VIII. In practice CBSE points s
 9. **KTBS edition and revision years** for the Kannada books: not verified. Only the "TEXTBOOKS 2026-27" menu and the 2026-27 file names were confirmed. DSERT's NCF-2005-era syllabus documents may not match the current books.
 10. **ePathshala** (epathshala.nic.in) was not used. All NCERT data came from ncert.nic.in directly.
 11. **Unit headings for Class 1 *Mridang*** come from a two-column Contents layout. The lesson titles and the count (9) are certain; which unit each lesson sits in is very likely but was checked only against page order.
+
+
+## Topic-level mapping checked on 16 Nov 2026
+
+Checked against the official PDF of NCERT *Curiosity* Class 6, Chapter 4 "Exploring Magnets"
+(https://ncert.nic.in/textbook/pdf/fecu104.pdf, Reprint 2026-27, printed pages 61-78). Wording in
+the app is original; nothing is copied from the book. Teacher review is still pending.
+
+| Topic | Book section | Printed pages |
+|---|---|---|
+| What do magnets attract? (`magnets-what-they-attract`) | 4.1 Magnetic and Non-magnetic Materials, Activity 4.1 | 62-64 |
+| Poles: attract and repel (`magnets-poles`) | 4.2 Poles of Magnet; 4.4 Attraction and Repulsion between Magnets | 64-65, 68-71 |
+| Finding directions with a magnet (`magnets-directions`) | 4.3 Finding Directions, Activities 4.3 and 4.4, "Do you know?" (matsya-yantra) | 65-67 |

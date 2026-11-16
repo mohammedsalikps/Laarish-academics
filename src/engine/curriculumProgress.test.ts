@@ -150,3 +150,23 @@ describe('progress saved before the curriculum expansion', () => {
     }
   });
 });
+
+describe('"Explore more" topics added to a finished lesson', () => {
+  it('unlock and reward like any topic, but never reopen a completed lesson', () => {
+    const lesson = getLesson('magnets')!;
+    let state = learnerState({ grade: 6 });
+    state = playTopic(state, 'magnets-what-they-attract');
+    state = playTopic(state, 'magnets-poles');
+    // The original two topics finish the lesson, exactly as before the compass topic existed.
+    expect(lessonView(lesson, state.topics).state).toBe('completed');
+    expect(lessonView(lesson, state.topics).progress).toBe(1);
+    const compass = getTopic('magnets-directions')!;
+    expect(compass.extension).toBe(true);
+    expect(isTopicUnlocked(compass, state.topics)).toBe(true);
+    const xp = totalXp(state);
+    state = playTopic(state, compass.id);
+    expect(state.topics[compass.id]?.status).toBe('completed');
+    expect(totalXp(state)).toBeGreaterThan(xp);
+    expect(lessonView(lesson, state.topics).state).toBe('completed');
+  });
+});

@@ -36,6 +36,7 @@ export function toTopicMeta(topic: Topic): TopicMeta {
     ...(topic.difficulty !== undefined && { difficulty: topic.difficulty }),
     ...(topic.prerequisites && { prerequisites: topic.prerequisites }),
     ...(topic.mastery && { mastery: topic.mastery }),
+    ...(topic.extension && { extension: true }),
     watch: { video: { id: topic.watch.video.id, status: topic.watch.video.status } },
     play: { title: topic.play.title, assessed: topic.play.assessed, weight: topic.play.weight, game: gameMeta },
     practice: { weight: topic.practice.weight, questions: topic.practice.questions.map((q) => ({ id: q.id })) },
