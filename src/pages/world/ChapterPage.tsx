@@ -18,14 +18,13 @@ import type { IslandScene } from '../../world3d/IslandScene';
 import { chapterPathUrl, rememberChapter, topicSheetUrl, worldPath } from '../../world3d/paths';
 import { useHeaderBottom } from '../../world3d/useHeaderBottom';
 import { useLiteMode } from '../../world3d/useLiteMode';
-import { dayKey } from '../home/schoolWeek';
+import { StreakWeek } from '../../components/progress/StreakWeek';
 import { PathNode, type NodeKind } from './pins';
 import { TopicSheet } from './TopicSheet';
 import { chapterPath, percent, pinnedChapters } from './worldData';
 
 /** Chapters with a matching Laarish kit get a "Make with your kit" checkpoint on the path (S3 note 6). */
 const KIT_CHAPTERS = new Set(['magnets']);
-const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 /**
  * Chapter path (wireframe S3, Z3): the same world scene with a close camera,
@@ -110,8 +109,6 @@ export default function ChapterPage() {
 
   // Streak bar (Mon–Sun of this week).
   const today = new Date();
-  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
-  const active = new Set(state.activeDays ?? []);
   const streak = currentStreak(state, localDateKey(today));
 
   const sheetIndex = topicId ? topics.findIndex((t) => t.topic.id === topicId) : -1;
@@ -182,26 +179,9 @@ export default function ChapterPage() {
           <div className="flex items-center gap-2">
             <Flame className={cn('h-5 w-5 shrink-0 text-[#E8833A]', streak > 0 && 'fill-current')} aria-hidden="true" />
             <span className="shrink-0 text-sm font-extrabold text-ink">{streak}-day streak</span>
-            <ol className="ml-auto flex gap-1" aria-label="This week">
-              {DAY_LETTERS.map((letter, i) => {
-                const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
-                const key = dayKey(d);
-                const isToday = key === dayKey(today);
-                const played = active.has(key);
-                return (
-                  <li
-                    key={key}
-                    aria-label={`${d.toLocaleDateString(undefined, { weekday: 'long' })}${played ? ', played' : isToday ? ', today' : ''}`}
-                    className={cn(
-                      'grid h-6 w-6 place-items-center rounded-full text-[10px] font-extrabold',
-                      played ? 'bg-[#E8833A] text-white' : isToday ? 'text-ink ring-2 ring-[#E8833A]' : 'bg-canvas-sunken text-ink-muted',
-                    )}
-                  >
-                    {letter}
-                  </li>
-                );
-              })}
-            </ol>
+            <div className="ml-auto">
+              <StreakWeek activeDays={state.activeDays ?? []} today={today} />
+            </div>
           </div>
           <div
             className="relative mt-2 h-3 rounded-full bg-canvas-sunken"

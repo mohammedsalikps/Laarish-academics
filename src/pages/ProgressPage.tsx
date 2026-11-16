@@ -1,4 +1,4 @@
-import { BookOpen, Coins, Flame, ShieldCheck, Star, Trophy, Zap } from 'lucide-react';
+import { BookOpen, Coins, Flame, ShieldCheck, Star, Trophy, UserRound, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState, ProgressBar, SectionHeading, StarRow } from '../components/ui/primitives';
 import { getTopic, lessonLabel, topicLabel } from '../content';
@@ -8,7 +8,12 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { cn } from '../lib/cn';
 import { formatShortDate, localDateKey } from '../lib/dates';
 import { lessonPath, subjectPath } from '../lib/paths';
+import { useAcademicsPrefs } from '../state/academicsPrefs';
 import { useProgress } from '../state/ProgressProvider';
+import { StreakWeek } from '../components/progress/StreakWeek';
+import { worldPath } from '../world3d/paths';
+import { WorldIcon } from '../world3d/WorldChip';
+import { allClassWorlds, percent } from './world/worldData';
 import { coinBalance, currentStreak, levelInfo, longestStreak, overallProgress, subjectViews, totalStars, totalXp, xpHistory } from '../state/selectors';
 
 export default function ProgressPage() {
@@ -20,6 +25,8 @@ export default function ProgressPage() {
   const maxXp = Math.max(REWARD_RULES.dailyGoal.default, ...history.map((h) => h.xp));
   const goal = state.learner?.dailyGoalXp ?? REWARD_RULES.dailyGoal.default;
   const subjects = subjectViews(state);
+  const prefs = useAcademicsPrefs();
+  const worlds = allClassWorlds(state, prefs);
   const overall = overallProgress(state);
   const startedLessons = subjects.flatMap((s) => s.lessons).filter((l) => l.state === 'in-progress' || l.state === 'completed' || l.state === 'available');
 
@@ -40,9 +47,14 @@ export default function ProgressPage() {
             Level {level.level} · {level.xpIntoLevel} / {level.xpForNext} XP to the next level · Best streak {longestStreak(state)} {longestStreak(state) === 1 ? 'day' : 'days'}
           </p>
         </div>
-        <Link to="/parents" className="btn btn-secondary btn-sm">
-          <ShieldCheck className="h-4 w-4 text-success" aria-hidden="true" /> Summary for grown-ups
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/settings" className="btn btn-secondary btn-sm">
+            <UserRound className="h-4 w-4 text-primary" aria-hidden="true" /> Guide and avatar
+          </Link>
+          <Link to="/parents" className="btn btn-secondary btn-sm">
+            <ShieldCheck className="h-4 w-4 text-success" aria-hidden="true" /> Summary for grown-ups
+          </Link>
+        </div>
       </div>
 
       <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -58,6 +70,49 @@ export default function ProgressPage() {
           </li>
         ))}
       </ul>
+
+      {/* Wireframe P1: this week's streak and the six worlds (real mastery, best stars; tap to open). */}
+      <div className="mt-6 grid gap-4 lg:grid-cols-5">
+        <section className="card p-5 lg:col-span-2" aria-labelledby="streak-week">
+          <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-[0.14em] text-[#B8540F]">
+            <Flame className="h-4 w-4" aria-hidden="true" /> Streak
+          </p>
+          <h2 id="streak-week" className="mt-1 font-display text-2xl font-extrabold">
+            {currentStreak(state, today)} {currentStreak(state, today) === 1 ? 'day' : 'days'}
+          </h2>
+          <p className="text-sm font-bold text-ink-muted">Best {longestStreak(state)}</p>
+          <div className="mt-3">
+            <StreakWeek activeDays={state.activeDays} size="md" />
+          </div>
+          <p className="mt-2 text-xs font-semibold text-ink-muted">A missed day stays grey, never red.</p>
+        </section>
+        <section className="card p-5 lg:col-span-3" aria-labelledby="your-worlds">
+          <h2 id="your-worlds" className="text-lg font-extrabold">
+            Your worlds
+          </h2>
+          <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {worlds.map((w) => {
+              const best = Math.max(0, ...w.chapters.flatMap((c) => c.view.topics.map((t) => t.stars)));
+              return (
+                <li key={w.subject.id}>
+                  <Link
+                    to={worldPath(w.subject.id)}
+                    className="flex min-h-[88px] flex-col gap-1 rounded-2xl border-2 border-line bg-surface p-3 transition hover:border-primary/40"
+                    aria-label={`${w.theme.name}, ${w.subject.name}: ${percent(w.mastery)}% mastery, best ${best} of 3 stars. Open world`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <WorldIcon theme={w.theme} size={26} />
+                      <span className="font-display text-lg font-extrabold">{percent(w.mastery)}%</span>
+                    </span>
+                    <span className="truncate text-sm font-bold text-ink">{w.theme.name}</span>
+                    <StarRow stars={best} size={14} />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-5">
         <section className="card p-5 lg:col-span-3" aria-labelledby="xp-week">

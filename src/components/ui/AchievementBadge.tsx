@@ -4,9 +4,9 @@ import { cn } from '../../lib/cn';
 import { Icon } from './Icon';
 
 const TONES = {
-  primary: { ring: '#5847E0', bg: '#EEEBFF', fg: '#4031B8' },
-  success: { ring: '#1E9A5F', bg: '#E1F5EB', fg: '#127045' },
-  reward: { ring: '#F2A516', bg: '#FFF3D6', fg: '#9E6200' },
+  primary: { ring: '#0F7479', bg: '#E0F3F3', fg: '#0A5A5F' },
+  success: { ring: '#27824F', bg: '#E2F3E6', fg: '#1A643A' },
+  reward: { ring: '#F6BE32', bg: '#FDF0C8', fg: '#8C5C00' },
   coral: { ring: '#F06A4D', bg: '#FFE9E3', fg: '#B04028' },
   sky: { ring: '#3B97DE', bg: '#E2F1FC', fg: '#1F64A0' },
 } as const;
