@@ -19,10 +19,10 @@ const config: AreaGridConfig = {
   ],
 };
 
-/* The grid's SVG is (64 + 8 × 40 + 6) by (34 + 6 × 40 + 6) units; laid out 1 px per unit here. */
-const BOX = { left: 0, top: 0, width: 390, height: 280 };
+/* The grid's SVG is (38 + 8 × 40 + 6) by (34 + 6 × 40 + 6) units; laid out 1 px per unit here. */
+const BOX = { left: 0, top: 0, width: 364, height: 280 };
 /** Centre of a grid square, in client px. */
-const at = (col: number, row: number) => ({ clientX: BOX.left + 64 + col * 40 + 20, clientY: BOX.top + 34 + row * 40 + 20 });
+const at = (col: number, row: number) => ({ clientX: BOX.left + 38 + col * 40 + 20, clientY: BOX.top + 34 + row * 40 + 20 });
 
 function setup({ reducedMotion = true } = {}) {
   const onEvent = vi.fn();

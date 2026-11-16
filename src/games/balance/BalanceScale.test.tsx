@@ -137,3 +137,34 @@ describe('Balance scale (played through the UI)', () => {
     expect(beam(moving.container).style.transition).toContain('transform');
   });
 });
+
+describe('Balance scale with long expressions', () => {
+  it('keeps every pan label inside the scene, whichever number is chosen', async () => {
+    const long = getTopic('m7-expressions-equal')!.play.game as BalanceGameConfig;
+    const round = long.rounds.find((r) => r.id === 'friendly-pair')!;
+    const user = userEvent.setup();
+    const { container } = render(
+      <ProgressProvider repository={new MemoryProgressRepository(learnerState())}>
+        <BalanceScale config={{ ...long, rounds: [round] }} topicId="m7-expressions-equal" attempt={0} reducedMotion onEvent={() => {}} onComplete={() => {}} onRestart={() => {}} />
+      </ProgressProvider>,
+    );
+    const [minX, , width] = scale().getAttribute('viewBox')!.split(' ').map(Number);
+    const labelBoxesFit = () => {
+      // Each pan is a <g> moved to the pan's centre; its label box is the <rect> with rounded corners.
+      for (const pan of container.querySelectorAll('svg g[style*="translate"]')) {
+        const x = Number(/translate\(([-\d.]+)px/.exec(pan.getAttribute('style')!)![1]);
+        const box = pan.querySelector('rect')!;
+        const left = x + Number(box.getAttribute('x'));
+        expect(left).toBeGreaterThanOrEqual(minX);
+        expect(left + Number(box.getAttribute('width'))).toBeLessThanOrEqual(minX + width);
+      }
+    };
+    expect(minX).toBeLessThan(0); // "125 + ? + 75" needs more room than the plain scene
+    labelBoxesFit();
+    for (const value of round.choices) {
+      await user.click(choice(value));
+      expect(scale()).toHaveAttribute('viewBox', `${minX} 0 ${width} 230`); // the scene does not jump
+      labelBoxesFit();
+    }
+  });
+});

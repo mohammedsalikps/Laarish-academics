@@ -53,6 +53,23 @@ describe('Friction Lab (played through the UI)', () => {
     expect(screen.getByRole('list', { name: /distance comparison/i })).toBeInTheDocument();
   });
 
+  it('shows how many surfaces have been tested out of the number the experiment needs', async () => {
+    const { user } = setup();
+    expect(screen.getByText('Surfaces tested: 0 of 2')).toBeInTheDocument();
+    await user.click(surface(/grass/i));
+    await user.click(band(/short/i));
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
+    expect(await screen.findByText('Surfaces tested: 1 of 2')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /try another surface/i }));
+    expect(screen.getByText('Surfaces tested: 1 of 2')).toBeInTheDocument();
+    await user.click(surface(/polished wood/i));
+    await user.click(band(/far/i));
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
+    await screen.findByText(/4\.6 m on polished wood/i);
+    await user.click(screen.getByRole('button', { name: /test another surface/i }));
+    expect(screen.getByText('Surfaces tested: 2 of 2')).toBeInTheDocument();
+  });
+
   it('can be completed without a tutorial: explore, three challenges, then one question', async () => {
     const { user, onComplete, onEvent } = setup();
     const explore = async (s: RegExp, b: RegExp) => {

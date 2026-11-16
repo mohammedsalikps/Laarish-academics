@@ -29,9 +29,13 @@ import { RoundDots } from '../RoundDots';
 
 /* Grid drawing, in SVG units. The SVG scales to the card's width, so cells stay square on any phone. */
 const CELL = 40;
-/** Room for the side-length labels along the top and the left of the rectangle. */
+/**
+ * Room for the side-length labels along the top and the left of the rectangle. The left label is
+ * stacked ("8" over "cm") so the margin stays narrow and a 10-column grid keeps squares of at least
+ * 24 CSS px (the touch-target minimum) on a 320 px phone.
+ */
 const PAD_T = 34;
-const PAD_L = 64;
+const PAD_L = 38;
 const PAD_R = 6;
 const PAD_B = 6;
 /** Largest a cell gets on a wide screen, in CSS px. */
@@ -230,7 +234,8 @@ export default function AreaBuilder({ config, reducedMotion, onEvent, onComplete
           aria-label={`Grid, ${config.cols} by ${config.rows} squares. ${drawn ? `Your rectangle is ${state.width} wide and ${state.height} tall.` : 'No rectangle yet.'}`}
           aria-describedby={keysId}
           className={cn(
-            'mx-auto mt-3 touch-none select-none rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/40',
+            // On phones the grid also uses the card's side padding, so its squares stay as large as possible.
+            '-mx-1.5 mt-3 touch-none select-none rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/40 sm:mx-auto',
             editable ? 'cursor-crosshair' : 'cursor-default',
             state.phase === 'incorrect' && animate && 'animate-shake',
           )}
@@ -317,7 +322,9 @@ function Grid({
   const drawn = hasRectangle(size);
   const unit = lengthUnit(round);
   // Short units ("cm", "m") fit next to the sides; longer ones are left to the readout.
-  const sideLabel = (n: number) => (unit.length <= 3 ? `${n} ${unit}` : String(n));
+  const unitShown = unit.length <= 3;
+  const sideLabel = (n: number) => (unitShown ? `${n} ${unit}` : String(n));
+  const leftX = PAD_L - 19;
   const rectW = size.width * CELL;
   const rectH = size.height * CELL;
   return (
@@ -346,8 +353,20 @@ function Grid({
           <text x={PAD_L + rectW / 2} y={PAD_T - 10} textAnchor="middle" fontSize="20" fontWeight="700" className={cn('font-display', correct ? 'fill-success-strong' : 'fill-primary-strong')}>
             {sideLabel(size.width)}
           </text>
-          <text x={PAD_L - 9} y={PAD_T + rectH / 2} textAnchor="end" dominantBaseline="central" fontSize="20" fontWeight="700" className={cn('font-display', correct ? 'fill-success-strong' : 'fill-primary-strong')}>
-            {sideLabel(size.height)}
+          {/* The height, stacked ("8" over "cm") so it fits the narrow left margin. */}
+          <text x={leftX} y={PAD_T + rectH / 2} textAnchor="middle" fontSize="20" fontWeight="700" className={cn('font-display', correct ? 'fill-success-strong' : 'fill-primary-strong')}>
+            {unitShown ? (
+              <>
+                <tspan x={leftX} dy="-2">
+                  {size.height}
+                </tspan>{' '}
+                <tspan x={leftX} dy="17" fontSize="16">
+                  {unit}
+                </tspan>
+              </>
+            ) : (
+              <tspan dominantBaseline="central">{size.height}</tspan>
+            )}
           </text>
           {!correct && <circle cx={PAD_L + rectW} cy={PAD_T + rectH} r="9" strokeWidth="3" pointerEvents="none" className="fill-surface stroke-primary" />}
         </>

@@ -51,6 +51,27 @@ const SURFACE_DOT: Record<SurfaceDefinition['texture'], string> = {
   ice: '#8ED1F5',
 };
 
+/** Scene text never renders smaller than this on screen (phones shrink the whole scene). */
+const MIN_TEXT_PX = 12;
+
+/** On-screen pixels per scene unit, so labels can grow when a phone shrinks the scene. */
+function useSceneScale(ref: { current: SVGSVGElement | null }): number {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const update = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w > 0) setScale(w / VIEW_W);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return scale;
+}
+
 const rampPoint = (t: number): [number, number] => [RAMP_TOP[0] + (TRACK_X0 - RAMP_TOP[0]) * t, RAMP_TOP[1] + (TRACK_Y - RAMP_TOP[1]) * t];
 const RAMP_ANGLE = (Math.atan2(TRACK_Y - RAMP_TOP[1], TRACK_X0 - RAMP_TOP[0]) * 180) / Math.PI;
 
@@ -81,10 +102,17 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
   const showCheck = Boolean(config.check && solvedAll && state.mode !== 'challenge');
   const labComplete = isLabComplete(state, config);
   const experimentDone = isExperimentComplete(state, config);
+  /** "Surfaces tested X of N" while exploring (N = how many the experiment needs). */
+  const testedCount = testedSurfaceIds(state).length;
+  const surfacesNeeded = Math.min(config.minSurfacesToComplete, config.surfaces.length);
+  const testProgress = state.mode === 'explore' ? { tested: testedCount, need: surfacesNeeded } : undefined;
   const [showResults, setShowResults] = useState(false);
   const [changingSurface, setChangingSurface] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
+  const sceneScale = useSceneScale(svgRef);
+  /** A scene font size that stays readable (at least MIN_TEXT_PX on screen). */
+  const textSize = (base: number) => Math.max(base, MIN_TEXT_PX / sceneScale);
   const carRef = useRef<SVGGElement>(null);
   const speedRef = useRef<HTMLSpanElement>(null);
   const distRef = useRef<HTMLSpanElement>(null);
@@ -368,11 +396,15 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
           {(Object.keys(bandRanges) as DistanceBand[]).map((b) => {
             const [a, z] = bandRanges[b];
             const target = challenge?.target === b;
+            const fs = textSize(target ? 16 : 19);
+            // On a narrow phone "Goal: Short" no longer fits its band: the band's outline marks the goal instead.
+            const goal = `Goal: ${BAND_TITLES[b]}`;
+            const label = target && goal.length * fs * 0.58 <= (z - a) * pxPerM - 8 ? goal : BAND_TITLES[b];
             return (
               <g key={b}>
                 <rect x={trackX(a)} y={TRACK_Y + 22} width={(z - a) * pxPerM} height="26" fill={BAND_STYLE[b].fill} stroke={target ? BAND_STYLE[b].text : 'none'} strokeWidth={target ? 3 : 0} />
-                <text x={trackX((a + z) / 2)} y={TRACK_Y + 42} textAnchor="middle" fontFamily="Nunito Variable, sans-serif" fontWeight="800" fontSize={target ? 16 : 19} fill={BAND_STYLE[b].text}>
-                  {target ? `Goal: ${BAND_TITLES[b]}` : BAND_TITLES[b]}
+                <text x={trackX((a + z) / 2)} y={TRACK_Y + 31 + fs * 0.58} textAnchor="middle" fontFamily="Nunito Variable, sans-serif" fontWeight="800" fontSize={fs} fill={BAND_STYLE[b].text}>
+                  {label}
                 </text>
               </g>
             );
@@ -381,7 +413,15 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
           {Array.from({ length: config.trackLength + 1 }, (_, m) => (
             <g key={m}>
               <line x1={trackX(m)} y1={TRACK_Y + 18} x2={trackX(m)} y2={TRACK_Y + 52} stroke="rgb(29 26 74 / 0.35)" strokeWidth="2" />
-              <text x={trackX(m)} y={TRACK_Y + 74} textAnchor="middle" fontFamily="Nunito Variable, sans-serif" fontWeight="800" fontSize="20" fill="#46437A">
+              <text
+                x={m === config.trackLength ? trackX(m) + 6 : trackX(m)}
+                y={TRACK_Y + 74}
+                textAnchor={m === config.trackLength ? 'end' : 'middle'}
+                fontFamily="Nunito Variable, sans-serif"
+                fontWeight="800"
+                fontSize={textSize(20)}
+                fill="#46437A"
+              >
                 {m} m
               </text>
             </g>
@@ -411,7 +451,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
             <ToyCar />
           </g>
         </svg>
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-2" aria-hidden="true">
+        <div className="pointer-events-none absolute right-2 top-2 flex flex-wrap justify-end gap-1.5 sm:left-3 sm:right-auto sm:top-3 sm:justify-start sm:gap-2" aria-hidden="true">
           <span className="chip bg-surface/90 text-xs text-ink-soft shadow-soft">
             Speed <span ref={speedRef} className="tabular-nums text-ink">0.0</span> m/s
           </span>
@@ -420,7 +460,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
           </span>
         </div>
         {canDrag && (
-          <span className="pointer-events-none absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-ink/75 px-2.5 py-1 text-[0.7rem] font-bold text-white" aria-hidden="true">
+          <span className="pointer-events-none mx-2 mb-2 inline-flex items-center gap-1 rounded-full bg-ink/75 px-2.5 py-1 text-xs font-bold text-white sm:absolute sm:bottom-2 sm:left-2 sm:m-0" aria-hidden="true">
             <Hand className="h-3.5 w-3.5" /> Drag the car, or tap a push below
           </span>
         )}
@@ -466,9 +506,12 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
                   </button>
                 </div>
               ) : (
-                <button type="button" className="btn btn-primary btn-lg w-full sm:w-auto" onClick={tryAnother}>
-                  <FlaskConical className="h-5 w-5" aria-hidden="true" /> {state.mode === 'explore' ? 'Try another surface' : 'Test another surface'}
-                </button>
+                <div className="space-y-2">
+                  {testProgress && <TestedCount {...testProgress} />}
+                  <button type="button" className="btn btn-primary btn-lg w-full sm:w-auto" onClick={tryAnother}>
+                    <FlaskConical className="h-5 w-5" aria-hidden="true" /> {state.mode === 'explore' ? 'Try another surface' : 'Test another surface'}
+                  </button>
+                </div>
               )
             }
           />
@@ -476,7 +519,15 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
           <div className="space-y-4">
             {/* 1. Surface */}
             {showSurfaceChoice ? (
-              <SurfaceChoice surfaces={config.surfaces} selected={state.surfaceId} tested={state.runs.map((r) => r.surfaceId)} uid={uid} disabled={state.phase === 'running'} onSelect={selectSurface} />
+              <SurfaceChoice
+                surfaces={config.surfaces}
+                selected={state.surfaceId}
+                tested={state.runs.map((r) => r.surfaceId)}
+                progress={testProgress}
+                uid={uid}
+                disabled={state.phase === 'running'}
+                onSelect={selectSurface}
+              />
             ) : (
               surface && (
                 <p className="flex items-center justify-between gap-2 text-sm font-bold text-ink-soft">
@@ -589,10 +640,22 @@ function compareLine(runs: RunRecord[], surfaces: Map<string, SurfaceDefinition>
     .join(' · ');
 }
 
+/** Visible progress through the experiment: "Surfaces tested: 1 of 2", then a tick. */
+function TestedCount({ tested, need }: { tested: number; need: number }) {
+  const done = tested >= need;
+  return (
+    <p className={cn('inline-flex items-center gap-1 text-sm font-extrabold', done ? 'text-success-strong' : 'text-ink-soft')}>
+      {done && <Check className="h-4 w-4" aria-hidden="true" />}
+      {tested > need ? `Surfaces tested: ${tested}` : `Surfaces tested: ${tested} of ${need}`}
+    </p>
+  );
+}
+
 function SurfaceChoice({
   surfaces,
   selected,
   tested,
+  progress,
   uid,
   disabled,
   onSelect,
@@ -600,13 +663,17 @@ function SurfaceChoice({
   surfaces: SurfaceDefinition[];
   selected: string | null;
   tested: string[];
+  progress?: { tested: number; need: number };
   uid: string;
   disabled: boolean;
   onSelect: (id: string) => void;
 }) {
   return (
     <div>
-      <p className="mb-2 font-bold">Choose a surface</p>
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p className="font-bold">Choose a surface</p>
+        {progress && <TestedCount {...progress} />}
+      </div>
       <div className="grid grid-cols-3 gap-2 sm:gap-3" role="radiogroup" aria-label="Surface">
         {surfaces.map((s) => (
           <button

@@ -16,12 +16,30 @@ function sideLabel(terms: BalanceTerm[], unknownLabel: string, chosen: number | 
   return terms.map((t) => (t === 'unknown' ? (chosen === null ? unknownLabel : String(chosen)) : String(t))).join(' + ');
 }
 
+/** Width of a pan's label box: room for the whole expression (Fredoka digits are about 0.6 em at 18 units). */
+function labelWidth(label: string): number {
+  return Math.max(72, label.length * 11 + 24);
+}
+
+/**
+ * The scene's viewBox. A long expression ("125 + 100 + 75") would run off the left edge, so the view
+ * widens just enough for the round's longest label (sized for its widest choice, so the scene does
+ * not jump when a number is picked).
+ */
+function sceneViewBox(round: BalanceGameConfig['rounds'][number], unknownLabel: string): string {
+  const widest = round.choices.reduce((a, c) => (String(c).length > String(a).length ? c : a), round.choices[0]);
+  const longest = [round.left, round.right].flatMap((terms) => [sideLabel(terms, unknownLabel, null), sideLabel(terms, unknownLabel, widest ?? null)]);
+  const half = Math.max(...longest.map(labelWidth)) / 2;
+  const extra = Math.max(0, Math.ceil(half - (PIVOT.x - ARM) + 4));
+  return `${-extra} 0 ${360 + extra * 2} 230`;
+}
+
 function Pan({ x, y, label, highlight, animate }: { x: number; y: number; label: string; highlight: boolean; animate: boolean }) {
   return (
     <g style={{ transform: `translate(${x}px, ${y}px)`, transition: animate ? SWING : 'none' }}>
       <line x1="0" y1="0" x2="-44" y2="58" stroke="#8B8FA8" strokeWidth="2.5" />
       <line x1="0" y1="0" x2="44" y2="58" stroke="#8B8FA8" strokeWidth="2.5" />
-      <rect x={-Math.max(36, label.length * 7.5)} y="22" width={Math.max(72, label.length * 15)} height="30" rx="10" fill={highlight ? '#ECE9FF' : '#FFFFFF'} stroke={highlight ? '#5847E0' : '#D9DBE8'} strokeWidth="2" />
+      <rect x={-labelWidth(label) / 2} y="22" width={labelWidth(label)} height="30" rx="10" fill={highlight ? '#ECE9FF' : '#FFFFFF'} stroke={highlight ? '#5847E0' : '#D9DBE8'} strokeWidth="2" />
       <text x="0" y="43" textAnchor="middle" className="fill-ink font-display" fontSize="18" fontWeight="700">
         {label}
       </text>
@@ -176,7 +194,7 @@ export default function BalanceScale({ config, reducedMotion, onEvent, onComplet
 
       {/* The one play area: the scale, both totals, and the numbers to try. */}
       <div className={cn('card grid place-items-center gap-3 p-4 sm:p-6', correct && 'ring-4 ring-success/30')}>
-        <svg viewBox="0 0 360 230" className="h-auto w-full max-w-md" role="img" aria-label={`Balance scale. Left side: ${leftLabel}. Right side: ${rightLabel}. The scale is ${tiltText}.`}>
+        <svg viewBox={sceneViewBox(round, config.unknownLabel)} className="h-auto w-full max-w-md" role="img" aria-label={`Balance scale. Left side: ${leftLabel}. Right side: ${rightLabel}. The scale is ${tiltText}.`}>
           <path d="M 150 222 L 210 222 L 192 200 L 168 200 Z" fill="#6B6F8C" />
           <rect x="174" y={PIVOT.y} width="12" height="140" rx="6" fill="#8B8FA8" />
           <g style={{ transform: `rotate(${(t ?? 0) * MAX_TILT_DEG}deg)`, transformOrigin: `${PIVOT.x}px ${PIVOT.y}px`, transition: animate ? SWING : 'none' }}>
