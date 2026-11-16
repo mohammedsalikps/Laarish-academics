@@ -9,10 +9,10 @@ A video counts as **completed** only when `public/media/manifest.json` points at
 
 | | Topics (Watch videos) | Completed | Pending | Failed |
 |---|---|---|---|---|
-| Priority 1: Class 6 Science and Mathematics | 20 | 0 | 20 | 0 |
+| Priority 1: Class 6 Science and Mathematics | 20 | 1 | 19 | 0 |
 | Priority 2: demonstration lessons | 12 | 1 | 11 | 0 |
 | Priority 3: all other lessons | 209 | 0 | 209 | 0 |
-| **All topics** | **241** | **1** | **240** | **0** |
+| **All topics** | **241** | **2** | **239** | **0** |
 
 Lessons: 174 in the catalogue. 99 have topics, so each has one video per topic. 75 are planned lessons with no content yet; they get videos once their topics are written.
 
@@ -20,7 +20,7 @@ Lessons: 174 in the catalogue. 99 have topics, so each has one video per topic. 
 
 | Priority | Subject | Class | Lesson | Topics | Completed | Pending | Failed |
 |---|---|---|---|---|---|---|---|
-| 1 | Science | 6 | Magnets | 3 | 0 | 3 | 0 |
+| 1 | Science | 6 | Magnets | 3 | 1 | 2 | 0 |
 | 1 | Science | 6 | Separating Mixtures | 2 | 0 | 2 | 0 |
 | 1 | Science | 6 | Food and Nutrients | 2 | 0 | 2 | 0 |
 | 1 | Science | 6 | States of Water | 3 | 0 | 3 | 0 |

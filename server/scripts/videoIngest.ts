@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { put } from '@vercel/blob';
@@ -17,8 +17,12 @@ import { buildVideoQueue, captionsVtt } from '../../shared/media/videoQueue.js';
  * upload all three to Vercel Blob (BLOB_READ_WRITE_TOKEN, server-side only) → point
  * public/media/manifest.json at the Blob URLs → record the result in content/video-log.json.
  *
- * Without BLOB_READ_WRITE_TOKEN it is a dry run: files are prepared in a temp folder and nothing
- * is published or marked completed. No URL is ever written that does not point at an uploaded file.
+ * `--local` stores the files in public/media (videos/, posters/, captions/) instead, served with
+ * the app like the first imported video; use it for a few clips before Blob is set up.
+ *
+ * Without BLOB_READ_WRITE_TOKEN (and without --local) it is a dry run: files are prepared in a temp
+ * folder and nothing is published or marked completed. No URL is ever written that does not point
+ * at a stored file.
  */
 
 interface Result {
@@ -30,14 +34,16 @@ interface Result {
 type LogEntry = { status: 'completed' | 'failed'; provider?: string; model?: string; error?: string; at: string };
 
 const root = process.cwd();
-const inputPath = process.argv[2];
+const args = process.argv.slice(2);
+const local = args.includes('--local');
+const inputPath = args.find((a) => !a.startsWith('--'));
 if (!inputPath) {
-  console.error('Usage: npm run videos:ingest -- <results.json>');
+  console.error('Usage: npm run videos:ingest -- <results.json> [--local]');
   process.exit(1);
 }
 const results = JSON.parse(readFileSync(inputPath, 'utf8')) as Result[];
 const token = process.env.BLOB_READ_WRITE_TOKEN;
-const dryRun = !token;
+const dryRun = !token && !local;
 const jobs = new Map(buildVideoQueue(TOPICS, LESSONS, SUBJECTS).map((j) => [j.videoId, j]));
 const topicLanguage = new Map(TOPICS.map((t) => [t.watch.video.id, t.language]));
 
@@ -80,17 +86,26 @@ async function ingest(r: Result): Promise<void> {
     console.log(`dry run ${r.videoId}: ${duration.toFixed(1)} s, files in ${work} (set BLOB_READ_WRITE_TOKEN to publish)`);
     return;
   }
-  const upload = async (file: string, name: string, contentType: string) =>
-    (await put(`lesson-videos/${name}`, readFileSync(file), { access: 'public', token, contentType, addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 31_536_000 })).url;
+  const LOCAL_DIR: Record<string, string> = { 'video/mp4': 'videos', 'image/jpeg': 'posters', 'text/vtt': 'captions' };
+  const upload = async (file: string, name: string, contentType: string): Promise<string> => {
+    if (local) {
+      const dir = join(root, 'public/media', LOCAL_DIR[contentType]);
+      mkdirSync(dir, { recursive: true });
+      copyFileSync(file, join(dir, name));
+      return `/media/${LOCAL_DIR[contentType]}/${name}`;
+    }
+    return (await put(`lesson-videos/${name}`, readFileSync(file), { access: 'public', token, contentType, addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 31_536_000 })).url;
+  };
   const lang = topicLanguage.get(r.videoId) ?? 'en';
+  const base = r.videoId.replace(/^video-/, '');
   manifest.videos[r.videoId] = {
-    src: await upload(mp4, `${r.videoId}.mp4`, 'video/mp4'),
-    poster: await upload(poster, `${r.videoId}.jpg`, 'image/jpeg'),
-    captionsSrc: await upload(vtt, `${r.videoId}.${lang}.vtt`, 'text/vtt'),
+    src: await upload(mp4, `${base}.mp4`, 'video/mp4'),
+    poster: await upload(poster, `${base}.jpg`, 'image/jpeg'),
+    captionsSrc: await upload(vtt, `${base}.${lang}.vtt`, 'text/vtt'),
     captionsLang: lang,
   };
   log.entries[r.videoId] = { status: 'completed', provider: r.provider, model: r.model, at: new Date().toISOString() };
-  console.log(`published ${r.videoId} (${duration.toFixed(1)} s)`);
+  console.log(`published ${r.videoId} (${duration.toFixed(1)} s) to ${local ? 'public/media' : 'Vercel Blob'}`);
 }
 
 for (const r of results) {

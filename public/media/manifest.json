@@ -5,6 +5,12 @@
       "captionsSrc": "/media/captions/friction-what-is.en.vtt",
       "captionsLang": "en",
       "poster": "/media/posters/friction-what-is.jpg"
+    },
+    "video-magnets-attract": {
+      "src": "/media/videos/magnets-attract.mp4",
+      "poster": "/media/posters/magnets-attract.jpg",
+      "captionsSrc": "/media/captions/magnets-attract.en.vtt",
+      "captionsLang": "en"
     }
   }
 }

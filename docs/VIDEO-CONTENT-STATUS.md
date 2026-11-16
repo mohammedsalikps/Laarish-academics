@@ -1,6 +1,6 @@
 # Lesson videos: status, pipeline and blockers
 
-Last updated 16 Nov 2026. The per-lesson table is generated: see
+Last updated 16 Nov 2026 (evening). The per-lesson table is generated: see
 [VIDEO-CONTENT-STATUS.coverage.md](VIDEO-CONTENT-STATUS.coverage.md) (`npm run videos:queue`).
 
 ## Where things stand
@@ -8,8 +8,8 @@ Last updated 16 Nov 2026. The per-lesson table is generated: see
 | | Count |
 |---|---|
 | Topics (one Watch video each) | 241, in 99 lessons |
-| Real videos in the app | **1** (Friction: "What is friction?", from the initial import, checked by `npm run media:check`) |
-| Pending | 240: 20 priority 1 (Class 6 Science and Mathematics), 12 priority 2 (demonstration lessons), 208 priority 3 |
+| Real videos in the app | **2**: Friction "What is friction?" (initial import) and Magnets "What do magnets attract?" (Moda pilot, 16 Nov), both checked by `npm run media:check` |
+| Pending | 239: 19 priority 1 (Class 6 Science and Mathematics), 11 priority 2 (demonstration lessons), 209 priority 3 |
 | Failed | 0 |
 | Planned lessons without content | 75 of the 174 lessons; they get videos once their topics are written |
 
@@ -22,12 +22,38 @@ counted or shown as a real video.
 
 | Service | What was found | Usable now? |
 |---|---|---|
-| **Moda** ("Moda - Slides and Designs") | In the connector directory: slides, designs and **motion graphics**. Not yet connected to this session; the owner has a Pro plan and chose it as the first option | **Waiting for the connection.** Once connected, its tools decide whether it can produce short MP4 clips |
+| **Moda** (connected 16 Nov, paid plan, Laarish team) | **Cannot generate video or audio** (its connector says so). It can generate pictures inside a design (25 image models, metered), cut them out, animate them with keyframes, and export a page as MP4 (free) | **Yes, as animated clips built from AI-generated clay pictures**, not AI-generated video. Pilot made and in the app (below) |
 | **Higgsfield** | Connected. Workspace credits 124.89 (plan "max"). Catalogue includes Seedance 2.0 / 2.0 Mini / 2.5, Cinema Studio, MiniMax H3, Wan 2.6, FLUX 3 Video, Grok Video. The connector can **read** the catalogue, credits and finished generations, but has **no tool to start a generation** | Not from this session. Fallback: the owner generates in Higgsfield with the prompts in `content/video-queue.json`, and the finished clips are imported from the Higgsfield history |
 | **Figma Weave** | Can run video models with a cost quote and approval per run, but reports that the Figma account is not linked to Weave | No (needs the Figma–Weave link) |
 
 Per-video prices could not be read: the Higgsfield connector does not expose them and the public
 pricing page did not render. Prices will be quoted per batch before anything is generated.
+
+## The Moda pilot (16 Nov)
+
+**Magnets → "What do magnets attract?"**, 12 s, silent, captions from the topic's key ideas.
+Canvas (private, Laarish team, kit "Laarish Brand System 2026"):
+https://moda.app/canvas/a5338801-2b3b-441d-a013-ff7a072dc403
+
+| Time | What moves |
+|---|---|
+| 0–4.3 s | A red clay horseshoe magnet slides onto a classroom table; a yellow arrow shows the pull; paper clips and nails jump onto its tips; a green tick |
+| 4.3–8.3 s | The magnet beside a wooden pencil, plastic block, rubber eraser, glass marble and paper; nothing moves; a red cross |
+| 8.3–12 s | An aluminium can and copper coins stay put while a curious girl watches; a red cross |
+
+The title "What do magnets attract?" is typeset on screen for the first 2.5 s. Moda only generates
+pictures inside a real design, and typeset text is crisp, unlike lettering drawn by an image model;
+every other word is in the captions. Pictures: `nano-banana` (NanoBanana 2.1), 1K; two cut-outs with
+background removal. The ingest step re-encoded it to 720p H.264 (503 KB) with a poster and captions,
+and it plays in the Watch step.
+
+**Cost:** 60 Moda credits for the pilot (5 pictures + 2 cut-outs; balance 30,500 → 30,440).
+At that rate: the other 19 priority-1 clips ≈ 1,140 credits; all 239 pending ≈ 14,300 credits.
+Each clip is designed per topic (its own scenes and motion), so it also takes real authoring
+time; nothing is batch-stamped from a template.
+
+**Not done without approval:** the next batch (19 priority-1 clips). Each batch's credits are
+approved first.
 
 ## The pipeline
 
@@ -43,7 +69,9 @@ pricing page did not render. Prices will be quoted per batch before anything is 
    re-encode for phones (720p H.264, fast start, silent) → thumbnail at 1 s → WebVTT captions →
    upload to **Vercel Blob** → `public/media/manifest.json` points at the Blob URLs → result
    recorded in `content/video-log.json` (completed or failed with the reason).
-   Without `BLOB_READ_WRITE_TOKEN` it is a dry run that publishes nothing.
+   `--local` stores the files in `public/media` instead (served with the app, as the first two
+   videos are); use it for a handful of clips before Blob exists.
+   Without `BLOB_READ_WRITE_TOKEN` or `--local` it is a dry run that publishes nothing.
 4. **Check** (`npm run media:check`, `npm run videos:queue`): the coverage report updates.
 
 The app reads the manifest at run time, so new videos need no code change or rebuild.
@@ -54,4 +82,6 @@ Not created yet. It needs a Blob store on the existing `laarish-academics` proje
 Storage → Create → Blob), which adds `BLOB_READ_WRITE_TOKEN` to the project. That token is used
 only by the ingest script on a trusted machine (`BLOB_READ_WRITE_TOKEN=… npm run videos:ingest -- …`);
 it is never sent to the browser. Videos are public files on Vercel's CDN, cached for a year.
-The store will be created with the owner's confirmation when the first real clips exist.
+The store will be created with the owner's confirmation before the first large batch. When it is
+connected to the project, choose **Preview and Development only**: the token is used by the ingest
+script, never by the running app, so Production's environment variables stay unchanged.
