@@ -1,6 +1,6 @@
 # AI mentors (Rishi and Ayra): status and configuration
 
-Last updated 16 Nov 2026, branch `feature/tech-summit-redesign`.
+Last updated 16 Nov 2026 (17:20 UTC), branch `feature/tech-summit-redesign`.
 
 ## How it works
 
@@ -82,10 +82,60 @@ Optional server variables: `MENTOR_MODEL`, `MENTOR_EFFORT` (low/medium/high), `M
 `MENTOR_MAX_TOKENS`, `MENTOR_RATE_LIMIT`, `MENTOR_PROVIDER` (`auto` or `demo` to force demo mode).
 Never prefix any of these with `VITE_`: that would put them into the browser bundle.
 
-## Still to verify (needs access)
+## Investigation of "Ayra says Live AI but fails, Rishi is in demo mode" (16 Nov, 16:45–17:20 UTC)
 
-- [ ] Preview key added in Vercel (owner) → new preview deployment → `?check=message` result.
-- [ ] Production `?check=model` and `?check=message` results (read-only checks; no production
-      deployment or setting changes).
-- [ ] A real question on each step (Home, Watch, Play, Practice, Ask the mentor) answered with the
-      **Live AI** label.
+**Request path (both mentors):** chat (`src/mentor/MentorProvider.tsx`) → `askMentor` (`src/mentor/mentorClient.ts`)
+→ `POST /api/mentor` → `api/mentor.ts` → `createMentorService().reply` (`server/mentor/handler.ts`) →
+`ClaudeMentorProvider.reply` (`server/mentor/providers.ts`): `models.retrieve(model)` once, then
+`beta.messages.create` → Anthropic → JSON reply → chat. Rishi and Ayra are the same call; the mentor id in
+the context picks the persona in the system prompt. The key is read at run time from `process.env.ANTHROPIC_API_KEY`
+(no other name, no `VITE_` copy, nothing read at build time).
+
+**What the logs and Vercel settings showed:**
+
+| Evidence | Finding |
+|---|---|
+| `ANTHROPIC_API_KEY` (created 16:46) | Scoped to **Production only**, so every Preview deployment had no key → demo mode. That is the "Rishi in demo mode" |
+| Newest deployment `kd7i8e8dr` (16:47) | A **Production** redeploy of the older production code (no status check), not a preview |
+| Old Production `fzpqu6297`, 16:48:39–16:48:45 | 3 × `POST /api/mentor` → **502**; log `error=ModelUnavailableError` in 30–72 ms. It failed at the model check, **before any message reached Anthropic**. That deployment still had the **previous** key (Vercel applies variable changes only to new deployments). This build did not log Anthropic's HTTP status, so the exact status cannot be recovered. That is the "Ayra fails" |
+| New Production `kd7i8e8dr`, 16:51:52 and 16:52:26 | 2 × `POST` → **200**, `[mentor] ok … model=claude-opus-5-5 stop=end_turn`: the new key works |
+
+**Root cause:** configuration, not the mentor code. (1) The key was not available to Preview (scoped
+to Production). (2) The failing requests ran on a deployment still holding the previous key, which
+Anthropic rejected at the model check. The live request code on this branch is the same as the
+production code that answered successfully.
+
+**Model access:** `claude-opus-5-5` was verified with the new key: model check `ok`, the full check
+(one tiny message) `ok`, and 10 real answers. No model change was needed.
+
+**Changes (commits 8b3b69f, f69883b):**
+- "Live AI" now appears only after the server confirms that the key and model work (`?check=model`,
+  no tokens spent) or a live answer arrives. A key that is set but failing shows "AI not working".
+- Failures record their stage (model check or message), Anthropic's HTTP status, error type, request id
+  and a redacted message. These appear in the log, the 502 body (stage) and Grown-ups → AI status.
+- One automatic retry for passing failures (busy, rate limited, dropped connection). Configuration
+  problems and timeouts are not retried.
+- Vercel (at the owner's request, 17:12): `ANTHROPIC_API_KEY` now targets Production **and Preview**.
+  Only the environments were changed, not the value.
+
+**Real tests, Preview `8tkglznc5` (Magnets → What do magnets attract?, Class 6, step Watch):**
+
+| # | Question | Rishi | Ayra |
+|---|---|---|---|
+| 1 | "Hi!" | 200 · claude · 4.1 s | 200 · claude · 4.6 s |
+| 2 | How does a magnet work? | 200 · 5.4 s | 200 · 7.0 s |
+| 3 | Explain more simply (`simpler`) | 200 · 4.8 s, "magnet's friends" analogy | 200 · 5.2 s, "school gate" story |
+| 4 | Hint without the answer (`hint`) | 200 · 4.8 s, asks which material is on the list; no answer given | 200 · 5.1 s, "Let's look closely!"; no answer given |
+| 5 | "Is it the nail? And the spoon?" (needs the earlier turns) | 200 · 5.7 s, confirms the nail and compares wooden, plastic and steel spoons | 200 · 4.1 s, confirms the nail and refers back to the earlier story |
+
+All 10 are logged as `[mentor] ok … model=claude-opus-5-5 stop=end_turn` with token counts. 9 of 10 read the
+cached prompt (`cache_read=1397`). In the app's chat each mentor showed the **Live AI** badge and a live
+answer, labelled Live AI, to "Why does a fridge magnet stick to the fridge door?".
+
+## Still to do
+
+- [ ] Production still runs the older build, which shows Live AI whenever a key is set. It works now
+      with the new key, but the honest badge and diagnostics reach Production only when this branch is
+      merged and deployed, which needs the owner's approval.
+- [ ] A real question on each step (Home, Watch, Play, Practice, Ask) in Preview. Watch and Ask are
+      done; Home, Play and Practice use the same request and are not yet clicked through.
