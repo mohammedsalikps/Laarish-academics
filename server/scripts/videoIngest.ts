@@ -117,6 +117,11 @@ for (const r of results) {
     console.error(`failed ${r.videoId}: ${error}`);
   }
 }
-if (!dryRun) writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+if (!dryRun) {
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  const published = results.filter((r) => log.entries[r.videoId]?.status === 'completed').map((r) => r.videoId);
+  // The curriculum labels each topic's video; tests keep it in step with the manifest.
+  if (published.length) console.log(`Next: mark ${published.join(', ')} as officialVideo(...) in shared/curriculum/topics, then run npm run curriculum:index and npm test.`);
+}
 mkdirSync(join(root, 'content'), { recursive: true });
 writeFileSync(logPath, JSON.stringify(log, null, 2) + '\n');

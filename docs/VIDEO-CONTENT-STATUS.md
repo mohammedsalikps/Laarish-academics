@@ -72,9 +72,13 @@ approved first.
    `--local` stores the files in `public/media` instead (served with the app, as the first two
    videos are); use it for a handful of clips before Blob exists.
    Without `BLOB_READ_WRITE_TOKEN` or `--local` it is a dry run that publishes nothing.
-4. **Check** (`npm run media:check`, `npm run videos:queue`): the coverage report updates.
+4. **Label** the topic's video `officialVideo(...)` in `shared/curriculum/topics` and run
+   `npm run curriculum:index`. The ingest step prints this reminder, and tests fail until the
+   curriculum and the manifest agree.
+5. **Check** (`npm run media:check`, `npm run videos:queue`, `npm test`): the coverage report updates.
 
-The app reads the manifest at run time, so new videos need no code change or rebuild.
+The app reads the video files' addresses from the manifest at run time. The one code change per
+video is the label in step 4, which the topic sheet and readiness reports use.
 
 ## Storage: Vercel Blob (chosen 16 Nov)
 
