@@ -39,7 +39,7 @@ export function ChapterBadge({ chapter, size = 52 }: { chapter: ChapterInfo; siz
 }
 
 /** ChapterPin (wireframe page 1 + S2): landmark marker on the 3D world, 56 px hit area. */
-export function ChapterPin({ chapter, onOpen }: { chapter: ChapterInfo; onOpen: () => void }) {
+export function ChapterPin({ chapter, onOpen, isNew = false, animate = true }: { chapter: ChapterInfo; onOpen: () => void; isNew?: boolean; animate?: boolean }) {
   const soon = chapter.state === 'coming-soon';
   const label = soon ? `${chapter.lesson.title} · soon` : chapter.state === 'in-progress' ? `${chapter.lesson.title} · ${percent(chapter.mastery)}%` : chapter.lesson.title;
   return (
@@ -47,11 +47,13 @@ export function ChapterPin({ chapter, onOpen }: { chapter: ChapterInfo; onOpen: 
       type="button"
       onClick={soon ? undefined : onOpen}
       aria-disabled={soon || undefined}
-      aria-label={chapterLabel(chapter)}
+      aria-label={isNew ? `${chapterLabel(chapter)}, just opened` : chapterLabel(chapter)}
       className={cn('group flex min-w-[56px] flex-col items-center gap-1 pb-1 focus-visible:outline-none', soon && 'cursor-default')}
     >
-      {chapter.thisWeek && <span className="rounded-full bg-reward px-2 py-0.5 text-[11px] font-extrabold text-ink shadow-soft">This week</span>}
-      <span className="rounded-full transition group-hover:scale-105 group-focus-visible:ring-4 group-focus-visible:ring-primary">
+      {/* Opened since the last visit: a "New!" flag that pops in and a ring that pulses (none with reduced motion). */}
+      {isNew && <span className={cn('rounded-full bg-success px-2 py-0.5 text-[11px] font-extrabold text-white shadow-soft', animate && 'animate-star-pop')}>New!</span>}
+      {chapter.thisWeek && !isNew && <span className="rounded-full bg-reward px-2 py-0.5 text-[11px] font-extrabold text-ink shadow-soft">This week</span>}
+      <span className={cn('rounded-full transition group-hover:scale-105 group-focus-visible:ring-4 group-focus-visible:ring-primary', isNew && animate && 'animate-pulse-ring')}>
         <ChapterBadge chapter={chapter} size={chapter.thisWeek ? 58 : 50} />
       </span>
       {chapter.state === 'mastered' && (

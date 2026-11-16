@@ -15,6 +15,9 @@ import { useLiteMode } from '../../world3d/useLiteMode';
 import { useHeaderBottom } from '../../world3d/useHeaderBottom';
 import { WorldIcon } from '../../world3d/WorldChip';
 import { isWorldId } from '../../world3d/worlds';
+import { discoveriesFor, type Discovery } from '../../world3d/discoveries';
+import { DiscoveryDialog, DiscoveryList, DiscoveryMarker } from './discover';
+import { useDiscoveries, useNewChapters } from './useWorldMemory';
 import { ChapterBadge, ChapterPin } from './pins';
 import { chapterLabel, classWorld, percent, pinnedChapters, type ChapterInfo } from './worldData';
 
@@ -72,6 +75,12 @@ export default function WorldPage() {
   const headerBottom = useHeaderBottom(headerRef);
   const world = isWorldId(subjectId) ? classWorld(state, subjectId, prefs, grade) : undefined;
   useDocumentTitle(world ? world.theme.name : 'World');
+  const style = world?.theme.style ?? 'science';
+  const discoveries = discoveriesFor(style);
+  const { isFound, markFound } = useDiscoveries(style);
+  const [discovery, setDiscovery] = useState<Discovery | null>(null);
+  const openIds = (world?.chapters ?? []).filter((c) => c.state !== 'locked' && c.state !== 'coming-soon').map((c) => c.lesson.id);
+  const newChapters = useNewChapters(world ? `${world.subject.id}:${world.grade}` : '', openIds);
 
   useEffect(() => {
     // S1: the name card stays 1.6 s with the 3D fly-in; reduced motion and Lite mode get a 200 ms cross-fade.
@@ -94,12 +103,31 @@ export default function WorldPage() {
   const anchors = (count: number) => (scene: Parameters<OverlayPin['anchor']>[0]) => scene.worldAnchors(world.theme.style, count);
   const pinned = pinnedChapters(world);
   const hiddenSoon = world.chapters.length - pinned.length;
-  const pins: OverlayPin[] = pinned.map((c, i) => ({
-    id: c.lesson.id,
-    anchor: (scene) => anchors(pinned.length)(scene)[i],
-    node: <ChapterPin chapter={c} onOpen={() => open(c)} />,
-  }));
-  const rishiLine = world.thisWeek ? `${world.thisWeek.lesson.title} is this week's chapter. Let's go!` : 'Pick a landmark to start.';
+  const discover = (d: Discovery) => {
+    markFound(d);
+    setDiscovery(d);
+  };
+  const pins: OverlayPin[] = [
+    ...pinned.map((c, i) => ({
+      id: c.lesson.id,
+      anchor: (scene: Parameters<OverlayPin['anchor']>[0]) => anchors(pinned.length)(scene)[i],
+      node: <ChapterPin chapter={c} onOpen={() => open(c)} isNew={newChapters.has(c.lesson.id)} animate={!reduced} />,
+    })),
+    // Tap-to-learn objects on the island; they give way to the chapter pins.
+    ...discoveries.map((d) => ({
+      id: `discover-${d.id}`,
+      minor: true,
+      anchor: (scene: Parameters<OverlayPin['anchor']>[0]) => scene.islandPoint(d.at),
+      node: <DiscoveryMarker discovery={d} found={isFound(d)} onOpen={() => discover(d)} />,
+    })),
+  ];
+  const firstNew = world.chapters.find((c) => newChapters.has(c.lesson.id));
+  const rishiLine = firstNew
+    ? `${firstNew.lesson.title} just opened. Tap it to start!`
+    : world.thisWeek
+      ? `${world.thisWeek.lesson.title} is this week's chapter. Let's go!`
+      : 'Pick a landmark to start.';
+  const foundCount = discoveries.filter(isFound).length;
 
   return (
     <div className="relative h-[100dvh] overflow-hidden" style={{ background: SKY[world.subject.id] }}>
@@ -126,6 +154,7 @@ export default function WorldPage() {
                     <span className="block truncate text-[1.05rem] font-extrabold text-ink">{c.lesson.title}</span>
                     <span className="block text-sm font-bold text-ink-muted">{statusLine(c)}</span>
                   </span>
+                  {newChapters.has(c.lesson.id) && <span className="chip shrink-0 bg-success text-white">New!</span>}
                   {c.thisWeek && <span className="chip shrink-0 bg-reward text-ink">This week</span>}
                   {!soon && <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />}
                 </>
@@ -139,7 +168,7 @@ export default function WorldPage() {
                   ) : (
                     <Link
                       to={chapterPathUrl(world.subject.id, c.lesson.id)}
-                      aria-label={chapterLabel(c)}
+                      aria-label={newChapters.has(c.lesson.id) ? `${chapterLabel(c)}, just opened` : chapterLabel(c)}
                       className={cn('card flex min-h-[64px] items-center gap-3 px-3 py-2 transition hover:shadow-lift', c.thisWeek && 'border-2 border-primary')}
                     >
                       {body}
@@ -150,6 +179,7 @@ export default function WorldPage() {
             })}
             {world.chapters.length === 0 && <li className="card p-4 text-ink-soft">No chapters for Class {world.grade} yet.</li>}
           </ul>
+          <DiscoveryList items={discoveries} isFound={isFound} onOpen={discover} />
           {!lite && !failed && (
             <button type="button" onClick={() => chooseView('world')} className="mx-auto mt-3 flex min-h-[48px] items-center gap-2 font-extrabold text-primary">
               <MapIcon className="h-5 w-5" aria-hidden="true" /> Show the 3D world instead
@@ -192,7 +222,7 @@ export default function WorldPage() {
         </div>
         {!lite && !failed && view === 'world' && (
           <div className="mt-2 flex items-center justify-between gap-2">
-            <p className="min-w-0 text-xs font-bold text-ink-muted">{hiddenSoon > 0 ? `+${hiddenSoon} more coming soon in List view` : 'Tap a landmark to open its chapter'}</p>
+            <p className="min-w-0 text-xs font-bold text-ink-muted">{hiddenSoon > 0 ? `+${hiddenSoon} more coming soon in List view` : 'Tap a landmark, or a sparkle to discover'}</p>
             <button type="button" onClick={() => chooseView('list')} className="flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border-2 border-line bg-white px-3.5 text-sm font-extrabold text-ink">
               <List className="h-4 w-4" aria-hidden="true" /> List view
             </button>
@@ -205,6 +235,8 @@ export default function WorldPage() {
         <MentorPose pose="point" height={150} className="drop-shadow-lg" />
         <p className="pointer-events-auto mb-16 max-w-[220px] rounded-3xl rounded-bl-md bg-white px-4 py-3 font-display text-lg font-extrabold leading-snug text-ink shadow-lift">{rishiLine}</p>
       </div>
+
+      <DiscoveryDialog discovery={discovery} worldName={world.theme.name} foundCount={foundCount} total={discoveries.length} onClose={() => setDiscovery(null)} />
 
       {/* S1: the world's name card on arrival (skippable by tap) */}
       {arrival && (

@@ -298,6 +298,11 @@ export class IslandScene {
     return anchors.slice(0, count);
   }
 
+  /** A point given in local island coordinates (such as a discovery marker), in scene coordinates. */
+  islandPoint(at: readonly [number, number, number]): THREE.Vector3 {
+    return new THREE.Vector3(at[0], at[1], at[2]).multiplyScalar(WORLD_SCALE);
+  }
+
   /**
    * A winding path of `count` topic anchors that ends at the chapter's
    * landmark, starting from the near side of the island.

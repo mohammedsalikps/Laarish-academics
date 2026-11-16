@@ -11,6 +11,8 @@ export interface OverlayPin {
   id: string;
   node: ReactNode;
   anchor: (scene: IslandScene) => Vector3;
+  /** Secondary markers (such as discoveries) give way to the main pins and sit beneath them. */
+  minor?: boolean;
 }
 
 /**
@@ -67,9 +69,10 @@ export function IslandCanvas({
   const [scene, setScene] = useState<IslandScene | null>(null);
   const [ready, setReady] = useState(false);
   const reducedMotion = useReducedMotion();
-  const latest = useRef({ onIslandTap, onReady, onFail, onScene, safeTop, avoid });
+  const minor = new Set(pins.filter((p) => p.minor).map((p) => p.id));
+  const latest = useRef({ onIslandTap, onReady, onFail, onScene, safeTop, avoid, minor });
   useLayoutEffect(() => {
-    latest.current = { onIslandTap, onReady, onFail, onScene, safeTop, avoid };
+    latest.current = { onIslandTap, onReady, onFail, onScene, safeTop, avoid, minor };
   });
 
   // Create the scene once per mode/island.
@@ -95,7 +98,8 @@ export function IslandCanvas({
             const boxes: PinBox[] = [];
             for (const [id, s] of screens) {
               const el = pinRefs.current.get(id);
-              if (el) boxes.push({ id, x: s.x, y: s.y, w: el.offsetWidth, h: el.offsetHeight, depth: s.depth, visible: s.visible });
+              // Minor pins are placed after every main pin (depth + 1), so they move, not the chapters.
+              if (el) boxes.push({ id, x: s.x, y: s.y, w: el.offsetWidth, h: el.offsetHeight, depth: s.depth + (latest.current.minor.has(id) ? 1 : 0), visible: s.visible });
             }
             const canvas = canvasRef.current;
             const frame = canvas?.getBoundingClientRect();
@@ -109,8 +113,11 @@ export function IslandCanvas({
               const el = pinRefs.current.get(box.id)!;
               const p = placed.get(box.id)!;
               el.style.transform = `translate(${Math.round(p.x)}px, ${Math.round(p.y)}px) translate(-50%, -100%)`;
-              el.style.visibility = box.visible ? 'visible' : 'hidden';
-              el.style.zIndex = String(10 + Math.round((1 - box.depth) * 50));
+              // A minor pin that would sit far from its object points at the wrong thing: leave it out
+              // until the camera turns (every discovery is also listed in List view).
+              const strayed = latest.current.minor.has(box.id) && Math.hypot(p.x - box.x, p.y - box.y) > 56;
+              el.style.visibility = box.visible && !strayed ? 'visible' : 'hidden';
+              el.style.zIndex = String(Math.max(1, 10 + Math.round((1 - box.depth) * 50)));
             }
           },
         });

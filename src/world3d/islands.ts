@@ -90,6 +90,127 @@ function water(parts: Parts, x: number, z: number, w: number, d: number, turn = 
   box(parts, w, 0.03, d, '#6cc3e3', { x, y: TOP + 0.005, z, ry: turn }, 0);
 }
 
+/* ------------------------------------------------- discovery props (tap to learn) */
+
+/** A red-and-silver horseshoe magnet standing on its bend. */
+function horseshoeMagnet(parts: Parts, x: number, z: number) {
+  parts.push(place(paint(new THREE.TorusGeometry(0.13, 0.045, 8, 16, Math.PI), '#d9443a', 0.12), { x, y: TOP + 0.2, z, rz: Math.PI }));
+  for (const dx of [-0.13, 0.13]) box(parts, 0.09, 0.09, 0.09, '#d7dbe2', { x: x + dx, y: TOP + 0.245, z }, 0.1);
+  cyl(parts, 0.12, 0.14, 0.04, '#b9a587', { x, y: TOP + 0.02, z }, 12);
+}
+
+/** A telescope on a tripod, pointing at the sky. */
+function telescope(parts: Parts, x: number, z: number) {
+  for (const a of [0, 2.1, 4.2]) cyl(parts, 0.012, 0.012, 0.36, '#5a4636', { x: x + Math.cos(a) * 0.07, y: TOP + 0.16, z: z + Math.sin(a) * 0.07, rx: Math.sin(a) * 0.35, rz: -Math.cos(a) * 0.35 }, 5);
+  cyl(parts, 0.045, 0.06, 0.42, '#2f8f95', { x, y: TOP + 0.4, z, rz: -0.9, ry: 0.4 }, 10);
+}
+
+/** A clay pot with a sprouting seedling. */
+function seedling(parts: Parts, x: number, z: number) {
+  cyl(parts, 0.1, 0.07, 0.13, '#c2643a', { x, y: TOP + 0.07, z }, 12);
+  cyl(parts, 0.012, 0.012, 0.16, '#4f9442', { x, y: TOP + 0.21, z }, 5);
+  for (const s of [-1, 1]) blob(parts, 0.06, '#6cc24a', { x: x + s * 0.06, y: TOP + 0.29, z, sy: 0.45 }, 0);
+}
+
+/** Stacks of 1, 2 and 3 cubes: counting on by one. */
+function countingSteps(parts: Parts, x: number, z: number) {
+  const colours = ['#e2603d', '#e8b83f', '#3a5a8e'];
+  for (let i = 0; i < 3; i++) for (let k = 0; k <= i; k++) box(parts, 0.16, 0.16, 0.16, colours[i], { x: x - 0.2 + i * 0.2, y: TOP + 0.08 + k * 0.165, z }, 0.12);
+}
+
+/** A small abacus: a frame, three rods and coloured beads. */
+function abacus(parts: Parts, x: number, z: number) {
+  for (const dx of [-0.2, 0.2]) box(parts, 0.04, 0.42, 0.06, '#8b5e3c', { x: x + dx, y: TOP + 0.21, z }, 0.1);
+  for (let r = 0; r < 3; r++) {
+    const y = TOP + 0.12 + r * 0.12;
+    cyl(parts, 0.01, 0.01, 0.38, '#5a4636', { x, y, z, rz: Math.PI / 2 }, 5);
+    for (let b = 0; b < 3 + r; b++) blob(parts, 0.035, ['#e2603d', '#2f8f95', '#e8b83f'][r], { x: x - 0.14 + b * 0.06, y, z }, 0);
+  }
+}
+
+/** A cube, a sphere and a pyramid on a slab. */
+function solidShapes(parts: Parts, x: number, z: number) {
+  box(parts, 0.5, 0.05, 0.26, '#efe6d3', { x, y: TOP + 0.025, z }, 0.08);
+  box(parts, 0.13, 0.13, 0.13, '#3a5a8e', { x: x - 0.16, y: TOP + 0.115, z }, 0.12);
+  blob(parts, 0.075, '#e2603d', { x, y: TOP + 0.125, z }, 2);
+  cone(parts, 0.1, 0.17, '#e8b83f', { x: x + 0.16, y: TOP + 0.135, z, ry: Math.PI / 4 }, 4);
+}
+
+/** An open storybook on a stand. */
+function storybook(parts: Parts, x: number, z: number) {
+  box(parts, 0.08, 0.22, 0.08, '#8b5e3c', { x, y: TOP + 0.11, z }, 0.1);
+  for (const s of [-1, 1]) box(parts, 0.2, 0.02, 0.28, '#fdf6e3', { x: x + s * 0.1, y: TOP + 0.25, z, rz: s * -0.18 }, 0.05);
+  box(parts, 0.44, 0.015, 0.31, '#a2523a', { x, y: TOP + 0.23, z }, 0.08);
+}
+
+/** Three stacked alphabet blocks. */
+function letterBlocks(parts: Parts, x: number, z: number) {
+  box(parts, 0.16, 0.16, 0.16, '#e2603d', { x: x - 0.09, y: TOP + 0.08, z, ry: 0.2 }, 0.12);
+  box(parts, 0.16, 0.16, 0.16, '#2f8f95', { x: x + 0.09, y: TOP + 0.08, z: z + 0.02, ry: -0.15 }, 0.12);
+  box(parts, 0.16, 0.16, 0.16, '#e8b83f', { x, y: TOP + 0.24, z, ry: 0.45 }, 0.12);
+}
+
+/** A giant pencil leaning on a stone. */
+function pencil(parts: Parts, x: number, z: number) {
+  blob(parts, 0.1, '#b8b3aa', { x: x + 0.12, y: TOP + 0.06, z }, 0);
+  cyl(parts, 0.05, 0.05, 0.42, '#e8b83f', { x, y: TOP + 0.16, z, rz: 1.0 }, 6);
+  cone(parts, 0.05, 0.1, '#f2d3a0', { x: x - 0.2, y: TOP + 0.03, z, rz: 1.0 + Math.PI }, 6);
+}
+
+/** A carved stone slab for a letter (the letter itself floats above it in the world view). */
+function letterStone(parts: Parts, x: number, z: number) {
+  box(parts, 0.3, 0.06, 0.2, '#b9a587', { x, y: TOP + 0.03, z }, 0.1);
+  box(parts, 0.26, 0.26, 0.06, '#cdbb9f', { x, y: TOP + 0.19, z }, 0.1);
+}
+
+/** A woven basket of mangoes. */
+function mangoBasket(parts: Parts, x: number, z: number) {
+  cyl(parts, 0.17, 0.12, 0.12, '#b07a4c', { x, y: TOP + 0.06, z }, 12);
+  const rnd = seeded(5);
+  for (let i = 0; i < 5; i++) blob(parts, 0.065, i % 2 ? '#f2b33a' : '#f29a1f', { x: x + (rnd() - 0.5) * 0.18, y: TOP + 0.15 + rnd() * 0.04, z: z + (rnd() - 0.5) * 0.18, sx: 1.2 }, 0);
+}
+
+/** A diamond kite on a string pole. */
+function kite(parts: Parts, x: number, z: number) {
+  cyl(parts, 0.015, 0.015, 0.6, '#8a6444', { x, y: TOP + 0.3, z }, 5);
+  box(parts, 0.2, 0.2, 0.015, '#e2603d', { x: x + 0.12, y: TOP + 0.62, z, rz: Math.PI / 4 }, 0.08);
+}
+
+/** A bed of jasmine flowers. */
+function jasmineBed(parts: Parts, x: number, z: number) {
+  blob(parts, 0.2, '#5e9f45', { x, y: TOP + 0.02, z, sy: 0.4 }, 1, 0.03, 3);
+  const rnd = seeded(9);
+  for (let i = 0; i < 12; i++) blob(parts, 0.025, '#fffdf5', { x: x + (rnd() - 0.5) * 0.3, y: TOP + 0.09 + rnd() * 0.03, z: z + (rnd() - 0.5) * 0.3 }, 0);
+}
+
+/** A round coracle boat resting on the shore. */
+function coracle(parts: Parts, x: number, z: number) {
+  dome(parts, 0.15, '#8b5e3c', { x, y: TOP + 0.02, z, rx: Math.PI, sy: 0.6 });
+  ring(parts, 0.15, 0.015, '#5a4636', { x, y: TOP + 0.03, z, rx: Math.PI / 2 });
+}
+
+/** A globe on a stand. */
+function globe(parts: Parts, x: number, z: number) {
+  cyl(parts, 0.08, 0.1, 0.04, '#8b5e3c', { x, y: TOP + 0.02, z }, 10);
+  cyl(parts, 0.015, 0.015, 0.16, '#8b5e3c', { x, y: TOP + 0.1, z }, 5);
+  blob(parts, 0.13, '#4aa3d9', { x, y: TOP + 0.3, z }, 2);
+  for (const [dx, dy, dz, r] of [[0.06, 0.04, 0.09, 0.05], [-0.07, -0.03, 0.08, 0.045], [0.02, 0.08, -0.1, 0.04]] as const) blob(parts, r, '#6aa84f', { x: x + dx, y: TOP + 0.3 + dy, z: z + dz }, 0);
+}
+
+/** A striped lighthouse. */
+function lighthouse(parts: Parts, x: number, z: number) {
+  for (let i = 0; i < 3; i++) cyl(parts, 0.1 - i * 0.015, 0.11 - i * 0.015, 0.16, i % 2 ? '#e2603d' : '#f4f1ea', { x, y: TOP + 0.08 + i * 0.16, z }, 12);
+  cyl(parts, 0.07, 0.07, 0.08, '#ffd166', { x, y: TOP + 0.52, z }, 10);
+  cone(parts, 0.09, 0.1, '#2d4b7c', { x, y: TOP + 0.61, z }, 10);
+}
+
+/** A signpost pointing four ways. */
+function signpost(parts: Parts, x: number, z: number) {
+  cyl(parts, 0.025, 0.03, 0.55, '#8b5e3c', { x, y: TOP + 0.27, z }, 6);
+  box(parts, 0.3, 0.07, 0.025, '#e8b83f', { x: x + 0.12, y: TOP + 0.48, z, ry: 0.2 }, 0.08);
+  box(parts, 0.3, 0.07, 0.025, '#2f8f95', { x: x - 0.1, y: TOP + 0.38, z, ry: 1.6 }, 0.08);
+}
+
 const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
   // Discovery Valley: domed lab, iron-rock quarry, greenhouse, weather-vane tower, river and water wheel, hill.
   science(parts) {
@@ -117,7 +238,10 @@ const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
     for (let i = 0; i < 4; i++) box(parts, 0.04, 0.58, 0.04, '#8b5e3c', { x: -1.5, y: TOP + 0.3, z: 0.95, ry: -0.5 + Math.PI / 2, rz: (i * Math.PI) / 4 });
     blob(parts, 0.55, '#7fb75c', { x: -0.15, y: TOP - 0.1, z: 1.05, sy: 0.6 }, 2, 0.04, 9);
     tree(parts, 1.35, -0.1, 0.35, '#6aa84f', 3);
-    bushes(parts, 5, '#6aa84f', [[-1.2, -0.9], [0.35, -0.55], [-0.2, 0.3], [1.3, 0.35], [0.4, 1.35], [-0.95, -0.2]]);
+    bushes(parts, 5, '#6aa84f', [[1.3, 0.35], [0.4, 1.35], [-0.95, -0.2]]);
+    telescope(parts, -1.2, -0.9);
+    horseshoeMagnet(parts, 0.35, -0.55);
+    seedling(parts, -0.2, 0.3);
     return [
       new THREE.Vector3(-0.6, TOP + 0.75, -0.35),
       new THREE.Vector3(0.78, TOP + 0.6, 0.55),
@@ -148,7 +272,10 @@ const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
     cyl(parts, 0.05, 0.05, 0.5, '#efe6d3', { x: -0.95, y: TOP + 0.25, z: -0.2 }, 8);
     cyl(parts, 0.05, 0.05, 0.5, '#efe6d3', { x: -1.3, y: TOP + 0.25, z: 0.05 }, 8);
     box(parts, 0.5, 0.08, 0.1, '#2d4b7c', { x: -1.12, y: TOP + 0.52, z: -0.07, ry: 0.6 });
-    bushes(parts, 7, '#6aa84f', [[0.2, 1.2], [-0.4, 1.1], [1.3, 0.1], [-1.35, -0.75], [0.65, 0.95]]);
+    bushes(parts, 7, '#6aa84f', [[0.65, 0.95]]);
+    countingSteps(parts, 0.0, 1.15);
+    abacus(parts, 1.3, 0.1);
+    solidShapes(parts, -1.3, -0.75);
     return [
       new THREE.Vector3(-0.1, TOP + 1.2, -0.45),
       new THREE.Vector3(1.0, TOP + 0.45, 0.45),
@@ -173,7 +300,10 @@ const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
       cyl(parts, 0.02, 0.025, 0.32, '#5a4636', { x: -0.95 + i * 0.32, y: TOP + 0.16, z: -0.05 + i * 0.05 }, 6);
       blob(parts, 0.05, '#ffd166', { x: -0.95 + i * 0.32, y: TOP + 0.35, z: -0.05 + i * 0.05 }, 0);
     }
-    bushes(parts, 9, '#4f9442', [[1.3, -0.4], [-1.35, -0.45], [0.4, -1.25], [-0.6, 1.3]]);
+    bushes(parts, 9, '#4f9442', [[-0.6, 1.3]]);
+    storybook(parts, 0.4, -1.25);
+    letterBlocks(parts, 1.3, -0.4);
+    pencil(parts, -1.35, -0.45);
     return [
       new THREE.Vector3(-0.45, TOP + 1.25, -0.2),
       new THREE.Vector3(0.35, TOP + 0.45, 0.6),
@@ -208,7 +338,9 @@ const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
     cyl(parts, 0.05, 0.05, 0.5, '#a95330', { x: 0.25, y: TOP + 0.25, z: 1.35 }, 8);
     cyl(parts, 0.05, 0.05, 0.5, '#a95330', { x: -0.25, y: TOP + 0.25, z: 1.35 }, 8);
     ring(parts, 0.25, 0.045, '#e8b83f', { x: 0, y: TOP + 0.5, z: 1.35, sz: 1 });
-    bushes(parts, 11, '#6aa84f', [[1.3, -0.5], [0.6, -1.2], [-1.3, -0.6]]);
+    letterStone(parts, 1.3, -0.5);
+    mangoBasket(parts, 0.6, -1.2);
+    kite(parts, -1.3, -0.6);
     return [
       new THREE.Vector3(-0.3, TOP + 1.45, -0.55),
       new THREE.Vector3(0.75, TOP + 0.4, 0.35),
@@ -233,6 +365,9 @@ const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
     parts.push(place(paint(new THREE.CylinderGeometry(0.5, 0.5, 0.03, 24), '#6cc3e3', 0), { x: -0.35, y: TOP + 0.01, z: 0.75 }));
     dome(parts, 0.1, '#8b5e3c', { x: -0.45, y: TOP + 0.02, z: 0.7, rx: Math.PI });
     dome(parts, 0.08, '#8b5e3c', { x: -0.2, y: TOP + 0.02, z: 0.85, rx: Math.PI });
+    letterStone(parts, 1.35, -0.2);
+    jasmineBed(parts, -1.35, -0.3);
+    coracle(parts, 0.95, 1.0);
     return [
       new THREE.Vector3(-0.75, TOP + 1.0, -0.75),
       new THREE.Vector3(0.35, TOP + 0.8, -0.35),
@@ -260,6 +395,9 @@ const BUILDERS: Record<IslandStyle, (parts: Parts) => THREE.Vector3[]> = {
     }
     water(parts, 1.15, 0.6, 0.35, 1.1, 0);
     box(parts, 0.3, 0.08, 0.14, '#8b5e3c', { x: 1.15, y: TOP + 0.06, z: 0.5 });
+    globe(parts, -1.15, 0.15);
+    lighthouse(parts, 1.3, -0.25);
+    signpost(parts, -0.2, -0.6);
     return [
       new THREE.Vector3(-0.7, TOP + 0.95, -0.7),
       new THREE.Vector3(0.1, TOP + 0.4, 0.15),
