@@ -12,20 +12,24 @@ import { MentorAvatar } from './MentorAvatar';
 export function MentorModeBadge() {
   const { status } = useMentor();
   const { name } = useMentorPersona();
-  const live = status?.provider === 'claude';
+  // "Live AI" only once the server has confirmed the key and model work (or a live answer arrived).
+  const live = status?.live === true;
+  const keyButNotWorking = !live && status?.provider === 'claude';
   return (
     <span
-      className={cn('chip text-xs', live ? 'bg-success-soft text-success-strong' : 'bg-reward-soft text-reward-strong')}
+      className={cn('chip text-xs', live ? 'bg-success-soft text-success-strong' : keyButNotWorking ? 'bg-notyet-soft text-notyet-strong' : 'bg-reward-soft text-reward-strong')}
       title={
         live
           ? `Live AI: answers come from ${status?.model ?? 'Claude'} and can contain mistakes.`
-          : status?.backend
-            ? `Demo mode: no AI key is configured on the server, so ${name} uses prepared answers. It is not a live AI.`
-            : `Demo mode: the mentor server is not reachable, so ${name} uses prepared answers on this device. It is not a live AI.`
+          : keyButNotWorking
+            ? `${name}'s live AI is not working right now, so answers come from the lesson and are labelled. A grown-up can see why under For grown-ups → AI status.`
+            : status?.backend
+              ? `Demo mode: no AI key is configured on the server, so ${name} uses prepared answers. It is not a live AI.`
+              : `Demo mode: the mentor server is not reachable, so ${name} uses prepared answers on this device. It is not a live AI.`
       }
     >
-      <span className={cn('h-1.5 w-1.5 rounded-full', live ? 'bg-success' : 'bg-reward')} aria-hidden="true" />
-      {live ? 'Live AI' : 'Demo mode'}
+      <span className={cn('h-1.5 w-1.5 rounded-full', live ? 'bg-success' : keyButNotWorking ? 'bg-notyet' : 'bg-reward')} aria-hidden="true" />
+      {live ? 'Live AI' : keyButNotWorking ? 'AI not working' : 'Demo mode'}
     </span>
   );
 }

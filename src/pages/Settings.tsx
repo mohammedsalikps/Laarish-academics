@@ -306,9 +306,11 @@ export default function Settings() {
           <div className="flex flex-wrap items-center gap-3">
             <MentorModeBadge />
             <p className="text-sm text-ink-soft">
-              {status?.provider === 'claude'
+              {status?.live
                 ? `${persona.name} answers using an AI model (${status.model}). Answers can contain mistakes.`
-                : status?.backend
+                : status?.provider === 'claude'
+                  ? `${persona.name}'s live AI is not working right now, so answers come from the lesson and are labelled. See For grown-ups → AI status.`
+                  : status?.backend
                   ? `${persona.name} is in demo mode with prepared answers for the sample lessons. It is not a live AI.`
                   : `The mentor server is not reachable, so ${persona.name} uses prepared demo answers on this device.`}
             </p>

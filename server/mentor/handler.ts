@@ -4,7 +4,7 @@ import type { MentorCheck, MentorErrorBody, MentorReply, MentorStatus } from '..
 import { readMentorConfig, type MentorServerConfig } from './config.js';
 import { createProvider, type MentorProvider } from './providers.js';
 import { RateLimiter } from './rateLimit.js';
-import { classifyFailure } from './diagnose.js';
+import { classifyFailure, detailLog, failureDetail } from './diagnose.js';
 
 /**
  * Framework-neutral API handler (Web Fetch Request -> Response).
@@ -105,11 +105,13 @@ export function createMentorService(config: MentorServerConfig, deps: MentorServ
     } catch (err) {
       const timedOut = timeout.aborted || (err instanceof Error && /timed? ?out|abort/i.test(err.name + err.message));
       const reason = timedOut ? 'timeout' : classifyFailure(err);
-      // Log only the error class, status and reason category, never the conversation or the key.
-      const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : undefined;
-      console.warn(`[mentor] error ${tags} ms=${Date.now() - started} reason=${reason} error=${(err as Error)?.name ?? 'unknown'}${status ? ` status=${status}` : ''}${timedOut ? ' timeout=1' : ''}`);
+      // Log the reason, Anthropic's status, error type, request id and a redacted message: never the conversation or the key.
+      const detail = failureDetail(err, 'message');
+      console.warn(
+        `[mentor] error ${tags} ms=${Date.now() - started} reason=${reason} error=${(err as Error)?.name ?? 'unknown'}${detailLog(detail)} model=${config.model} timeout_ms=${config.timeoutMs}${timedOut ? ' timeout=1' : ''}`,
+      );
       if (timedOut) return json({ error: 'timeout', message: 'Your mentor is taking too long to think. Please try again.', reason } satisfies MentorErrorBody, 504);
-      return json({ error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment.", reason } satisfies MentorErrorBody, 502);
+      return json({ error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment.", reason, stage: detail.stage } satisfies MentorErrorBody, 502);
     }
   }
 
@@ -124,9 +126,22 @@ export function createMentorService(config: MentorServerConfig, deps: MentorServ
       return cached;
     }
     const keyConfigured = Boolean(config.apiKey);
-    const result: MentorCheck['result'] = provider.check ? await provider.check(depth) : keyConfigured ? 'demo_forced' : 'missing_key';
-    const check: MentorCheck = { keyConfigured, environment: config.environment, result, depth: provider.check ? depth : 'model', checkedAt: new Date(now).toISOString() };
-    logInfo(`[mentor] check depth=${check.depth} env=${check.environment} key=${keyConfigured ? 'set' : 'missing'} result=${result}`);
+    const outcome: { result: MentorCheck['result']; detail?: MentorCheck['detail'] } = provider.check
+      ? await provider.check(depth)
+      : { result: keyConfigured ? 'demo_forced' : 'missing_key' };
+    const check: MentorCheck = {
+      keyConfigured,
+      environment: config.environment,
+      result: outcome.result,
+      depth: provider.check ? depth : 'model',
+      checkedAt: new Date(now).toISOString(),
+      model: config.model,
+      timeoutMs: config.timeoutMs,
+      ...(outcome.detail ? { detail: outcome.detail } : {}),
+    };
+    logInfo(
+      `[mentor] check depth=${check.depth} env=${check.environment} key=${keyConfigured ? 'set' : 'missing'} model=${config.model} result=${check.result}${check.detail ? detailLog(check.detail) : ''}`,
+    );
     lastCheck = { ...check, at: now };
     return check;
   }

@@ -2,7 +2,7 @@ import { getLesson, getTopic, loadTopicContent } from '../content';
 import { demoReply } from '../../shared/mentor/demoReply';
 import { groundingFor, type GroundingContext, type MentorGrounding } from '../../shared/mentor/grounding';
 import { MENTOR_LIMITS } from '../../shared/mentor/safety';
-import { CONFIG_FAILURES, type MentorErrorBody, type MentorReply, type MentorRequest, type MentorStatus } from '../../shared/mentor/types';
+import { CONFIG_FAILURES, type MentorCheck, type MentorErrorBody, type MentorFailure, type MentorReply, type MentorRequest, type MentorStatus } from '../../shared/mentor/types';
 
 /**
  * Browser client for the mentor API.
@@ -25,6 +25,14 @@ export type MentorClientResult =
   | { ok: false; error: MentorClientError };
 
 export const MENTOR_ENDPOINT = '/api/mentor';
+
+/**
+ * One automatic retry for passing problems (Anthropic busy or rate limited, a dropped connection,
+ * an unknown error), after a short pause. Configuration problems and timeouts are not retried:
+ * waiting would not fix them. Tests set delayMs to 0.
+ */
+export const mentorRetry = { attempts: 2, delayMs: 1200 };
+const TRANSIENT: readonly (MentorFailure | undefined)[] = ['overloaded', 'rate_limited', 'unreachable', 'unknown', undefined];
 
 /**
  * Turns the on-screen conversation into request messages. Messages marked
@@ -60,14 +68,33 @@ function isOffline(): boolean {
   return typeof navigator !== 'undefined' && navigator.onLine === false;
 }
 
-export async function askMentor(
-  request: MentorRequest,
+type AskOptions = {
+  fetchImpl?: typeof fetch;
+  timeoutMs?: number;
   /**
    * liveBackend: the mentor API answered the status check. A network failure is
    * then reported as a retryable error rather than silently answered by the demo.
    */
-  opts: { fetchImpl?: typeof fetch; timeoutMs?: number; liveBackend?: boolean; mentorName?: string } = {},
-): Promise<MentorClientResult> {
+  liveBackend?: boolean;
+  mentorName?: string;
+};
+
+/** Asks the mentor, retrying once (after a short pause) when the failure is a passing one. */
+export async function askMentor(request: MentorRequest, opts: AskOptions = {}): Promise<MentorClientResult> {
+  const isTransient = (r: Awaited<ReturnType<typeof askOnce>>) => r.ok === false && 'transient' in r && r.transient;
+  let result = await askOnce(request, opts);
+  for (let attempt = 1; attempt < mentorRetry.attempts && isTransient(result); attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, mentorRetry.delayMs));
+    result = await askOnce(request, opts);
+  }
+  if (result.ok === false && 'transient' in result) {
+    const { transient: _transient, ...rest } = result;
+    return rest;
+  }
+  return result;
+}
+
+async function askOnce(request: MentorRequest, opts: AskOptions): Promise<MentorClientResult | { ok: false; error: MentorClientError; transient: boolean }> {
   // Messages speak with the chosen mentor's name (Rishi or Ayra).
   const who = opts.mentorName ?? 'Your mentor';
   if (isOffline()) {
@@ -110,11 +137,11 @@ export async function askMentor(
       const local = await localDemo(request);
       return local.ok ? { ...local, notice: `${who}'s live AI isn't working right now, so this answer comes from the lesson. It is not from AI.` } : local;
     }
-    return unavailable(who);
+    return { ...unavailable(who), transient: res.status >= 500 && TRANSIENT.includes(data?.reason) };
   } catch {
     if (timedOut) return { ok: false, error: { kind: 'timeout', message: `${who} took too long to answer. Please try again.`, retryable: true } };
     // The live mentor was reachable before: say so honestly instead of switching to demo answers.
-    if (opts.liveBackend) return { ok: false, error: { kind: 'unavailable', message: `${who} couldn't connect just now. Please try again.`, retryable: true } };
+    if (opts.liveBackend) return { ok: false, error: { kind: 'unavailable', message: `${who} couldn't connect just now. Please try again.`, retryable: true }, transient: true };
     // No mentor API at all (e.g. static hosting): answer locally, labelled as a demo.
     return localDemo(request);
   } finally {
@@ -122,22 +149,32 @@ export async function askMentor(
   }
 }
 
-function unavailable(who: string): MentorClientResult {
+function unavailable(who: string): { ok: false; error: MentorClientError } {
   return { ok: false, error: { kind: 'unavailable', message: `${who} couldn't answer just now. Please try again in a moment.`, retryable: true } };
 }
 
-export interface MentorStatusView extends MentorStatus {
+export interface MentorStatusView extends Omit<MentorStatus, 'check'> {
   /** False when no mentor backend answered (local demo only). */
   backend: boolean;
+  /**
+   * True only when the server confirmed that its key is accepted and the model is available
+   * (or a live answer has just arrived). A key that is merely set does not count.
+   */
+  live: boolean;
+  /** The server's check result, when it ran one (e.g. auth, model, credit). */
+  checkResult?: MentorCheck['result'];
 }
 
+/** The mentor's status, with the server's key-and-model check (no tokens are spent on it). */
 export async function fetchMentorStatus(fetchImpl: typeof fetch = globalThis.fetch.bind(globalThis)): Promise<MentorStatusView> {
   try {
-    const res = await fetchImpl(MENTOR_ENDPOINT, { method: 'GET', headers: { accept: 'application/json' } });
-    if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return { provider: 'demo', backend: false };
+    const res = await fetchImpl(`${MENTOR_ENDPOINT}?check=model`, { method: 'GET', headers: { accept: 'application/json' } });
+    if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return { provider: 'demo', backend: false, live: false };
     const data = (await res.json()) as MentorStatus;
-    return { provider: data.provider === 'claude' ? 'claude' : 'demo', model: data.model, backend: true };
+    const provider = data.provider === 'claude' ? 'claude' : 'demo';
+    const checkResult = data.check?.result;
+    return { provider, model: data.model, backend: true, live: provider === 'claude' && checkResult === 'ok', ...(checkResult ? { checkResult } : {}) };
   } catch {
-    return { provider: 'demo', backend: false };
+    return { provider: 'demo', backend: false, live: false };
   }
 }

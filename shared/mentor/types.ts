@@ -117,6 +117,23 @@ export type MentorFailure = 'auth' | 'permission' | 'credit' | 'model' | 'rate_l
 /** Failures that retrying will not fix: a grown-up has to change the configuration. */
 export const CONFIG_FAILURES: readonly MentorFailure[] = ['auth', 'permission', 'credit', 'model'];
 
+/**
+ * Safe details of a failed AI call, for grown-ups and logs: never the key, the prompt or the
+ * learner's words. Anthropic's own message is shortened and anything key-like is removed.
+ */
+export interface MentorFailureDetail {
+  /** model_check: failed while confirming the key and model, before any message was sent. message: failed on the message itself. */
+  stage: 'model_check' | 'message';
+  /** HTTP status Anthropic answered with (absent when there was no answer, e.g. a timeout). */
+  httpStatus?: number;
+  /** Anthropic's error type, e.g. authentication_error, permission_error, not_found_error. */
+  errorType?: string;
+  /** Anthropic's request id, to quote to Anthropic support. */
+  requestId?: string;
+  /** Anthropic's error message, redacted and shortened. */
+  message?: string;
+}
+
 /** Result of the safe configuration check (`GET /api/mentor?check=1`). Never includes the key. */
 export interface MentorCheck {
   /** Whether a server-side key is set. The key itself is never returned. */
@@ -128,6 +145,12 @@ export interface MentorCheck {
   /** "model" checks the key and model only (free); "message" also sends one tiny request (checks credit). */
   depth: 'model' | 'message';
   checkedAt: string;
+  /** The model the server is configured to use. */
+  model?: string;
+  /** The server's time limit for one answer, in milliseconds. */
+  timeoutMs?: number;
+  /** When the result is a failure: what Anthropic said, safely. */
+  detail?: MentorFailureDetail;
 }
 
 export interface MentorStatus {
@@ -141,6 +164,8 @@ export interface MentorErrorBody {
   message: string;
   /** Only on mentor_unavailable and timeout: the reason category (see MentorFailure). */
   reason?: MentorFailure;
+  /** Only on mentor_unavailable: whether it failed before any message was sent (model_check) or on the message. */
+  stage?: MentorFailureDetail['stage'];
 }
 
 export const LANGUAGE_NAMES: Record<ReplyLanguage, string> = { en: 'English', hi: 'Hindi', kn: 'Kannada' };

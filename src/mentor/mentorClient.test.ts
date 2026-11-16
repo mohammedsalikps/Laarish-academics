@@ -1,11 +1,16 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { demoMentorReply } from '../../shared/mentor/demoMentor';
 import type { MentorRequest } from '../../shared/mentor/types';
-import { askMentor, fetchMentorStatus, toMentorMessages } from './mentorClient';
+import { askMentor, fetchMentorStatus, mentorRetry, toMentorMessages } from './mentorClient';
 
 const request: MentorRequest = { messages: [{ role: 'learner', text: 'Give me a hint' }], context: { subjectId: 'science', lessonId: 'friction', topicId: 'friction-rough-smooth', step: 'play' }, intent: 'hint' };
 
 const jsonResponse = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+
+// The automatic retry waits a moment in the app; tests do not need to.
+beforeEach(() => {
+  mentorRetry.delayMs = 0;
+});
 
 describe('mentor client', () => {
   it('returns server replies', async () => {
@@ -65,12 +70,18 @@ describe('mentor client', () => {
   });
 
   it('reads mentor status and treats a missing backend as demo', async () => {
-    expect(await fetchMentorStatus(vi.fn().mockResolvedValue(jsonResponse(200, { provider: 'claude', model: 'claude-opus-5-5' })))).toEqual({
-      provider: 'claude',
-      model: 'claude-opus-5-5',
-      backend: true,
-    });
-    expect(await fetchMentorStatus(vi.fn().mockRejectedValue(new TypeError('offline')))).toEqual({ provider: 'demo', backend: false });
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse(200, { provider: 'claude', model: 'claude-opus-5-5', check: { keyConfigured: true, environment: 'preview', result: 'ok', depth: 'model', checkedAt: '' } }));
+    expect(await fetchMentorStatus(fetchImpl)).toEqual({ provider: 'claude', model: 'claude-opus-5-5', backend: true, live: true, checkResult: 'ok' });
+    // The status asks the server to confirm the key and model (no tokens are spent on that).
+    expect(fetchImpl).toHaveBeenCalledWith('/api/mentor?check=model', expect.anything());
+    expect(await fetchMentorStatus(vi.fn().mockRejectedValue(new TypeError('offline')))).toEqual({ provider: 'demo', backend: false, live: false });
+  });
+
+  it('never calls the mentor live when the key is set but not working, or not confirmed', async () => {
+    const rejected = jsonResponse(200, { provider: 'claude', model: 'claude-opus-5-5', check: { keyConfigured: true, environment: 'preview', result: 'auth', depth: 'model', checkedAt: '' } });
+    expect(await fetchMentorStatus(vi.fn().mockResolvedValue(rejected))).toMatchObject({ provider: 'claude', live: false, checkResult: 'auth' });
+    // An older server without the check: a key is set, but nothing confirms it works.
+    expect(await fetchMentorStatus(vi.fn().mockResolvedValue(jsonResponse(200, { provider: 'claude', model: 'claude-opus-5-5' })))).toMatchObject({ provider: 'claude', live: false });
   });
 });
 
@@ -107,5 +118,29 @@ describe('request messages', () => {
       const r = await askMentor(request, { fetchImpl, liveBackend: true, mentorName: 'Ayra' });
       expect(r).toMatchObject({ ok: false, error: { kind: 'unavailable', retryable: true } });
     }
+  });
+
+  it('retries a passing problem once by itself, and answers if the retry works', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(502, { error: 'mentor_unavailable', message: 'Server message.', reason: 'overloaded' }))
+      .mockResolvedValueOnce(jsonResponse(200, { reply: 'Magnets pull iron.', provider: 'claude' }));
+    const r = await askMentor(request, { fetchImpl, liveBackend: true, mentorName: 'Ayra' });
+    expect(r).toEqual({ ok: true, source: 'server', reply: { reply: 'Magnets pull iron.', provider: 'claude' } });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a dropped connection once, but never a configuration problem or a timeout', async () => {
+    const dropped = vi.fn().mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce(jsonResponse(200, { reply: 'Here I am.', provider: 'claude' }));
+    expect(await askMentor(request, { fetchImpl: dropped, liveBackend: true })).toMatchObject({ ok: true });
+    expect(dropped).toHaveBeenCalledTimes(2);
+
+    const rejectedKey = vi.fn().mockResolvedValue(jsonResponse(502, { error: 'mentor_unavailable', message: 'Server message.', reason: 'auth' }));
+    await askMentor(request, { fetchImpl: rejectedKey, liveBackend: true });
+    expect(rejectedKey).toHaveBeenCalledTimes(1);
+
+    const slow = vi.fn().mockResolvedValue(jsonResponse(504, { error: 'timeout', message: 'Too slow', reason: 'timeout' }));
+    expect(await askMentor(request, { fetchImpl: slow, liveBackend: true })).toMatchObject({ ok: false, error: { kind: 'timeout' } });
+    expect(slow).toHaveBeenCalledTimes(1);
   });
 });

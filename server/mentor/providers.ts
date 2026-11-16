@@ -1,11 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { evaluateExpression } from '../../shared/mentor/calculator.js';
 import { demoMentorReply } from '../../shared/mentor/demoMentor.js';
-import type { MentorMessage, MentorProviderName, MentorRequest } from '../../shared/mentor/types.js';
+import type { MentorFailureDetail, MentorMessage, MentorProviderName, MentorRequest } from '../../shared/mentor/types.js';
 import type { MentorServerConfig } from './config.js';
 import { buildSystemPrompt } from './prompt.js';
 import type { MentorFailure } from '../../shared/mentor/types.js';
-import { classifyFailure } from './diagnose.js';
+import { classifyFailure, failureDetail } from './diagnose.js';
 
 /** Details about a provider call, for diagnostics and cost monitoring (never contains conversation text). */
 export interface ProviderMeta {
@@ -32,7 +32,7 @@ export interface MentorProvider {
    * and the model (no tokens spent); "message" also sends one tiny request, which shows whether
    * the account has credit.
    */
-  check?(depth: 'model' | 'message'): Promise<'ok' | MentorFailure>;
+  check?(depth: 'model' | 'message'): Promise<{ result: 'ok' | MentorFailure; detail?: MentorFailureDetail }>;
 }
 
 export class DemoMentorProvider implements MentorProvider {
@@ -108,10 +108,12 @@ export class ClaudeMentorProvider implements MentorProvider {
     return this.modelReady;
   }
 
-  async check(depth: 'model' | 'message'): Promise<'ok' | MentorFailure> {
+  async check(depth: 'model' | 'message'): Promise<{ result: 'ok' | MentorFailure; detail?: MentorFailureDetail }> {
+    let stage: MentorFailureDetail['stage'] = 'model_check';
     try {
       if (this.client.models?.retrieve) await this.client.models.retrieve(this.model);
       if (depth === 'message') {
+        stage = 'message';
         await this.client.beta.messages.create({
           model: this.model,
           max_tokens: 64,
@@ -119,9 +121,9 @@ export class ClaudeMentorProvider implements MentorProvider {
           messages: [{ role: 'user', content: 'Reply with the single word OK.' }],
         });
       }
-      return 'ok';
+      return { result: 'ok' };
     } catch (err) {
-      return classifyFailure(err);
+      return { result: classifyFailure(err), detail: failureDetail(err, stage) };
     }
   }
 

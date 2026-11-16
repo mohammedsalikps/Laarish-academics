@@ -135,6 +135,9 @@ export function MentorProvider({ children }: { children: ReactNode }) {
           }
         : { id: createId('m'), role: 'mentor', text: result.error.message, error: result.error, facts, intent };
       setFailedQuestion(result.ok ? null : (lastLearner?.text ?? null));
+      // Keep the badge honest: a real live answer proves the AI works; a configuration failure proves it does not.
+      if (result.ok && result.source === 'server' && result.reply.provider === 'claude') setStatus((s) => (s && !s.live ? { ...s, live: true, checkResult: 'ok' } : s));
+      if (result.ok && result.notice) setStatus((s) => (s && s.live ? { ...s, live: false } : s));
       append(convKey, reply);
       pendingRef.current = false;
       setPending(false);

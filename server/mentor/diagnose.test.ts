@@ -2,7 +2,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { describe, expect, it, vi } from 'vitest';
 import { readMentorConfig } from './config';
-import { classifyFailure } from './diagnose';
+import { classifyFailure, failureDetail, redact } from './diagnose';
 import { createMentorService } from './handler';
 import { ClaudeMentorProvider, type MentorProvider } from './providers';
 
@@ -85,7 +85,59 @@ describe('a failed answer tells the app why', () => {
     const res = await createMentorService({ ...readMentorConfig({ ANTHROPIC_API_KEY: KEY }), rateLimit: 100 }, { provider }).handle(post(), 'ip');
     expect(res.status).toBe(502);
     const text = await res.text();
-    expect(JSON.parse(text)).toEqual({ error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment.", reason: 'auth' });
+    expect(JSON.parse(text)).toEqual({ error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment.", reason: 'auth', stage: 'message' });
     expect(text).not.toMatch(/sk-ant|x-api-key/);
+  });
+
+  it("logs Anthropic's status, error type, request id and stage, but never the key or the question", async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const err = Anthropic.APIError.generate(401, { type: 'error', error: { type: 'authentication_error', message: `invalid x-api-key ${KEY}` } }, 'invalid x-api-key', new Headers({ 'request-id': 'req_011ABC' }));
+    const wrapped: Error & { cause?: unknown } = new Error('Configured model is not available');
+    wrapped.name = 'ModelUnavailableError';
+    wrapped.cause = err;
+    const provider: MentorProvider = { name: 'claude', model: 'claude-opus-5-5', reply: () => Promise.reject(wrapped) };
+    const res = await createMentorService({ ...readMentorConfig({ ANTHROPIC_API_KEY: KEY }), rateLimit: 100 }, { provider }).handle(post(), 'ip');
+    expect(await res.json()).toMatchObject({ reason: 'auth', stage: 'model_check' });
+    const line = String(warn.mock.calls.at(-1)?.[0]);
+    expect(line).toContain('stage=model_check http=401 type=authentication_error request_id=req_011ABC');
+    expect(line).toContain('model=claude-opus-5-5 timeout_ms=20000');
+    expect(line).not.toContain('sk-ant');
+    expect(line).not.toContain('magnet');
+    warn.mockRestore();
+  });
+});
+
+describe('safe failure details', () => {
+  it('report where it failed, the HTTP status, error type and request id, with secrets removed', () => {
+    const err = Anthropic.APIError.generate(404, { type: 'error', error: { type: 'not_found_error', message: `model: claude-x (key ${KEY}, contact a@b.com)` } }, 'x', new Headers({ 'request-id': 'req_9' }));
+    const d = failureDetail(err, 'message');
+    expect(d).toMatchObject({ stage: 'message', httpStatus: 404, errorType: 'not_found_error', requestId: 'req_9' });
+    expect(d.message).toContain('model: claude-x');
+    expect(d.message).not.toMatch(/sk-ant|a@b\.com/);
+  });
+
+  it('describe connection failures, which have no HTTP status', () => {
+    expect(failureDetail(new Anthropic.APIConnectionError({ message: 'socket hang up' }), 'message')).toMatchObject({ stage: 'message', errorType: 'connection_error' });
+    expect(failureDetail(new Anthropic.APIConnectionError({ message: 'socket hang up' }), 'message').httpStatus).toBeUndefined();
+  });
+
+  it('redact long tokens and keep messages short', () => {
+    expect(redact(`key ${'x'.repeat(40)} end`)).toBe('key [redacted] end');
+    expect(redact('a'.repeat(10) + ' ' + 'b '.repeat(200)).length).toBeLessThanOrEqual(200);
+  });
+
+  it('come back from the configuration check, with the model and time limit', async () => {
+    const config = readMentorConfig({ ANTHROPIC_API_KEY: KEY, VERCEL_ENV: 'preview' });
+    const retrieve = vi.fn(() => Promise.reject(Anthropic.APIError.generate(403, { type: 'error', error: { type: 'permission_error', message: 'Your API key does not have permission to use the specified resource.' } }, 'x', new Headers())));
+    const provider = new ClaudeMentorProvider(config, { beta: {} as never, models: { retrieve } as never });
+    const text = await (await createMentorService(config, { provider }).handle(new Request('http://localhost/api/mentor?check=model'), 'ip')).text();
+    expect(JSON.parse(text).check).toMatchObject({
+      result: 'permission',
+      environment: 'preview',
+      model: 'claude-opus-5-5',
+      timeoutMs: 20000,
+      detail: { stage: 'model_check', httpStatus: 403, errorType: 'permission_error' },
+    });
+    expect(text).not.toContain('sk-ant');
   });
 });

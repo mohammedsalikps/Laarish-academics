@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
+import { mentorRetry } from './mentorClient';
 import { MemoryProgressRepository } from '../state/persistence';
 import type { ProgressState } from '../state/progressTypes';
 import { FRICTION_TOPICS, learnerState, playTopic } from '../test/fixtures';
@@ -17,13 +18,18 @@ import { FRICTION_TOPICS, learnerState, playTopic } from '../test/fixtures';
 type Reply = { status?: number; body: unknown };
 const json = ({ status = 200, body }: Reply) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
-function mockMentorApi(opts: { provider?: 'claude' | 'demo'; replies?: (Reply | 'network-error')[] } = {}) {
+function mockMentorApi(opts: { provider?: 'claude' | 'demo'; checkResult?: string; replies?: (Reply | 'network-error')[] } = {}) {
   const replies = [...(opts.replies ?? [])];
   const posts: { body: Record<string, unknown> }[] = [];
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     if (!url.includes('/api/mentor')) return new Response('not found', { status: 404 });
-    if (init?.method !== 'POST') return json({ body: { provider: opts.provider ?? 'claude', model: 'claude-opus-5-5' } });
+    if (init?.method !== 'POST') {
+      // The status check: with a key, the server confirms whether the key and model work.
+      const provider = opts.provider ?? 'claude';
+      const result = opts.checkResult ?? (provider === 'claude' ? 'ok' : 'missing_key');
+      return json({ body: { provider, model: 'claude-opus-5-5', check: { keyConfigured: provider === 'claude', environment: 'preview', result, depth: 'model', checkedAt: '' } } });
+    }
     posts.push({ body: JSON.parse(String(init.body)) });
     const next = replies.shift() ?? { body: { reply: 'Default reply', provider: opts.provider ?? 'claude' } };
     if (next === 'network-error') throw new TypeError('Failed to fetch');
@@ -52,6 +58,8 @@ const log = () => screen.getByRole('log', { name: /conversation with rishi/i });
 
 beforeEach(() => {
   vi.unstubAllGlobals();
+  // The automatic retry waits a moment in the app; tests do not need to.
+  mentorRetry.delayMs = 0;
 });
 
 describe('Mentor chat in the browser', () => {
@@ -125,8 +133,10 @@ describe('Mentor chat in the browser', () => {
   });
 
   it('shows a friendly retryable error when the provider fails, and keeps the question', async () => {
-    mockMentorApi({
+    // The first failure is retried once by itself; only a second failure is shown.
+    const { posts } = mockMentorApi({
       replies: [
+        { status: 502, body: { error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment." } },
         { status: 502, body: { error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment." } },
         { body: { reply: 'Here is a hint: think about bumps.', provider: 'claude' } },
       ],
@@ -136,19 +146,36 @@ describe('Mentor chat in the browser', () => {
     await ask(user, 'Give me a clue about friction');
 
     expect(await within(log()).findByRole('alert')).toHaveTextContent(/couldn't answer just now/i);
+    expect(posts).toHaveLength(2);
     expect(screen.getByRole('textbox', { name: /ask rishi a question/i })).toHaveValue('Give me a clue about friction');
     await user.click(within(log()).getByRole('button', { name: /try again/i }));
     expect(await within(log()).findByText('Here is a hint: think about bumps.')).toBeInTheDocument();
   });
 
   it('does not silently switch to demo answers when the live server drops the connection', async () => {
-    mockMentorApi({ replies: ['network-error'] });
+    // Dropped twice: once, and again on the automatic retry.
+    mockMentorApi({ replies: ['network-error', 'network-error'] });
     const user = userEvent.setup();
     renderMentorPage(learnerState());
     await screen.findByText('Live AI', { selector: 'span.chip *, span.chip' });
     await ask(user, 'Why do shoes have grip?');
     expect(await within(log()).findByRole('alert')).toHaveTextContent(/couldn't connect/i);
     expect(within(log()).queryByText(/demo answer/i)).not.toBeInTheDocument();
+  });
+
+  it('never shows "Live AI" when a key is set but the server says it does not work', async () => {
+    mockMentorApi({
+      checkResult: 'auth',
+      replies: [{ status: 502, body: { error: 'mentor_unavailable', message: "Your mentor couldn't answer just now.", reason: 'auth', stage: 'model_check' } }],
+    });
+    const user = userEvent.setup();
+    renderMentorPage(learnerState());
+    expect(await screen.findByText('AI not working', { selector: 'span.chip *, span.chip' })).toBeInTheDocument();
+    expect(screen.queryByText('Live AI', { selector: 'span.chip *, span.chip' })).not.toBeInTheDocument();
+    await ask(user, 'What is friction?');
+    // The answer comes from the lesson and says so; it is never labelled as live AI.
+    expect(await within(log()).findByText('From the lesson, not AI')).toBeInTheDocument();
+    expect(within(log()).queryByText('Live AI')).not.toBeInTheDocument();
   });
 
   it('labels demo answers honestly when the server has no API key', async () => {
