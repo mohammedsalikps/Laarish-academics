@@ -713,7 +713,7 @@ export const SCIENCE_TOPICS: Topic[] = [
             prompt: 'Challenge: sort these objects. Some are new, so think about what each one is made of!',
             objectIds: ['pin', 'marble', 'bolt', 'key', 'clip', 'can'],
             hint: 'Is it made of iron or steel? Then it is magnetic. Everything else here is not.',
-            explanation: 'Only the objects made of iron or steel are magnetic. Other metals, wood, plastic, rubber and glass are not.',
+            explanation: 'Here, only the objects made of iron or steel are magnetic. The others in this lab (copper, brass, aluminium, wood, plastic, rubber and glass) are not.',
           },
         ],
       },
@@ -726,7 +726,7 @@ export const SCIENCE_TOPICS: Topic[] = [
         'round-correct': '{explanation}',
         hint: '{hint}',
         complete: 'Brilliant experimenting! Magnets pull iron and steel, but not every metal.',
-        'complete:perfect': 'Perfect! You are a real magnet scientist: iron and steel are pulled, other materials are not.',
+        'complete:perfect': 'Perfect! You are a real magnet scientist: iron and steel are pulled, and the other materials here are not.',
       },
     },
     practice: {
@@ -775,13 +775,13 @@ export const SCIENCE_TOPICS: Topic[] = [
           prompt: 'Which of these will a magnet pull?',
           options: [
             { id: 'comb', text: 'Plastic comb', art: 'plastic-comb' },
-            { id: 'spoon', text: 'Steel spoon', art: 'steel-spoon' },
+            { id: 'clip', text: 'Steel paper clip', art: 'paper-clip' },
             { id: 'marble', text: 'Glass marble', art: 'glass-marble' },
             { id: 'towel', text: 'Cotton towel', art: 'cotton-towel' },
           ],
-          correctOptionId: 'spoon',
+          correctOptionId: 'clip',
           hint: 'Look for the one that has iron in it. Steel is mostly iron.',
-          explanation: 'The steel spoon! Steel is mostly iron, so the magnet pulls it. Plastic, glass and cotton have no iron.',
+          explanation: 'The steel paper clip! Steel is mostly iron, so the magnet pulls it. Plastic, glass and cotton have no iron.',
         },
         {
           id: 'q-sort-magnetic',
@@ -822,10 +822,11 @@ export const SCIENCE_TOPICS: Topic[] = [
       facts: [
         'Magnets attract objects made of iron and steel, such as nails, paper clips and safety pins.',
         'Wood, plastic, rubber, glass and paper are not attracted by magnets. Some metals, like aluminium and copper, are not attracted either.',
+        'Materials a magnet pulls are called magnetic materials: iron, nickel and cobalt, and some mixtures of them with other metals, like steel. Materials it does not pull are called non-magnetic materials.',
       ],
       simpler: 'A magnet is like an invisible hand that can pull some metal things, like iron nails, towards it. It cannot pull things like wood or plastic.',
       examples: ['Fridge magnets stick to the fridge door because the door is made of steel. Can you find something at home that a magnet sticks to?'],
-      why: 'Magnets pull on materials that contain iron, like steel. Other materials, like plastic and wood, do not respond to magnets, so nothing happens.',
+      why: 'Magnets pull iron, and things made with iron like steel. Two other metals, nickel and cobalt, are pulled too. Materials like plastic and wood are not, so nothing happens.',
       hints: {
         play: 'Ask yourself: is this object made of iron or steel? If yes, a magnet will probably pull it.',
         practice: 'Remember: magnets attract iron and steel, but not all metals.',
@@ -835,14 +836,14 @@ export const SCIENCE_TOPICS: Topic[] = [
         { keywords: ['aluminium', 'aluminum', 'copper', 'all metal'], answer: 'Not all metals are magnetic! Aluminium and copper are metals, but magnets do not attract them. Iron and steel are attracted.' },
         { keywords: ['fridge', 'stick'], answer: 'Fridge magnets stick because the fridge door is made of steel, and steel contains iron, which magnets attract.' },
       ],
-      practice: [{ question: 'Will a magnet pull a plastic spoon or a steel spoon with iron in it?', accept: ['steel'], explanation: 'Steel contains iron, so a magnet can attract it. Plastic is not magnetic.' }],
+      practice: [{ question: 'Will a magnet pull a plastic comb or a steel paper clip?', accept: ['clip', 'steel'], explanation: 'A steel paper clip contains iron, so a magnet can attract it. Plastic is not magnetic.' }],
     },
   },
 
   /* ---------------------------------------------------------------- Magnets 2 */
   {
     id: 'magnets-poles',
-    bookRef: { section: '4.2 Poles of Magnet and 4.4 Attraction and Repulsion between Magnets', pages: '64-65 and 68-71', checked: '16 Nov 2026' },
+    bookRef: { section: '4.2 Poles of Magnet and 4.4 Attraction and Repulsion between Magnets (Activity 4.5)', pages: '65 and 68', checked: '16 Nov 2026' },
     subjectId: 'science',
     lessonId: 'magnets',
     order: 2,
@@ -854,7 +855,7 @@ export const SCIENCE_TOPICS: Topic[] = [
     estimatedMinutes: 6,
     watch: {
       video: missingVideo('video-magnets-poles', 'Poles: attract and repel'),
-      intro: "Every magnet has two ends called poles. Let's see what happens when two poles meet!",
+      intro: "Every magnet has two poles. On a bar magnet they are at the two ends. Let's see what happens when two poles meet!",
       explainer: [
         scene('Every magnet has a north pole and a south pole.', { kind: 'magnet-poles', mode: 'attract' }),
         scene('A north pole and a south pole pull towards each other. Opposites attract!', { kind: 'magnet-poles', mode: 'attract' }),
@@ -955,9 +956,9 @@ export const SCIENCE_TOPICS: Topic[] = [
       ],
     },
     mentor: {
-      facts: ['Every magnet has a north pole and a south pole.', 'Opposite poles (north and south) attract. Like poles (north and north, or south and south) repel.'],
+      facts: ['Every magnet has a north pole and a south pole. Poles always come in pairs: even a broken piece of magnet has both.', 'Opposite (unlike) poles, north and south, attract. Like poles, north and north or south and south, repel.', 'Iron filings gather most near the poles of a magnet, where its pull is strongest.'],
       simpler: 'A magnet has two ends. If the ends are different (N and S), they hug. If they are the same (N and N), they push away.',
-      examples: ['Some cupboard doors stay shut because of a small magnet inside. Opposite poles pull the door closed!'],
+      examples: ['Fix a magnet on each of two toy cars. If the same poles face each other, the cars push apart. Turn one car around and they pull together!'],
       hints: {
         play: 'Look at the two poles: are they the same or opposite? Opposites attract, same poles repel.',
         practice: 'Opposites attract, same poles repel.',
@@ -1018,7 +1019,7 @@ export const SCIENCE_TOPICS: Topic[] = [
           { id: 'red', left: 'The red end of a compass needle', leftIcon: 'compass', right: 'Points towards the north', hint: 'Which pole is usually painted red?' },
           { id: 'dial', left: 'The dial under a compass needle', leftIcon: 'compass', right: 'Is turned until N and S line up with the needle', hint: 'Once the needle stops, what do you line up with it?' },
           { id: 'earth', left: 'Our Earth', leftIcon: 'globe', right: 'Behaves like a giant magnet', hint: 'Why does every hanging magnet point the same way?' },
-          { id: 'fish', left: 'The matsya-yantra', leftIcon: 'fish', right: 'A magnetised iron fish floating in oil, used by sailors', hint: 'Matsya means fish. What did Indian sailors float in a bowl?' },
+          { id: 'fish', left: 'The matsya-yantra', leftIcon: 'fish', right: 'A magnetised iron fish kept in a bowl of oil, used by sailors', hint: 'Matsya means fish. What did Indian sailors keep in a bowl of oil?' },
         ],
       },
       coach: {
@@ -1106,7 +1107,7 @@ export const SCIENCE_TOPICS: Topic[] = [
           type: 'single-choice',
           prompt: 'Long ago, Indian sailors used a matsya-yantra to find directions at sea. What was it?',
           options: [
-            { id: 'fish', text: 'A magnetised iron fish floating in oil' },
+            { id: 'fish', text: 'A magnetised iron fish kept in a bowl of oil' },
             { id: 'map', text: 'A map painted on cloth' },
             { id: 'star', text: 'A chart of the stars' },
             { id: 'bird', text: 'A bird trained to fly north' },
@@ -1127,7 +1128,7 @@ export const SCIENCE_TOPICS: Topic[] = [
       simpler: 'A magnet that can spin freely always stops pointing north and south. A compass is a tiny spinning magnet that shows you which way is north.',
       examples: [
         'Hikers and sailors carry a compass so they can find north even when it is cloudy.',
-        'Try it at home with a grown-up: stroke a sewing needle with a magnet about 30 times, the same way each time, push it through a cork and float it in a bowl of water. Watch which way it points!',
+        'Try it at home with a grown-up: rub a sewing needle with one end of a magnet, always from the same end of the needle to the other, 30 to 40 times. Push it through a cork and float it in a bowl of water. Watch which way it points!',
       ],
       hints: {
         play: 'Think about which way a magnet points when it can turn freely.',
@@ -1137,9 +1138,9 @@ export const SCIENCE_TOPICS: Topic[] = [
       faq: [
         { keywords: ['compass', 'needle'], answer: 'A compass has a tiny magnet shaped like a needle. It turns freely and stops pointing north–south. Its north end is usually painted red.' },
         { keywords: ['north', 'south', 'point'], answer: 'A magnet that can turn freely stops pointing north–south because our Earth behaves like a giant magnet.' },
-        { keywords: ['matsya', 'fish', 'sailor'], answer: 'The matsya-yantra was a magnetised iron fish kept floating in oil. Indian sailors used it to find directions at sea.' },
+        { keywords: ['matsya', 'fish', 'sailor'], answer: 'The matsya-yantra was a magnetised iron fish kept in a vessel of oil. Indian sailors used it to find directions at sea.' },
       ],
-      practice: [{ question: 'Which way does a freely hanging magnet point when it stops?', accept: ['north', 'south', 'north-south', 'north south'], explanation: 'It comes to rest pointing north–south.' }],
+      practice: [{ question: 'Which way does a freely hanging magnet point when it stops?', accept: ['north-south', 'north south', 'north–south', 'north and south'], explanation: 'It comes to rest pointing north–south.' }],
     },
   },
 ];

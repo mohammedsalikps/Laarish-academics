@@ -429,5 +429,19 @@ the app is original; nothing is copied from the book. Teacher review is still pe
 | Topic | Book section | Printed pages |
 |---|---|---|
 | What do magnets attract? (`magnets-what-they-attract`) | 4.1 Magnetic and Non-magnetic Materials, Activity 4.1 | 62-64 |
-| Poles: attract and repel (`magnets-poles`) | 4.2 Poles of Magnet; 4.4 Attraction and Repulsion between Magnets | 64-65, 68-71 |
+| Poles: attract and repel (`magnets-poles`) | 4.2 Poles of Magnet (the two poles); 4.4 Attraction and Repulsion between Magnets, Activity 4.5 | 65, 68 |
 | Finding directions with a magnet (`magnets-directions`) | 4.3 Finding Directions, Activities 4.3 and 4.4, "Do you know?" (matsya-yantra) | 65-67 |
+
+**Fact-check, 16 Nov 2026.** Every learner-facing sentence of the three topics was compared with the
+chapter text. No sentence of 12 or more words is copied from the book. Fixed after the check:
+- Magnetic materials now include nickel and cobalt (p. 64), and "other materials are not magnetic"
+  is said only about the lab's own objects.
+- The picture question uses a steel paper clip (the book's example, p. 72) instead of a steel spoon,
+  because many stainless steel spoons are not magnetic.
+- The cupboard-catch example (one magnet and a metal plate, no poles involved) became the book's
+  toy cars (p. 72).
+- The home needle compass now says one pole, one direction, 30 to 40 strokes (p. 67).
+- The matsya-yantra is "kept in a vessel of oil" (p. 67), not "floating".
+- New mentor facts for book terms the exercises use: magnetic and non-magnetic materials, unlike
+  poles, poles in pairs, iron filings near the poles.
+- The Poles topic now cites only the pages it teaches (65 and 68).

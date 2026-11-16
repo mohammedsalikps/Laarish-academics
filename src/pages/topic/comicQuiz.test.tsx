@@ -166,7 +166,7 @@ describe('Practice as a comic conversation', () => {
     // Picture choice (wireframe L3a): picture cards, one is right.
     expect(screen.getByRole('heading', { name: 'Which of these will a magnet pull?' })).toBeInTheDocument();
     expect(within(screen.getByRole('radiogroup', { name: 'Picture choices' })).getAllByRole('radio')).toHaveLength(4);
-    await user.click(choice(/steel spoon/i));
+    await user.click(choice(/steel paper clip/i));
     await user.click(check());
     expect(screen.getByText(/Steel is mostly iron/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /next question/i }));
