@@ -14,9 +14,9 @@ as an Explore more topic after the chapter trophy.
 
 ## Running the summit demo
 
-1. Before the session: open the preview (below) on the demo device, signed in to Vercel or with a
-   shareable link. Make a fresh learner by clearing the site's data in the browser. Charge the
-   device; Wi-Fi on.
+1. Before the session: open the summit preview on each demo device with the Share link (see
+   "Summit access" below). Make a fresh learner by clearing the site's data in the browser. Charge
+   the device; Wi-Fi on; screen auto-lock off.
 2. Welcome → **Start learning** → a nickname → **Class 6** → choose Rishi or Ayra.
 3. Home: point out the 3D hub (drag to spin). Tap **Science** to fly into Discovery Valley, then
    tap **Magnets**.
@@ -35,6 +35,19 @@ as an Explore more topic after the chapter trophy.
 10. Do not promise: official videos, teacher-reviewed content, AI answers in the preview (it has no
     AI key and shows labelled demo answers), offline downloads, or phone performance figures
     (not yet measured on a real phone).
+
+## Known limitations (summit build, `f8df064`)
+
+- **No real-phone test.** No Android phone was available; phone figures are laptop measurements
+  with CPU slowdown only. The checklist is `docs/android-test-checklist.md`.
+- **Preview access** needs the Share link (or a Vercel sign-in). The journey was verified on a
+  local build of the same commit, not yet in a browser on the preview URL.
+- **AI mentor in the preview**: no API key there, so Rishi and Ayra give labelled demo answers.
+- **Videos**: no official videos yet; topics show labelled animated explainers.
+- **Content review**: lessons are Laarish originals mapped to NCERT; no teacher has reviewed them.
+- **Offline**: no downloads for offline use; only screens already opened keep working offline.
+- **Small phones**: at 320×640 one pair of pins on the Magnets chapter path still overlaps.
+- **Hub first frame** on a slow phone CPU (6× slowdown) is about 2 s, right at the budget.
 
 ## Task ledger
 
@@ -56,8 +69,8 @@ as an Explore more topic after the chapter trophy.
 | Downloadable worlds / service worker (X4) | Not started: not safe tonight; the app says only what is true |
 | Official videos (Magnets, Halves and Quarters, Plant from Seed, Building Sentences) | Not started: no verified assets; labelled animated explainers stay |
 | Preview deployment | Done: isolated Vercel preview of this branch (see "Preview deployment" below) |
-| Chapter path at 375 px: Rishi's speech bubble covers the label of the last (locked, Explore more) node | Known, not fixed (cosmetic) |
-| Vercel's own type check of the mentor server files reports 3 TypeScript errors (non-strict narrowing in `server/mentor/handler.ts` and `providers.ts`; code unchanged from `main`). The build completes and deploys | Known, not fixed |
+| Chapter path: pins keep clear of the mentor and their speech bubble (pins / pins under the mentor, before → after: 375×812 0/1 → 0/0, 360×740 0/2 → 0/0, 375×667 → 0/0, 390×844 → 0/0, 940×845 → 0/0). The bubble is hidden visually below 800 px of height | Done, tested, pushed. 320×640: one pin pair still overlaps (was one overlap plus one pin under the bubble) |
+| Vercel's type check of the mentor functions (3 errors in the log, type-only) | Done: 0 errors in the preview build log; `server/vercelFunctions.test.ts` repeats Vercel's check |
 
 ## Performance (production build, measured)
 
@@ -116,9 +129,14 @@ budget phone, battery and heat.
 
 ## Preview deployment
 
-**Preview (16 Nov 2026, app code of commit `ca1a89d`):
-https://laarish-academics-j4r3uzwev-salik-alpha.vercel.app**. An earlier preview of `c492172` is
-https://laarish-academics-3pv156hxp-salik-alpha.vercel.app.
+**Summit preview (16 Nov 2026, commit `f8df064`):
+https://laarish-academics-qzcu1fucd-salik-alpha.vercel.app** (deployment `dpl_335FrvUvJxPCLqMSHGNBxsCT45Er`).
+Older previews, kept but superseded: `j4r3uzwev` (`ca1a89d`) and `3pv156hxp` (`c492172`).
+
+- Contents verified: 376 of the 378 files uploaded to this deployment have the same SHA-1 as the
+  files of commit `f8df064`; no uploaded file differs (the other 2 have no matching local path).
+  The only env-style file uploaded is `.env.example` (an empty template). The build log shows no
+  TypeScript errors.
 
 - Made with the existing project `salik-alpha/laarish-academics` (`vercel deploy --target preview`,
   no `--prod`, no `vercel link`, no environment changes), using `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`
@@ -134,18 +152,51 @@ https://laarish-academics-3pv156hxp-salik-alpha.vercel.app.
   dashboard (Deployment → Share). The settings were not changed.
 - The project is not connected to GitHub, so pushes do not deploy; previews are made from the CLI.
 
+## Summit access: a Vercel Share link (keeps security on)
+
+The project's Vercel Authentication stays on. Instead of turning it off, make a Share link for the
+summit preview only. From Vercel's documentation (read 16 Nov 2026):
+
+1. Sign in at vercel.com with the account that owns the `salik_alpha` team.
+2. Open the project **laarish-academics** → **Deployments** → select the deployment whose URL is
+   `laarish-academics-qzcu1fucd-salik-alpha.vercel.app` (Environment: Preview). Do not pick a
+   Production deployment.
+3. On that deployment's page, click **Share**. In the popover choose **Anyone with the link**, then
+   **Copy Link**. Use the copied link (it carries the access part); the browser's address bar URL
+   is not the same.
+4. Open the copied link on each demo device (phone or laptop) before the session, and check that
+   Welcome loads without a Vercel sign-in.
+5. After the summit, revoke it: open the same Share popover and switch back to **Only people with
+   access** (team-wide list: Deployment Protection → Access → All Access → Shareable Links).
+
+Limits and cautions:
+- The Hobby plan allows **one shareable link in total per account**: make it on this summit
+  preview, and revoke any link made for an older preview first.
+- Anyone who has the link can open the preview, so give it only to the demo devices and the people
+  presenting. Do not post it publicly.
+- Do not switch off Vercel Authentication, and do not create a "Protection Bypass for Automation"
+  secret for the summit: both widen access beyond what the demo needs.
+- The documentation does not say how long a link lasts or whether it changes other settings; check
+  the link on the morning of the summit.
+
 ## Verification (final run on this branch)
 
 - Typecheck, lint, production build, lesson media check: all pass.
-- Tests: 1,316 of 1,316 in 78 files, including every route, all 14 game engines, hints for every
+- Tests: 1,320 of 1,320 in 79 files, including every route, all 14 game engines, hints for every
   game in the curriculum, the engine-audit fixes, the saved-progress contract, 60 % unlock, the
-  Lite-mode journey, the weekly report, Mini Makers, source notes and pin layout.
-- By hand on the production build at 375 px (16 Nov): onboarding (new Class 6 learner) → Home →
-  Discovery Valley → Magnets → topic sheet → Watch (3 scenes) → Play on the 3D bench (3 rounds,
-  one deliberate wrong sort) → Practice (6 of 6) → Complete (92 %, Level 2) → Topic 2 unlocked;
-  progress kept after a full reload; `?nowebgl` gives the 2D map and chapter list with no
-  three.js download; every route opens without an error or sideways scroll. Desktop (1366 px)
-  Home and Topic 2 checked.
+  Lite-mode journey, the weekly report, Mini Makers, source notes, pin layout (with the measured
+  chapter-path case) and Vercel's type check of the API functions.
+- By hand on the local production build of `f8df064` at 375 px (16 Nov, after the last change;
+  its source is identical to the preview's): new Class 6 learner with Ayra → Home → Discovery
+  Valley → Magnets → topic sheet (source line) → Watch (3 scenes) → Play on the 3D bench (hint 1
+  and 2, one deliberate wrong sort, Mission complete) → Practice (6 of 6) → Complete (92 %) →
+  Topic 2 unlocked after a full reload. Lite mode "Always on" (Grown-ups) and `?nowebgl`: 2D map
+  and chapter list, no canvas, no three.js download. All 14 game engines open with the mission,
+  "Need a hint?", no sideways scroll and no scene label under 11 px. Every route opens without an
+  error.
+- Not done: the same journey in a browser **on the preview URL itself**, because opening it
+  needs a Vercel sign-in or the Share link above. The preview was checked from the CLI instead
+  (Ready, Preview target, file hashes, build log).
 - Secret scan (API keys, tokens, private keys) of tracked files, the built bundle and this branch's
   history: no matches; no `.env` file is tracked.
 
@@ -156,9 +207,9 @@ https://laarish-academics-3pv156hxp-salik-alpha.vercel.app.
 2. `npm ci`, then `npm run typecheck`, `npm run lint`, `npx vitest run`, `npm run build`.
 3. `npm run dev` for development; `npm run build && npm run preview` (port 4173) for measurements.
    The measurement method is described above; add `?perf` to read scene stats.
-4. Next tasks, in order: the real Android phone test (`docs/android-test-checklist.md`); a
-   shareable preview link for the summit (Vercel dashboard); the chapter-path bubble overlap at
-   375 px; official videos when assets exist; the Mini Makers worked-solution reveal once
-   lessons have solution steps.
+4. Next tasks, in order: the Share link for the summit preview (section above), then the demo
+   journey on it; the real Android phone test (`docs/android-test-checklist.md`); the remaining
+   pin overlap at 320×640; official videos when assets exist; the Mini Makers worked-solution
+   reveal once lessons have solution steps.
 5. New preview: `VERCEL_ORG_ID=<team id> VERCEL_PROJECT_ID=prj_g0HbBNe6IYWLHS3X45CeNPK6Gb66
    npx vercel@65.16.0 deploy --target preview`. Never `--prod`.
