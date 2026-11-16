@@ -56,6 +56,8 @@ export interface IslandSceneOptions {
   /** World mode: which island to show. */
   style?: IslandStyle;
   reducedMotion: boolean;
+  /** Morning for Classes 1-6; a cooler evening preset for Mini Makers (wireframe Z1). */
+  lighting?: 'morning' | 'evening';
   onPins?: (pins: Map<string, PinScreen>) => void;
   /** Hub mode: an island was tapped. */
   onIslandTap?: (subjectId: string) => void;
@@ -133,8 +135,9 @@ export class IslandScene {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.setClearColor(0x000000, 0);
 
-    this.scene.add(new THREE.HemisphereLight('#fff6ea', '#a07d5e', 1.75));
-    const sun = new THREE.DirectionalLight('#fff0d8', 1.9);
+    const evening = opts.lighting === 'evening';
+    this.scene.add(evening ? new THREE.HemisphereLight('#c7d2ff', '#5b4a6e', 1.6) : new THREE.HemisphereLight('#fff6ea', '#a07d5e', 1.75));
+    const sun = new THREE.DirectionalLight(evening ? '#ffc08a' : '#fff0d8', evening ? 1.7 : 1.9);
     sun.position.set(6, 12, 8);
     // Soft shadows give the clay islands depth: one 1024 shadow map, landmarks shade the grass.
     this.renderer.shadowMap.enabled = true;
@@ -146,7 +149,7 @@ export class IslandScene {
     sun.shadow.bias = -0.0006;
     sun.shadow.normalBias = 0.03;
     this.scene.add(sun);
-    this.scene.fog = new THREE.Fog('#f6e7d6', 26, 60);
+    this.scene.fog = new THREE.Fog(evening ? '#3a3f6b' : '#f6e7d6', 26, 60);
 
     if (opts.mode === 'hub') this.buildHub();
     else this.buildWorld(opts.style ?? 'science');

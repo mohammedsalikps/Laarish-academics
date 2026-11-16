@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ClassWorld } from '../pages/world/worldData';
 import { percent } from '../pages/world/worldData';
+import { cn } from '../lib/cn';
 import { IslandCanvas, type OverlayPin } from './IslandCanvas';
 import type { IslandScene, SceneStats } from './IslandScene';
 import { useLiteMode } from './useLiteMode';
@@ -17,7 +18,7 @@ const SHORT_NAMES: Record<string, string> = { mathematics: 'Maths', 'social-scie
  * rope bridges. Drag spins the ring; tapping an island or its chip flies the
  * camera in (1.2 s) and opens that world. In Lite mode it is the flat 2D map (X2).
  */
-export function WorldHub({ worlds, className }: { worlds: ClassWorld[]; className?: string }) {
+export function WorldHub({ worlds, className, evening = false }: { worlds: ClassWorld[]; className?: string; evening?: boolean }) {
   const navigate = useNavigate();
   const { lite, reason } = useLiteMode();
   const [failed, setFailed] = useState(false);
@@ -70,7 +71,11 @@ export function WorldHub({ worlds, className }: { worlds: ClassWorld[]; classNam
           onReady={setStats}
           onFail={() => setFailed(true)}
           label="Six subject worlds floating in the clouds, joined by rope bridges. Use the world buttons to open one."
-          className="h-[300px] rounded-3xl bg-[linear-gradient(180deg,#cfe6f2_0%,#f6e3cf_62%,#f8d9bd_100%)] shadow-soft sm:h-[340px] lg:h-[380px]"
+          lighting={evening ? 'evening' : 'morning'}
+          className={cn(
+            'h-[300px] rounded-3xl shadow-soft sm:h-[340px] lg:h-[380px]',
+            evening ? 'bg-[linear-gradient(180deg,#1d2a55_0%,#4b4a85_58%,#b98aa0_100%)]' : 'bg-[linear-gradient(180deg,#cfe6f2_0%,#f6e3cf_62%,#f8d9bd_100%)]',
+          )}
         >
           <p className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-ink/70 px-3 py-1 text-xs font-bold text-white">
             <Hand className="h-3.5 w-3.5" aria-hidden="true" /> Drag to spin · Tap a world to fly in

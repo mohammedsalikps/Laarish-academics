@@ -33,6 +33,7 @@ export function IslandCanvas({
   className,
   safeTop = 0,
   lift = true,
+  lighting = 'morning',
   children,
 }: {
   mode: SceneMode;
@@ -53,6 +54,7 @@ export function IslandCanvas({
   safeTop?: number;
   /** World mode on tall screens: lower the island below the header (off for the chapter path). */
   lift?: boolean;
+  lighting?: 'morning' | 'evening';
   className?: string;
   children?: ReactNode;
 }) {
@@ -79,6 +81,7 @@ export function IslandCanvas({
           mode,
           style,
           reducedMotion,
+          lighting,
           onIslandTap: (id) => latest.current.onIslandTap?.(id),
           onReady: (stats) => {
             setReady(true);

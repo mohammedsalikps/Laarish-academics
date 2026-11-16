@@ -69,6 +69,13 @@ html[data-text='large'] {
   font-size: 112.5%;
 }
 
+/* Mini Makers (Classes 7-8, wireframe M1-M3): Manrope everywhere, headings included. */
+html[data-agegroup='makers'],
+html[data-agegroup='makers'] body,
+html[data-agegroup='makers'] .font-display {
+  font-family: 'Manrope Variable', Manrope, 'Segoe UI', system-ui, 'Noto Sans Devanagari', 'Noto Sans Kannada', 'Nirmala UI', sans-serif;
+}
+
 body {
   @apply bg-canvas font-sans text-ink antialiased;
   font-feature-settings: 'kern';

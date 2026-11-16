@@ -13,6 +13,7 @@ import { MentorProvider } from '../mentor/MentorProvider';
 import type { ProgressRepository } from '../state/persistence';
 import { ProgressProvider, useProgress } from '../state/ProgressProvider';
 import { RewardFeed } from './RewardFeed';
+import { isMiniMaker } from '../lib/ageGroup';
 
 // Screens are code-split so the first load stays small.
 const Welcome = lazy(() => import('../pages/Welcome'));
@@ -41,7 +42,9 @@ function DocumentPreferences() {
     const html = document.documentElement;
     html.dataset.motion = reduce ? 'reduce' : 'full';
     html.dataset.text = state.settings.textSize;
-  }, [reduce, state.settings.textSize]);
+    // Classes 7-8 get the Mini Makers presentation (wireframe M1-M3): same app, calmer and denser.
+    html.dataset.agegroup = isMiniMaker(state.learner?.grade) ? 'makers' : 'explorers';
+  }, [reduce, state.settings.textSize, state.learner?.grade]);
   return null;
 }
 

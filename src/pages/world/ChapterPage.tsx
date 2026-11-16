@@ -18,6 +18,7 @@ import type { IslandScene } from '../../world3d/IslandScene';
 import { chapterPathUrl, rememberChapter, topicSheetUrl, worldPath } from '../../world3d/paths';
 import { useHeaderBottom } from '../../world3d/useHeaderBottom';
 import { useLiteMode } from '../../world3d/useLiteMode';
+import { isMiniMaker } from '../../lib/ageGroup';
 import { StreakWeek } from '../../components/progress/StreakWeek';
 import { PathNode, type NodeKind } from './pins';
 import { TopicSheet } from './TopicSheet';
@@ -57,6 +58,8 @@ export default function ChapterPage() {
   const currentIndex = current && required.includes(current) ? required.indexOf(current) + 1 : total;
   const chapterDone = total > 0 && path.mastered === total;
   const hasKit = KIT_CHAPTERS.has(lesson.id);
+  // Mini Makers (Classes 7-8) see numbered nodes instead of step icons (wireframe M2).
+  const makers = isMiniMaker(state.learner?.grade);
 
   // Nodes in path order: topics, a kit checkpoint halfway, the trophy at the landmark, then "Explore more".
   const topicNode = (view: (typeof topics)[number]) => ({
@@ -104,7 +107,7 @@ export default function ChapterPage() {
   const pins: OverlayPin[] = nodes.map((n, i) => ({
     id: n.id,
     anchor: (scene) => anchorsFor(scene)[i],
-    node: <PathNode node={n.node} onOpen={() => openNode(n.id)} />,
+    node: <PathNode node={n.node} numbered={makers} onOpen={() => openNode(n.id)} />,
   }));
 
   // Streak bar (Mon–Sun of this week).
@@ -155,7 +158,7 @@ export default function ChapterPage() {
           <ol className="mx-auto max-w-xl space-y-2">
             {nodes.map((n) => (
               <li key={n.id} className="card px-3 py-2">
-                <PathNode node={n.node} onOpen={() => openNode(n.id)} compact />
+                <PathNode node={n.node} numbered={makers} onOpen={() => openNode(n.id)} compact />
               </li>
             ))}
           </ol>

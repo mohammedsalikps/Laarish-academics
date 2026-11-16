@@ -18,6 +18,7 @@ import { currentStreak, dailyGoal, levelInfo, nextActivity, totalStars, xpOnDay 
 import { chapterPathUrl } from '../world3d/paths';
 import { WorldIcon } from '../world3d/WorldChip';
 import { WorldHub } from '../world3d/WorldHub';
+import { isMiniMaker } from '../lib/ageGroup';
 import { worldFor } from '../world3d/worlds';
 import { ChapterPickerSheet } from './home/ChapterPickerSheet';
 import { KitIdea } from './home/KitIdea';
@@ -104,7 +105,7 @@ export default function Home() {
           <KitIdea lessonId={plan?.path.chapter.lesson.id} />
         </div>
 
-        <WorldHub worlds={worlds} />
+        <WorldHub worlds={worlds} evening={isMiniMaker(learner.grade)} />
       </div>
 
       {/* Only when there is something to collect */}

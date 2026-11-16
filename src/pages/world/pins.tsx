@@ -78,7 +78,7 @@ const STEP_ICON: Record<TopicStep, typeof Play> = { watch: Play, play: Gamepad2,
 export type NodeKind = { kind: 'topic'; view: TopicView; index: number; current: boolean; extension?: boolean } | { kind: 'make' } | { kind: 'trophy'; done: boolean; title: string };
 
 /** StepNode (wireframe page 1 + S3): done (green tick + stars), current (gold, pulsing), locked (white + lock). */
-export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; onOpen: () => void; compact?: boolean }) {
+export function PathNode({ node, onOpen, compact = false, numbered = false }: { node: NodeKind; onOpen: () => void; compact?: boolean; numbered?: boolean }) {
   let circle: ReactNode;
   let pill: string;
   let pillClass = 'bg-white text-ink';
@@ -107,8 +107,8 @@ export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; on
     pill = extension ? `Explore more · ${view.topic.title}` : `${index} · ${view.topic.title}`;
     if (view.state === 'locked') {
       circle = (
-        <span className="grid h-14 w-14 place-items-center rounded-full bg-white text-ink-muted shadow-soft">
-          <Lock className="h-6 w-6" aria-hidden="true" />
+        <span className={cn('grid h-14 w-14 place-items-center rounded-full shadow-soft', numbered ? 'bg-ink/80 text-white' : 'bg-white text-ink-muted')}>
+          {numbered ? <span className="font-display text-xl font-extrabold">{index}</span> : <Lock className="h-6 w-6" aria-hidden="true" />}
         </span>
       );
       pillClass = 'bg-white/90 text-ink-muted';
@@ -116,7 +116,7 @@ export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; on
     } else if (current) {
       circle = (
         <span className="grid h-[68px] w-[68px] animate-pulse-ring place-items-center rounded-full bg-reward text-ink shadow-lift ring-4 ring-white">
-          <StepIcon className="h-8 w-8" aria-hidden="true" />
+          {numbered ? <span className="font-display text-2xl font-extrabold">{index}</span> : <StepIcon className="h-8 w-8" aria-hidden="true" />}
         </span>
       );
       pillClass = 'bg-ink text-white';
@@ -130,8 +130,8 @@ export function PathNode({ node, onOpen, compact = false }: { node: NodeKind; on
       name = `Topic ${index}, ${view.topic.title}, ${view.needsPractice ? 'done, practise to reach 60 percent' : 'done'}, ${view.stars} stars`;
     } else {
       circle = (
-        <span className="grid h-14 w-14 place-items-center rounded-full bg-white text-primary-strong shadow-soft ring-2 ring-primary">
-          <StepIcon className="h-6 w-6" aria-hidden="true" />
+        <span className={cn('grid h-14 w-14 place-items-center rounded-full shadow-soft', numbered ? 'bg-ink text-white' : 'bg-white text-primary-strong ring-2 ring-primary')}>
+          {numbered ? <span className="font-display text-xl font-extrabold">{index}</span> : <StepIcon className="h-6 w-6" aria-hidden="true" />}
         </span>
       );
       name = `Topic ${index}, ${view.topic.title}, ${view.state === 'in-progress' ? 'in progress' : 'ready'}`;
