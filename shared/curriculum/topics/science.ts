@@ -648,7 +648,7 @@ export const SCIENCE_TOPICS: Topic[] = [
     icon: 'magnet',
     estimatedMinutes: 6,
     watch: {
-      video: missingVideo('video-magnets-attract', 'What do magnets attract?'),
+      video: officialVideo('video-magnets-attract', 'What do magnets attract?'),
       intro: "Have you ever stuck a picture on the fridge with a magnet? Let's find out what magnets can pull!",
       explainer: [
         scene('A magnet pulls, or attracts, things made of iron and steel, like nails and paper clips.', { kind: 'icon', icon: 'magnet', tone: 'coral' }),

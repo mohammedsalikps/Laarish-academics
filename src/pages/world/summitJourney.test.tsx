@@ -73,7 +73,8 @@ describe('Home → this week → chapter path → topic (Lite mode)', () => {
     const topicSheet = await screen.findByRole('dialog', { name: 'Topic 1' });
     expect(within(topicSheet).getByRole('meter', { name: 'Mastery 0 percent; 60 percent unlocks the next topic' })).toBeInTheDocument();
     expect(within(topicSheet).getByText('Practice · 6 questions')).toBeInTheDocument();
-    expect(within(topicSheet).getByText('Explainer · official video coming')).toBeInTheDocument();
+    // Magnets topic 1 has its official video now (public/media/manifest.json), so no "coming" label.
+    expect(within(topicSheet).queryByText('Explainer · official video coming')).not.toBeInTheDocument();
     expect(within(topicSheet).getByRole('link', { name: 'Start' })).toHaveAttribute('href', topicPath(getTopic('magnets-what-they-attract')!, 'watch'));
     expect(screen.getByTestId('location')).toHaveTextContent('/world/science/chapter/magnets/topic/magnets-what-they-attract');
   });

@@ -412,6 +412,7 @@ describe('coverage and honest labelling', () => {
     expect(friction).toMatchObject({ video: 'ready', game: 'exploratory', quiz: 'ready', assessment: 'planned' });
     const sentences = topicReadiness(TOPICS.find((t) => t.id === 'sentences-word-order')!);
     expect(sentences).toMatchObject({ video: 'explainer', game: 'assessed', quiz: 'ready' });
-    expect(TOPICS.map(topicReadiness).filter((r) => r.video === 'ready').map((r) => r.topicId)).toEqual(['friction-what-is']);
+    // Exactly the topics whose real video is registered in public/media/manifest.json (server/media/mediaLibrary.test.ts checks the files).
+    expect(TOPICS.map(topicReadiness).filter((r) => r.video === 'ready').map((r) => r.topicId)).toEqual(['friction-what-is', 'magnets-what-they-attract']);
   });
 });
