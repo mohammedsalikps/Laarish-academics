@@ -22,11 +22,22 @@ Last updated 16 Nov 2026, branch `feature/tech-summit-redesign`.
 | Vercel environment variables | Only `ANTHROPIC_API_KEY`, scoped to **Production**, type sensitive. **Preview has no key**, so every preview runs the demo mentor by design |
 | Deployment Protection | On for every deployment except custom domains, so the production `*.vercel.app` URL also needs a Vercel sign-in. Anyone without access gets the Vercel login page, not the app |
 | Runtime logs | Hobby keeps runtime logs for less than an hour, so earlier failures could not be read. The newest record is a status request to the preview at 13:36 UTC with no error |
-| Live API test | **Not run yet**: it needs access to a protected deployment (a Vercel sign-in in the browser pane was agreed) and a Preview key (to be added) |
+| Live API test, Preview (`qzcu1fucd`, 16 Nov, signed in) | `GET /api/mentor` → `{"provider":"demo"}`: no key in Preview, as configured |
+| Live API test, Production (`laarish-academics.vercel.app`, 16 Nov 14:04 UTC) | `GET /api/mentor` → `{"provider":"claude","model":"claude-opus-5-5"}` (a key is loaded). One real question (`POST`, magnets, step Watch) → **502 `mentor_unavailable` after 1.2 s** |
+| Production log for that request | `[mentor] error provider=claude … ms=81 error=ModelUnavailableError` |
 | Error handling (before this change) | Every Claude failure became the same 502 "couldn't answer" with no reason, so a wrong key, an empty credit balance and a busy service looked identical |
 
-The actual cause of the reported failure is therefore **not yet proven**. The new check below names
-it in one request once the deployment can be reached.
+**Root cause (narrowed down):** production fails at the server's first step, the model check
+`models.retrieve("claude-opus-5-5")`, 81 ms in, before any message is sent. So it is **not** the request
+code, **not** credit (listing a model needs no credit) and **not** rate limiting. The production key is
+either **not accepted** by Anthropic (HTTP 401: wrong, revoked or expired) or its workspace **may not use
+this model** (403/404). The production deployment runs older code that does not log the HTTP status; the
+code on this branch reports it as `auth`, `permission` or `model`.
+
+**Fix (owner):** create a new key in the Anthropic Console (in a workspace that can use Claude Opus 5.5),
+set it as `ANTHROPIC_API_KEY` for Production and Preview (steps below), then redeploy. To confirm before
+touching Production: add the key to Preview, make a new preview of this branch, and open Grown-ups → AI
+status (or `/api/mentor?check=model`). It should report "Live AI is working".
 
 ## What changed
 
