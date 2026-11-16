@@ -53,6 +53,8 @@ export default function Home() {
 
   const nextLesson = next ? lessonView(next.lesson, state.topics) : undefined;
   const topicIndex = next ? getTopicsForLesson(next.lesson.id).findIndex((t) => t.id === next.topic.id) + 1 : 0;
+  // "Explore more" topics sit after the chapter's required topics, so they are not "Topic 3 of 2".
+  const where = next ? (next.topic.extension ? 'Explore more' : `Topic ${topicIndex} of ${nextLesson?.topicsTotal ?? 0}`) : '';
 
   return (
     <div className="page max-w-4xl">
@@ -81,7 +83,7 @@ export default function Home() {
             <Link
               to={next.kind === 'improve' ? topicPath(next.topic, 'practice') : chapterPathUrl(next.subject.id, next.lesson.id)}
               className="card flex items-center gap-3 p-3 transition hover:shadow-lift"
-              aria-label={`${CONTINUE_LABEL[next.kind]}: ${next.topic.title}. ${worldFor(next.subject.id as SubjectId).name}, topic ${topicIndex} of ${nextLesson?.topicsTotal ?? 0}`}
+              aria-label={`${CONTINUE_LABEL[next.kind]}: ${next.topic.title}. ${worldFor(next.subject.id as SubjectId).name}, ${where.toLowerCase()}`}
             >
               <WorldIcon theme={worldFor(next.subject.id as SubjectId)} size={44} />
               <span className="min-w-0 flex-1">
@@ -89,7 +91,7 @@ export default function Home() {
                   {CONTINUE_LABEL[next.kind]} · {next.topic.title}
                 </span>
                 <span className="block truncate text-sm font-bold text-ink-muted">
-                  {worldFor(next.subject.id as SubjectId).name} · Topic {topicIndex} of {nextLesson?.topicsTotal ?? 0}
+                  {worldFor(next.subject.id as SubjectId).name} · {where}
                 </span>
                 <ProgressBar value={nextLesson?.progress ?? 0} size="sm" color="rgb(20 40 75)" label="Chapter progress" className="mt-1.5" />
               </span>

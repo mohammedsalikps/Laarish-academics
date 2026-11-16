@@ -133,9 +133,18 @@ export class IslandScene {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.setClearColor(0x000000, 0);
 
-    this.scene.add(new THREE.HemisphereLight('#fff6ea', '#a07d5e', 1.9));
-    const sun = new THREE.DirectionalLight('#fff0d8', 1.7);
+    this.scene.add(new THREE.HemisphereLight('#fff6ea', '#a07d5e', 1.75));
+    const sun = new THREE.DirectionalLight('#fff0d8', 1.9);
     sun.position.set(6, 12, 8);
+    // Soft shadows give the clay islands depth: one 1024 shadow map, landmarks shade the grass.
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    const reach = opts.mode === 'hub' ? 9 : 6.5;
+    Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 40 });
+    sun.shadow.bias = -0.0006;
+    sun.shadow.normalBias = 0.03;
     this.scene.add(sun);
     this.scene.fog = new THREE.Fog('#f6e7d6', 26, 60);
 
@@ -178,6 +187,8 @@ export class IslandScene {
       mesh.position.copy(hubIslandPosition(world.order));
       mesh.rotation.y = -yawFacing(mesh.position) + Math.PI * 0.08;
       mesh.userData.subjectId = world.subjectId;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
       this.islands.set(world.subjectId, mesh);
       this.scene.add(mesh);
       const halo = new THREE.Mesh(new THREE.TorusGeometry(ISLAND_RADIUS * 1.08, 0.05, 8, 48), new THREE.MeshBasicMaterial({ color: '#f6be32', transparent: true, opacity: 0.9 }));
@@ -216,6 +227,7 @@ export class IslandScene {
       for (const rope of [ropeL, ropeR]) parts.push(paint(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rope), n * 2, 0.018, 5), '#7b5a3e', 0));
     }
     const mesh = new THREE.Mesh(merge(parts), this.material());
+    mesh.castShadow = true;
     this.disposables.push(mesh.geometry);
     this.scene.add(mesh);
   }
@@ -224,6 +236,8 @@ export class IslandScene {
     const model = islandModel(style);
     const mesh = new THREE.Mesh(model.geometry, this.material());
     mesh.scale.setScalar(WORLD_SCALE);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     this.islands.set(style, mesh);
     this.scene.add(mesh);
     this.bounds = ISLAND_RADIUS * WORLD_SCALE * 0.75;
@@ -567,6 +581,8 @@ export class IslandScene {
     }
     if (this.clouds && !this.reducedMotion) {
       this.clouds.rotation.y += dt * 0.01;
+      // A subject world floats gently (the hub's islands stay still: the rope bridges join them).
+      if (this.mode === 'world') for (const island of this.islands.values()) island.position.y = Math.sin(now / 1600) * 0.06;
       this.dirty = true;
     }
 
