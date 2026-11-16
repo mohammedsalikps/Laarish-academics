@@ -33,6 +33,15 @@ describe('AI status for grown-ups', () => {
     expect(screen.getByText(/Environment: production · Key set: yes · Model: claude-opus-5-5/)).toBeInTheDocument();
   });
 
+  it("shows what Anthropic answered (status, type, stage, request id) when the key is rejected", async () => {
+    const detail = { stage: 'model_check', httpStatus: 401, errorType: 'authentication_error', message: 'invalid x-api-key', requestId: 'req_011ABC' };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ provider: 'claude', model: 'claude-opus-5-5', check: { keyConfigured: true, environment: 'preview', result: 'auth', depth: 'model', checkedAt: '2026-11-16T12:00:00.000Z', detail } })));
+    const user = renderPanel();
+    await user.click(await screen.findByRole('button', { name: 'Check the AI' }));
+    expect(await screen.findByText(/Anthropic said: HTTP 401 · authentication_error · failed at the model check, before any message/)).toBeInTheDocument();
+    expect(screen.getByText(/request req_011ABC/)).toBeInTheDocument();
+  });
+
   it('says demo mode when the server has no key, and never offers a place to type one', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ provider: 'demo', check: { keyConfigured: false, environment: 'preview', result: 'missing_key', depth: 'model', checkedAt: '2026-11-16T12:00:00.000Z' } })));
     const user = renderPanel();

@@ -69,6 +69,16 @@ export function AiStatus() {
               {state.status?.model ? ` · Model: ${state.status.model}` : ''} · {check.depth === 'message' ? 'Full check' : 'Key and model check'} at{' '}
               {new Date(check.checkedAt).toLocaleTimeString()}
             </p>
+            {check.detail && (
+              // What Anthropic answered, for whoever fixes the setup (the server removes anything key-like).
+              <p className="mt-1 text-xs text-ink-muted">
+                Anthropic said: {check.detail.httpStatus ? `HTTP ${check.detail.httpStatus}` : 'no answer'}
+                {check.detail.errorType ? ` · ${check.detail.errorType}` : ''}
+                {` · failed at ${check.detail.stage === 'model_check' ? 'the model check, before any message' : 'the message'}`}
+                {check.detail.message ? ` · “${check.detail.message}”` : ''}
+                {check.detail.requestId ? ` · request ${check.detail.requestId}` : ''}
+              </p>
+            )}
           </div>
         )}
       </div>
