@@ -39,3 +39,19 @@ export function lowEndDevice(): boolean {
 export function resetCapabilityCache() {
   webgl = null;
 }
+
+/**
+ * Soft shadows cost a second render pass and a heavier shader compile at the
+ * first frame, which pushed the phone first-frame time past the 2 s budget in
+ * testing. They are used only on desktop-class devices (8 GB+, 8+ cores, not a
+ * phone or tablet). `?shadows=on|off` overrides it for QA.
+ */
+export function shadowsAllowed(): boolean {
+  if (typeof window === 'undefined') return false;
+  const forced = new URLSearchParams(window.location.search).get('shadows');
+  if (forced === 'on') return true;
+  if (forced === 'off') return false;
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(nav.userAgent);
+  return !mobile && (nav.deviceMemory ?? 8) >= 8 && (nav.hardwareConcurrency ?? 0) >= 8;
+}

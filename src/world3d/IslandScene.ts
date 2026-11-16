@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { lumpy, merge, paint, place, seeded } from './clay';
 import { ISLAND_RADIUS, islandModel, type IslandStyle } from './islands';
+import { shadowsAllowed } from './capability';
 import { WORLDS } from './worlds';
 
 /**
@@ -139,8 +140,8 @@ export class IslandScene {
     this.scene.add(evening ? new THREE.HemisphereLight('#c7d2ff', '#5b4a6e', 1.6) : new THREE.HemisphereLight('#fff6ea', '#a07d5e', 1.75));
     const sun = new THREE.DirectionalLight(evening ? '#ffc08a' : '#fff0d8', evening ? 1.7 : 1.9);
     sun.position.set(6, 12, 8);
-    // Soft shadows give the clay islands depth: one 1024 shadow map, landmarks shade the grass.
-    this.renderer.shadowMap.enabled = true;
+    // Soft shadows give the clay islands depth (one 1024 map), on desktop-class devices only: see shadowsAllowed().
+    this.renderer.shadowMap.enabled = shadowsAllowed();
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
