@@ -29,6 +29,8 @@ export interface ChatMessage {
   facts?: string[];
   /** Shown on screen only and never sent to the server (e.g. anything containing the nickname). */
   localOnly?: boolean;
+  /** Set when the live AI is not working and the answer came from the lesson instead. */
+  notice?: string;
 }
 
 interface MentorContextValue {
@@ -129,6 +131,7 @@ export function MentorProvider({ children }: { children: ReactNode }) {
             followUps: result.reply.followUps,
             facts,
             intent,
+            ...(result.notice ? { notice: result.notice } : {}),
           }
         : { id: createId('m'), role: 'mentor', text: result.error.message, error: result.error, facts, intent };
       setFailedQuestion(result.ok ? null : (lastLearner?.text ?? null));

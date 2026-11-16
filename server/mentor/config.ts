@@ -15,6 +15,8 @@ export interface MentorServerConfig {
   rateWindowMs: number;
   /** Honour X-Forwarded-For when deriving the client IP (only behind a trusted proxy). */
   trustProxy: boolean;
+  /** production, preview or development: which credentials this deployment uses. */
+  environment: string;
 }
 
 export const DEFAULT_MODEL = 'claude-opus-5-5';
@@ -42,5 +44,6 @@ export function readMentorConfig(env: Env): MentorServerConfig {
     rateLimit: intFrom(env.MENTOR_RATE_LIMIT, 30, 1, 1000),
     rateWindowMs: 5 * 60_000,
     trustProxy: env.TRUST_PROXY === '1' || env.VERCEL === '1',
+    environment: env.VERCEL_ENV?.trim() || env.NODE_ENV?.trim() || 'development',
   };
 }

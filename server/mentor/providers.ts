@@ -4,6 +4,8 @@ import { demoMentorReply } from '../../shared/mentor/demoMentor.js';
 import type { MentorMessage, MentorProviderName, MentorRequest } from '../../shared/mentor/types.js';
 import type { MentorServerConfig } from './config.js';
 import { buildSystemPrompt } from './prompt.js';
+import type { MentorFailure } from '../../shared/mentor/types.js';
+import { classifyFailure } from './diagnose.js';
 
 /** Details about a provider call, for diagnostics and cost monitoring (never contains conversation text). */
 export interface ProviderMeta {
@@ -25,6 +27,12 @@ export interface MentorProvider {
   readonly model?: string;
   /** Returns the reply text, or null when the provider declined or produced no answer. */
   reply(request: MentorRequest, signal: AbortSignal): Promise<{ text: string | null; followUps?: string[]; meta?: ProviderMeta }>;
+  /**
+   * Live providers only: checks the configuration without revealing it. "model" confirms the key
+   * and the model (no tokens spent); "message" also sends one tiny request, which shows whether
+   * the account has credit.
+   */
+  check?(depth: 'model' | 'message'): Promise<'ok' | MentorFailure>;
 }
 
 export class DemoMentorProvider implements MentorProvider {
@@ -98,6 +106,23 @@ export class ClaudeMentorProvider implements MentorProvider {
       },
     );
     return this.modelReady;
+  }
+
+  async check(depth: 'model' | 'message'): Promise<'ok' | MentorFailure> {
+    try {
+      if (this.client.models?.retrieve) await this.client.models.retrieve(this.model);
+      if (depth === 'message') {
+        await this.client.beta.messages.create({
+          model: this.model,
+          max_tokens: 64,
+          output_config: { effort: 'low' },
+          messages: [{ role: 'user', content: 'Reply with the single word OK.' }],
+        });
+      }
+      return 'ok';
+    } catch (err) {
+      return classifyFailure(err);
+    }
   }
 
   async reply(request: MentorRequest, signal: AbortSignal) {

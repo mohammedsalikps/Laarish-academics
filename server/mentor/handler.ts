@@ -1,9 +1,10 @@
 import { getGrounding } from '../../shared/mentor/knowledge.js';
 import { MENTOR_LIMITS, safetyReply, sanitizeMentorOutput, screenLearnerText, validateMentorRequest } from '../../shared/mentor/safety.js';
-import type { MentorErrorBody, MentorReply, MentorStatus } from '../../shared/mentor/types.js';
+import type { MentorCheck, MentorErrorBody, MentorReply, MentorStatus } from '../../shared/mentor/types.js';
 import { readMentorConfig, type MentorServerConfig } from './config.js';
 import { createProvider, type MentorProvider } from './providers.js';
 import { RateLimiter } from './rateLimit.js';
+import { classifyFailure } from './diagnose.js';
 
 /**
  * Framework-neutral API handler (Web Fetch Request -> Response).
@@ -103,12 +104,31 @@ export function createMentorService(config: MentorServerConfig, deps: MentorServ
       return json(body);
     } catch (err) {
       const timedOut = timeout.aborted || (err instanceof Error && /timed? ?out|abort/i.test(err.name + err.message));
-      // Log only the error class and status, never the conversation.
+      const reason = timedOut ? 'timeout' : classifyFailure(err);
+      // Log only the error class, status and reason category, never the conversation or the key.
       const status = typeof (err as { status?: unknown })?.status === 'number' ? (err as { status: number }).status : undefined;
-      console.warn(`[mentor] error ${tags} ms=${Date.now() - started} error=${(err as Error)?.name ?? 'unknown'}${status ? ` status=${status}` : ''}${timedOut ? ' timeout=1' : ''}`);
-      if (timedOut) return error(504, 'timeout', 'Your mentor is taking too long to think. Please try again.');
-      return error(502, 'mentor_unavailable', "Your mentor couldn't answer just now. Please try again in a moment.");
+      console.warn(`[mentor] error ${tags} ms=${Date.now() - started} reason=${reason} error=${(err as Error)?.name ?? 'unknown'}${status ? ` status=${status}` : ''}${timedOut ? ' timeout=1' : ''}`);
+      if (timedOut) return json({ error: 'timeout', message: 'Your mentor is taking too long to think. Please try again.', reason } satisfies MentorErrorBody, 504);
+      return json({ error: 'mentor_unavailable', message: "Your mentor couldn't answer just now. Please try again in a moment.", reason } satisfies MentorErrorBody, 502);
     }
+  }
+
+  // The configuration check (`GET /api/mentor?check=model|message`). Results are kept for a while,
+  // so the endpoint cannot be used to send many requests to Anthropic.
+  const CHECK_TTL_MS = { model: 60_000, message: 300_000 } as const;
+  let lastCheck: (MentorCheck & { at: number }) | null = null;
+  async function runCheck(depth: 'model' | 'message'): Promise<MentorCheck> {
+    const now = Date.now();
+    if (lastCheck && (lastCheck.depth === depth || lastCheck.depth === 'message') && now - lastCheck.at < CHECK_TTL_MS[depth]) {
+      const { at: _at, ...cached } = lastCheck;
+      return cached;
+    }
+    const keyConfigured = Boolean(config.apiKey);
+    const result: MentorCheck['result'] = provider.check ? await provider.check(depth) : keyConfigured ? 'demo_forced' : 'missing_key';
+    const check: MentorCheck = { keyConfigured, environment: config.environment, result, depth: provider.check ? depth : 'model', checkedAt: new Date(now).toISOString() };
+    logInfo(`[mentor] check depth=${check.depth} env=${check.environment} key=${keyConfigured ? 'set' : 'missing'} result=${result}`);
+    lastCheck = { ...check, at: now };
+    return check;
   }
 
   return {
@@ -123,7 +143,10 @@ export function createMentorService(config: MentorServerConfig, deps: MentorServ
       }
       if (path === '/api/mentor') {
         if (request.method === 'GET') {
-          return json({ provider: provider.name, ...(provider.model ? { model: provider.model } : {}) } satisfies MentorStatus);
+          const depth = new URL(request.url, 'http://localhost').searchParams.get('check');
+          const status: MentorStatus = { provider: provider.name, ...(provider.model ? { model: provider.model } : {}) };
+          if (depth) status.check = await runCheck(depth === 'message' ? 'message' : 'model');
+          return json(status);
         }
         if (request.method === 'POST') return reply(request, clientIp);
         return error(405, 'method_not_allowed', 'Use GET or POST.', { allow: 'GET, POST' });

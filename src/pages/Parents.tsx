@@ -1,4 +1,5 @@
 import { AcademicsControls } from './grownups/AcademicsControls';
+import { AiStatus } from './grownups/AiStatus';
 import { WeeklyReport } from './grownups/WeeklyReport';
 import { Lightbulb, Printer, ShieldCheck } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
@@ -213,6 +214,7 @@ function ParentSummary() {
       </section>
 
       <AcademicsControls />
+      <AiStatus />
 
       <section className="mt-5 rounded-3xl border border-line bg-surface p-5 text-sm text-ink-soft" aria-labelledby="privacy">
         <h2 id="privacy" className="text-lg font-semibold text-ink">

@@ -102,14 +102,45 @@ export interface MentorReply {
   followUps?: string[];
 }
 
+/**
+ * Why the live AI could not answer. Safe to show grown-ups and to log: it never contains a key,
+ * a prompt or a reply.
+ * - auth: the API key was not accepted (wrong, revoked or expired)
+ * - permission: the key may not use this model or feature
+ * - credit: the Anthropic account has no credit left
+ * - model: the configured model does not exist for this key
+ * - rate_limited / overloaded: Anthropic asked us to slow down, or is busy
+ * - timeout / unreachable: no answer in time, or no connection
+ */
+export type MentorFailure = 'auth' | 'permission' | 'credit' | 'model' | 'rate_limited' | 'overloaded' | 'timeout' | 'unreachable' | 'unknown';
+
+/** Failures that retrying will not fix: a grown-up has to change the configuration. */
+export const CONFIG_FAILURES: readonly MentorFailure[] = ['auth', 'permission', 'credit', 'model'];
+
+/** Result of the safe configuration check (`GET /api/mentor?check=1`). Never includes the key. */
+export interface MentorCheck {
+  /** Whether a server-side key is set. The key itself is never returned. */
+  keyConfigured: boolean;
+  /** production, preview or development (from the hosting platform). */
+  environment: string;
+  /** ok, missing_key (demo mode), demo_forced (MENTOR_PROVIDER=demo), or why the key does not work. */
+  result: 'ok' | 'missing_key' | 'demo_forced' | MentorFailure;
+  /** "model" checks the key and model only (free); "message" also sends one tiny request (checks credit). */
+  depth: 'model' | 'message';
+  checkedAt: string;
+}
+
 export interface MentorStatus {
   provider: MentorProviderName;
   model?: string;
+  check?: MentorCheck;
 }
 
 export interface MentorErrorBody {
   error: 'invalid_request' | 'rate_limited' | 'mentor_unavailable' | 'timeout' | 'method_not_allowed' | 'payload_too_large';
   message: string;
+  /** Only on mentor_unavailable and timeout: the reason category (see MentorFailure). */
+  reason?: MentorFailure;
 }
 
 export const LANGUAGE_NAMES: Record<ReplyLanguage, string> = { en: 'English', hi: 'Hindi', kn: 'Kannada' };

@@ -71,13 +71,14 @@ function Bubble({ m, onRetry, speech }: { m: ChatMessage; onRetry: (id: string) 
       <MentorAvatar size={32} />
       <div className="max-w-[88%]">
         {facts}
+        {m.notice && <p className="mb-1 rounded-2xl bg-notyet-soft px-3 py-2 text-sm font-bold text-notyet-strong">{m.notice}</p>}
         <div className="rounded-3xl rounded-tl-lg border border-line bg-surface px-4 py-2.5 shadow-soft">
           <p className="whitespace-pre-line text-[0.98rem] leading-relaxed">{m.text}</p>
         </div>
         <div className="mt-1 flex items-center gap-2 pl-2 text-xs text-ink-muted">
           {m.source === 'server' && m.provider === 'claude' && <span>Live AI</span>}
           {m.source === 'server' && m.provider === 'demo' && <span>Demo answer</span>}
-          {m.source === 'local-demo' && <span>Demo answer (offline)</span>}
+          {m.source === 'local-demo' && <span>{m.notice ? 'From the lesson, not AI' : 'Demo answer (offline)'}</span>}
           {m.source === 'app' && <span>From the app</span>}
           {speech.supported && (
             <button

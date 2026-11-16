@@ -2,7 +2,7 @@ import { getLesson, getTopic, loadTopicContent } from '../content';
 import { demoReply } from '../../shared/mentor/demoReply';
 import { groundingFor, type GroundingContext, type MentorGrounding } from '../../shared/mentor/grounding';
 import { MENTOR_LIMITS } from '../../shared/mentor/safety';
-import type { MentorErrorBody, MentorReply, MentorRequest, MentorStatus } from '../../shared/mentor/types';
+import { CONFIG_FAILURES, type MentorErrorBody, type MentorReply, type MentorRequest, type MentorStatus } from '../../shared/mentor/types';
 
 /**
  * Browser client for the mentor API.
@@ -20,7 +20,8 @@ export type MentorClientError = {
 };
 
 export type MentorClientResult =
-  | { ok: true; reply: MentorReply; source: 'server' | 'local-demo' }
+  /** notice: shown with an answer from the lesson when the live AI is not configured correctly. */
+  | { ok: true; reply: MentorReply; source: 'server' | 'local-demo'; notice?: string }
   | { ok: false; error: MentorClientError };
 
 export const MENTOR_ENDPOINT = '/api/mentor';
@@ -102,6 +103,12 @@ export async function askMentor(
     if (res.status === 504) return { ok: false, error: { kind: 'timeout', message: `${who} took too long to answer. Please try again.`, retryable: true } };
     if (res.status === 400 || res.status === 413) {
       return { ok: false, error: { kind: 'invalid', message: data?.message ?? `${who} could not understand that message.`, retryable: false } };
+    }
+    // The live AI is set up wrongly (key not accepted, no credit, unknown model): retrying won't help.
+    // Answer from the lesson instead, and say plainly that it is not the live AI.
+    if (data?.reason && CONFIG_FAILURES.includes(data.reason)) {
+      const local = await localDemo(request);
+      return local.ok ? { ...local, notice: `${who}'s live AI isn't working right now, so this answer comes from the lesson. It is not from AI.` } : local;
     }
     return unavailable(who);
   } catch {

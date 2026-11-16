@@ -88,4 +88,24 @@ describe('request messages', () => {
     ]);
     expect(JSON.stringify(messages)).not.toContain('Asha');
   });
+
+  it('answers from the lesson, clearly labelled, when the live AI is set up wrongly (no retry would help)', async () => {
+    for (const reason of ['auth', 'credit', 'model', 'permission']) {
+      const fetchImpl = vi.fn().mockResolvedValue(jsonResponse(502, { error: 'mentor_unavailable', message: 'Server message.', reason }));
+      const r = await askMentor(request, { fetchImpl, liveBackend: true, mentorName: 'Rishi' });
+      expect(r.ok).toBe(true);
+      if (!r.ok) continue;
+      expect(r.source).toBe('local-demo');
+      expect(r.reply.provider).toBe('demo');
+      expect(r.notice).toBe("Rishi's live AI isn't working right now, so this answer comes from the lesson. It is not from AI.");
+    }
+  });
+
+  it('keeps "try again" for passing problems (busy, rate limited, unknown)', async () => {
+    for (const reason of ['overloaded', 'rate_limited', 'unknown', undefined]) {
+      const fetchImpl = vi.fn().mockResolvedValue(jsonResponse(502, { error: 'mentor_unavailable', message: 'Server message.', ...(reason ? { reason } : {}) }));
+      const r = await askMentor(request, { fetchImpl, liveBackend: true, mentorName: 'Ayra' });
+      expect(r).toMatchObject({ ok: false, error: { kind: 'unavailable', retryable: true } });
+    }
+  });
 });
