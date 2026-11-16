@@ -4,6 +4,7 @@ import { SurfacePatterns } from '../../components/art/Illustration';
 import { useSound } from '../../hooks/usePreferences';
 import type { PushBoxConfig } from '../../domain/types';
 import { cn } from '../../lib/cn';
+import { RAISED } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import {
   createPushBoxReducer,
@@ -207,7 +208,7 @@ export default function PushBox({ config, reducedMotion, onEvent, onComplete, on
                 onClick={() => selectFloor(f.id)}
                 className={cn(
                   'relative flex min-h-[76px] flex-col items-center justify-center gap-1.5 rounded-2xl border-2 p-2 text-center transition disabled:cursor-not-allowed',
-                  selected ? 'border-primary bg-primary-soft shadow-soft' : 'border-line bg-surface hover:border-primary/40',
+                  selected ? 'border-primary bg-primary-soft shadow-soft' : cn('border-line bg-surface hover:border-primary/40', RAISED),
                 )}
               >
                 <svg viewBox="0 0 60 30" className="h-8 w-full rounded-xl" aria-hidden="true">

@@ -1,10 +1,12 @@
-import { CheckCircle2, CircleHelp, RotateCcw, Target, X } from 'lucide-react';
+import { CheckCircle2, ChevronDown, CircleHelp, RotateCcw, Target, X } from 'lucide-react';
 import { SpeakButton } from '../../components/quiz/SpeakButton';
 import { Pill } from '../../components/ui/primitives';
 import type { GameResult } from '../../domain/results';
 import type { TopicPlay } from '../../domain/types';
 import type { MiniGameDefinition } from '../../games/framework';
-import { useSpeech } from '../../hooks/usePreferences';
+import { HOW_TO_NOTE, howToSteps } from '../../games/howTo';
+import { HowToSteps } from '../../games/HowToGuide';
+import { useReducedMotion, useSpeech } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
 
 export type MissionStatus = 'playing' | 'complete' | 'done-before';
@@ -12,7 +14,8 @@ export type MissionStatus = 'playing' | 'complete' | 'done-before';
 /**
  * The Play step's mission: what the game is about, what to achieve, whether it
  * counts towards mastery, and (on request) how to play. The goal is always on
- * screen; the step-by-step instructions open behind "How to play".
+ * screen; "How to play" opens two or three picture steps (src/games/howTo.ts),
+ * with every written instruction one more tap away under "All the steps in words".
  */
 export function MissionCard({
   play,
@@ -37,8 +40,11 @@ export function MissionCard({
   onReplay?: () => void;
 }) {
   const speech = useSpeech();
+  const reducedMotion = useReducedMotion();
   const goal = def.goal(play.game as never);
   const instructions = def.instructions(play.game as never);
+  const steps = howToSteps(play.game);
+  const note = HOW_TO_NOTE[play.game.type];
   const scored = play.assessed && play.weight > 0;
   const complete = status === 'complete';
 
@@ -108,24 +114,37 @@ export function MissionCard({
       </div>
 
       {showHow && (
-        <section id="how-to-play" aria-label="How to play" className="relative col-span-full mt-1 animate-fade-up rounded-2xl bg-canvas p-4 pr-14">
+        <section id="how-to-play" aria-label="How to play" className={cn('relative col-span-full mt-1 rounded-2xl bg-canvas p-3 sm:p-4', !reducedMotion && 'animate-fade-up')}>
           <button type="button" onClick={onToggleHow} className="absolute right-1.5 top-1.5 grid h-11 w-11 place-items-center rounded-xl text-ink-muted hover:bg-ink/5" aria-label="Close how to play">
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
-          {objective && (
-            <p className="mb-2 text-sm font-semibold text-ink-soft">
-              <span className="font-extrabold">You'll learn:</span> {objective}
-            </p>
-          )}
-          <p className="font-display font-semibold">How to play</p>
-          <ol className="mt-2 space-y-1.5">
-            {instructions.map((step, i) => (
-              <li key={step} className="flex gap-2.5 text-[0.95rem]">
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ol>
+          <div className="mb-2 pr-12">
+            {objective && (
+              <p className="mb-1 text-sm font-semibold text-ink-soft">
+                <span className="font-extrabold">You'll learn:</span> {objective}
+              </p>
+            )}
+            <div className="flex items-center gap-2">
+              <p className="font-display font-semibold">How to play</p>
+              <SpeakButton text={steps.map((s) => s.text).join(' ')} label="Read how to play aloud" speech={speech} />
+            </div>
+          </div>
+          <HowToSteps steps={steps} animate={!reducedMotion} note={note} />
+          {/* Every written instruction, for anyone who wants all the details. */}
+          <details className="group mt-2">
+            <summary className="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-1.5 rounded-xl px-2 text-sm font-extrabold text-primary hover:bg-primary-soft [&::-webkit-details-marker]:hidden">
+              All the steps in words
+              <ChevronDown className={cn('h-4 w-4', !reducedMotion && 'transition-transform', 'group-open:rotate-180')} aria-hidden="true" />
+            </summary>
+            <ol aria-label="All the steps in words" className="mt-1 space-y-1.5 px-2 pb-1">
+              {instructions.map((step, i) => (
+                <li key={step} className="flex gap-2.5 text-[0.95rem]">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">{i + 1}</span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </details>
         </section>
       )}
     </section>

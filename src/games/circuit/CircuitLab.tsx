@@ -18,6 +18,7 @@ import { Icon } from '../../components/ui/Icon';
 import type { CircuitConfig } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { firstMoveCue, FIRST_MOVE, RAISED } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 // Pointer geometry shared with Concept Match and the Sort game (pure helpers, unit tested in match/dragMath.test.ts).
 import { dropTargetAt, ghostTransform, grabOffset, passedDragThreshold, toBox, type Point } from '../match/dragMath';
@@ -339,6 +340,8 @@ export default function CircuitLab({ config, reducedMotion, onEvent, onComplete,
     : 'Put an object in the gap and turn the switch on. The bulb lights only if the object lets electricity through.';
   const helpId = `${uid}-help`;
   const showHelp = tooSoon && !correct;
+  // Before anything has gone into the gap, the first object pulses once: pick one up and try it.
+  const firstMove = state.round === 0 && state.inGap === null && state.lastTest === null && state.tested.length === 0 && !drag;
 
   // One line under the circuit: what the circuit is doing, why, or a hint.
   let feedback: ReactNode = null;
@@ -411,7 +414,8 @@ export default function CircuitLab({ config, reducedMotion, onEvent, onComplete,
           Put it in the gap: drag it there, or press it. Press Escape to take it out.
         </p>
         <div role="group" aria-label="Objects" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {config.items.map((item) => {
+          {config.items.map((item, index) => {
+            const cue = firstMove && index === 0;
             const placed = state.inGap === item.id;
             const tested = testAll && state.tested.includes(item.id);
             const dragged = drag?.id === item.id;
@@ -422,6 +426,7 @@ export default function CircuitLab({ config, reducedMotion, onEvent, onComplete,
                 type="button"
                 aria-pressed={placed}
                 aria-describedby={`${uid}-howto`}
+                data-cue={cue ? FIRST_MOVE : undefined}
                 onClick={() => onCardClick(item.id)}
                 onPointerDown={(e) => onCardPointerDown(e, item.id)}
                 onPointerMove={onCardPointerMove}
@@ -436,7 +441,7 @@ export default function CircuitLab({ config, reducedMotion, onEvent, onComplete,
                     ? 'border-dashed border-primary/50 bg-primary-soft/40 opacity-50'
                     : placed
                       ? 'border-primary bg-primary-soft text-primary-strong shadow-soft ring-4 ring-primary/20'
-                      : 'border-line bg-surface shadow-soft hover:border-primary/40',
+                      : cn('border-line bg-surface hover:border-primary/40', RAISED, firstMoveCue(cue, !animate)),
                 )}
               >
                 <ObjectFace item={item} />

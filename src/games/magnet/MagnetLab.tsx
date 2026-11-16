@@ -20,6 +20,7 @@ import { cn } from '../../lib/cn';
 import { useAcademicsPrefs } from '../../state/academicsPrefs';
 import { lowEndDevice, webglAvailable } from '../../world3d/capability';
 import { MagnetBench3D } from '../../world3d/MagnetBench3D';
+import { firstMoveCue, FIRST_MOVE, RAISED } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 // Pointer geometry shared with the other drag games (pure helpers, unit tested in match/dragMath.test.ts).
 import { dropTargetAt, ghostTransform, grabOffset, passedDragThreshold, toBox, type Point } from '../match/dragMath';
@@ -411,6 +412,8 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
   const showHint = hintVisible(state);
   const helpId = `${uid}-help`;
   const showHelp = tooSoon && !correct;
+  // Before the first object is tried, the first card pulses once: pick it up and bring it over.
+  const firstMove = state.round === 0 && round.kind !== 'poles' && state.atMagnet === null && state.tested.length === 0 && Object.keys(state.sorted).length === 0 && !picked && !drag;
   const waitLabel =
     round.kind === 'test' ? 'Test every object to continue' : round.kind === 'sort' ? 'Sort every object to continue' : round.goal === 'explore' ? 'See both results to continue' : 'Solve the challenge to continue';
   const waitHelp =
@@ -528,9 +531,10 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
               {round.kind === 'test' ? 'Drag it to the magnet, or press it to test it. Press Escape to take it off the magnet.' : 'Drag it into a tray, or press it and then press a tray.'}
             </p>
             <div role="group" aria-label="Objects" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {objects.map((o) => {
+              {objects.map((o, index) => {
                 const isSorted = round.kind === 'sort' && Boolean(state.sorted[o.id]);
                 if (isSorted) return null;
+                const cue = firstMove && index === 0;
                 const selected = round.kind === 'test' ? state.atMagnet === o.id : picked === o.id;
                 const tested = round.kind === 'test' && state.tested.includes(o.id);
                 const dragged = drag?.id === o.id;
@@ -541,6 +545,7 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
                     type="button"
                     aria-pressed={selected}
                     aria-describedby={`${uid}-howto`}
+                    data-cue={cue ? FIRST_MOVE : undefined}
                     onClick={() => onCardClick(o.id)}
                     onPointerDown={(e) => onCardPointerDown(e, o.id)}
                     onPointerMove={onCardPointerMove}
@@ -555,7 +560,7 @@ export default function MagnetLab({ config, reducedMotion, onEvent, onRecord, on
                         ? 'border-dashed border-primary/50 bg-primary-soft/40 opacity-50'
                         : selected
                           ? 'border-primary bg-primary-soft text-primary-strong shadow-soft ring-4 ring-primary/20'
-                          : 'border-line bg-surface shadow-soft hover:border-primary/40',
+                          : cn('border-line bg-surface hover:border-primary/40', RAISED, firstMoveCue(cue, !animate)),
                     )}
                   >
                     <ObjectPicture art={o.art} size={40} />

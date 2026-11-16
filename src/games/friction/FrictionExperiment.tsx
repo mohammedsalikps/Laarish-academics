@@ -6,6 +6,7 @@ import { ToyCar } from '../../components/art/ToyCar';
 import { useSound } from '../../hooks/usePreferences';
 import type { DistanceBand, FrictionChallenge, FrictionExperimentConfig, RampHeight, SurfaceDefinition } from '../../domain/types';
 import { cn } from '../../lib/cn';
+import { firstMoveCue, FIRST_MOVE, RAISED } from '../affordance';
 import { beginPointerDrag, type GameEvent, type MiniGameProps } from '../framework';
 import {
   allChallengesSolved,
@@ -382,6 +383,10 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
   const exploreRuns = state.runs.filter((r) => r.mode === 'explore');
   const resultChallenge = challenges.find((c) => c.id === state.current?.challengeId);
   const showSurfaceChoice = surfaceChangeable && (!surface || changingSurface || state.mode === 'challenge');
+  // The very first run, one step at a time: the surfaces pulse once, then (after one is chosen) the predictions.
+  const firstRun = state.runs.length === 0 && state.mode === 'explore' && state.phase !== 'running';
+  const cueSurface = firstRun && !state.surfaceId;
+  const cuePrediction = firstRun && Boolean(state.surfaceId) && !state.prediction;
 
   return (
     <div className="space-y-3">
@@ -539,6 +544,8 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
                 progress={testProgress}
                 uid={uid}
                 disabled={state.phase === 'running'}
+                cue={cueSurface}
+                reducedMotion={reducedMotion}
                 onSelect={selectSurface}
               />
             ) : (
@@ -564,7 +571,12 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
             {state.mode !== 'challenge' && surface && !changingSurface && (
               <div>
                 <p className="mb-2 font-bold">How far will the car roll on {surface.name.toLowerCase()}?</p>
-                <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Prediction">
+                <div
+                  className={cn('grid grid-cols-3 gap-2 rounded-2xl', firstMoveCue(cuePrediction, reducedMotion))}
+                  data-cue={cuePrediction ? FIRST_MOVE : undefined}
+                  role="radiogroup"
+                  aria-label="Prediction"
+                >
                   {(['short', 'medium', 'far'] as DistanceBand[]).map((b) => (
                     <button
                       key={b}
@@ -575,7 +587,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
                       onClick={() => predict(b)}
                       className={cn(
                         'min-h-[64px] rounded-2xl border-2 px-2 py-2 text-center transition',
-                        state.prediction === b ? 'border-primary bg-primary-soft' : 'border-line bg-surface hover:border-primary/40',
+                        state.prediction === b ? 'border-primary bg-primary-soft' : cn('border-line bg-surface hover:border-primary/40', RAISED),
                       )}
                     >
                       <span className="block font-display text-lg font-semibold" style={{ color: BAND_STYLE[b].text }}>
@@ -671,6 +683,8 @@ function SurfaceChoice({
   progress,
   uid,
   disabled,
+  cue,
+  reducedMotion,
   onSelect,
 }: {
   surfaces: SurfaceDefinition[];
@@ -679,6 +693,9 @@ function SurfaceChoice({
   progress?: { tested: number; need: number };
   uid: string;
   disabled: boolean;
+  /** Before the first run: the surfaces pulse once to show where to start. */
+  cue: boolean;
+  reducedMotion: boolean;
   onSelect: (id: string) => void;
 }) {
   return (
@@ -687,7 +704,7 @@ function SurfaceChoice({
         <p className="font-bold">Choose a surface</p>
         {progress && <TestedCount {...progress} />}
       </div>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3" role="radiogroup" aria-label="Surface">
+      <div className={cn('grid grid-cols-3 gap-2 rounded-2xl sm:gap-3', firstMoveCue(cue, reducedMotion))} data-cue={cue ? FIRST_MOVE : undefined} role="radiogroup" aria-label="Surface">
         {surfaces.map((s) => (
           <button
             key={s.id}
@@ -698,7 +715,7 @@ function SurfaceChoice({
             onClick={() => onSelect(s.id)}
             className={cn(
               'relative flex min-h-[92px] flex-col items-center gap-1.5 rounded-2xl border-2 p-2 text-center transition',
-              selected === s.id ? 'border-primary bg-primary-soft shadow-soft' : 'border-line bg-surface hover:border-primary/40',
+              selected === s.id ? 'border-primary bg-primary-soft shadow-soft' : cn('border-line bg-surface hover:border-primary/40', RAISED),
             )}
           >
             <svg viewBox="0 0 60 30" className="h-10 w-full rounded-xl" aria-hidden="true">
@@ -734,7 +751,7 @@ function PushChoice({ height, disabled, onChoose }: { height: RampHeight; disabl
             onClick={() => onChoose(h)}
             className={cn(
               'flex min-h-[60px] flex-col items-center justify-center rounded-2xl border-2 px-2 py-1.5 text-center transition',
-              height === h ? 'border-primary bg-primary-soft' : 'border-line bg-surface hover:border-primary/40',
+              height === h ? 'border-primary bg-primary-soft' : cn('border-line bg-surface hover:border-primary/40', RAISED),
             )}
           >
             <span className="text-sm font-extrabold">{RAMP_HEIGHT_NAMES[h]}</span>

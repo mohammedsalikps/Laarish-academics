@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useReducer, useRef, useState, type ReactNode
 import type { BalanceGameConfig, BalanceTerm } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { firstMoveCue, FIRST_MOVE, RAISED } from '../affordance';
 import type { MiniGameProps } from '../framework';
 import { balanceHint, balanceResult, createBalanceReducer, initialBalanceState, sideTotal, tilt, wrongTries } from './balanceLogic';
 import { RoundDots } from '../RoundDots';
@@ -49,7 +50,6 @@ function Pan({ x, y, label, highlight, animate }: { x: number; y: number; label:
   );
 }
 
-/** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
 /**
  * Balance Scale: find the number that makes both sides of the scale equal.
  * One scale at a time: tap a number, watch the scale tip, press Check.
@@ -148,6 +148,8 @@ export default function BalanceScale({ config, reducedMotion, onEvent, onComplet
   const visibleHint = hint && (state.phase === 'incorrect' || hint.level > 1) ? hint : null;
   const lastRound = state.round >= config.rounds.length - 1;
   const waitText = state.phase === 'incorrect' ? 'Tap another number, then press Check.' : 'Tap a number first.';
+  // Before the very first try, the numbers pulse once: this is where to start.
+  const firstMove = state.round === 0 && state.chosen === null && state.mistakes === 0;
 
   const choose = (value: number) => {
     dispatch({ type: 'choose', value });
@@ -218,7 +220,12 @@ export default function BalanceScale({ config, reducedMotion, onEvent, onComplet
           <p className="sr-only">{leftTotal === null || rightTotal === null ? `Try a number for ${config.unknownLabel}.` : `Left ${leftTotal}, right ${rightTotal}. The scale is ${tiltText}.`}</p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2" role="group" aria-label={`Numbers to try for ${config.unknownLabel}`}>
+        <div
+          className={cn('flex flex-wrap items-center justify-center gap-2 rounded-2xl p-1', firstMoveCue(firstMove, reducedMotion))}
+          data-cue={firstMove ? FIRST_MOVE : undefined}
+          role="group"
+          aria-label={`Numbers to try for ${config.unknownLabel}`}
+        >
           <span className="mr-1 font-display text-2xl font-semibold text-primary-strong" aria-hidden="true">
             {config.unknownLabel} =
           </span>
@@ -232,7 +239,7 @@ export default function BalanceScale({ config, reducedMotion, onEvent, onComplet
               className={cn(
                 'grid h-14 min-w-[3.5rem] place-items-center rounded-2xl border-2 px-3 font-display text-2xl font-semibold disabled:cursor-default',
                 animate && 'transition-colors',
-                state.chosen === value ? 'border-primary bg-primary text-white shadow-soft' : 'border-line bg-surface enabled:hover:border-primary/50',
+                state.chosen === value ? 'border-primary bg-primary text-white shadow-soft' : cn('border-line bg-surface enabled:hover:border-primary/50 enabled:active:translate-y-0.5', RAISED),
               )}
             >
               {value}

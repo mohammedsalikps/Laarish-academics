@@ -4,6 +4,7 @@ import { Icon } from '../../components/ui/Icon';
 import type { WordOrderConfig } from '../../domain/types';
 import { useSound, useSpeech } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { firstMoveCue, FIRST_MOVE, RAISED } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import { createWordOrder, insertIndex, sentenceText, wordOrderResult } from './wordOrderLogic';
 import { wordOrderHints, useHintContext } from '../hints';
@@ -67,6 +68,16 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
   const tray = state.tiles.filter((t) => !state.placed.includes(t.id));
   const editable = state.status === 'building' || state.status === 'wrong';
   const firstMove = state.roundIndex === 0 && state.placed.length === 0 && state.status === 'building';
+  // One short instruction at a time, above the tiles: where to start, how to undo, or what to do next.
+  const instruction = !editable
+    ? null
+    : firstMove
+      ? 'Start here: tap or drag the first word'
+      : tray.length === 0
+        ? 'All tiles used. Press Check!'
+        : state.placed.length > 0
+          ? 'Tap a placed word to send it back'
+          : null;
 
   const place = (tileId: string, at?: number) => {
     if (!editable) return;
@@ -182,7 +193,7 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
       {/* sentence strip */}
       <div>
         <p className="mb-2 text-sm font-extrabold text-ink-soft" id="strip-label">
-          Your sentence {editable && state.placed.length > 0 && <span className="font-semibold text-ink-muted">· tap a word to send it back, or drag to move it</span>}
+          Your sentence
         </p>
         <ol
           ref={stripRef}
@@ -224,12 +235,15 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
       </div>
 
       {/* tile tray */}
-      <div className={cn('rounded-3xl bg-canvas-sunken p-3 transition', firstMove && 'ring-4 ring-primary/30')}>
-        <p className="mb-2 flex items-center gap-2 text-sm font-extrabold text-ink-soft">
+      <div className={cn('rounded-3xl bg-canvas-sunken p-3 transition', firstMoveCue(firstMove, reducedMotion))} data-cue={firstMove ? FIRST_MOVE : undefined}>
+        <p className="mb-2 flex flex-wrap items-center gap-2 text-sm font-extrabold text-ink-soft">
           Word tiles
-          {firstMove && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[0.7rem] text-white">
-              <Hand className="h-3 w-3" aria-hidden="true" /> Start here: tap or drag the first word
+          {instruction && (
+            <span
+              data-instruction=""
+              className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.75rem]', firstMove || tray.length === 0 ? 'bg-primary text-white' : 'bg-surface text-ink-soft')}
+            >
+              <Hand className="h-3 w-3" aria-hidden="true" /> {instruction}
             </span>
           )}
         </p>
@@ -242,13 +256,15 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
                 onPointerDown={(e) => startDrag(e, t.id, 'tray')}
                 disabled={!editable}
                 aria-label={`Add "${t.text}" to the sentence`}
-                className="h-14 min-w-[56px] touch-none select-none rounded-2xl border-2 border-line bg-surface px-4 font-display text-2xl font-semibold text-ink shadow-soft transition hover:-translate-y-0.5 hover:border-primary/50 disabled:opacity-50"
+                className={cn(
+                  'h-14 min-w-[56px] touch-none select-none rounded-2xl border-2 border-line bg-surface px-4 font-display text-2xl font-semibold text-ink transition hover:-translate-y-0.5 hover:border-primary/50 disabled:opacity-50',
+                  RAISED,
+                )}
               >
                 {t.text}
               </button>
             </li>
           ))}
-          {tray.length === 0 && <li className="self-center text-sm font-bold text-ink-muted">All tiles used. Press Check!</li>}
         </ul>
       </div>
 

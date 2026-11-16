@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useReducer, useRef, useState, type KeyboardE
 import type { AreaGridConfig } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { RAISED } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import {
   areaHint,
@@ -386,7 +387,10 @@ function Grid({
 function Stepper({ label, value, max, disabled, onStep }: { label: string; value: number; max: number; disabled: boolean; onStep(by: 1 | -1): void }) {
   const canLess = !disabled && value > 1;
   const canMore = !disabled && value < max;
-  const button = 'grid h-11 w-11 place-items-center rounded-xl border-2 border-line bg-surface text-ink hover:border-primary/50 aria-disabled:cursor-not-allowed aria-disabled:hover:border-line aria-disabled:opacity-40';
+  const button = cn(
+    'grid h-11 w-11 place-items-center rounded-xl border-2 border-line bg-surface text-ink hover:border-primary/50 active:translate-y-px aria-disabled:cursor-not-allowed aria-disabled:hover:border-line aria-disabled:opacity-40 aria-disabled:active:translate-y-0',
+    RAISED,
+  );
   return (
     <div role="group" aria-label={label} className="flex flex-col items-center">
       <span className="eyebrow mb-1" aria-hidden="true">
@@ -428,7 +432,6 @@ function Readout({ state, round, animate }: { state: AreaState; round: AreaGridC
   );
 }
 
-/** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
 function CompleteCard({ config, state, animate, headingRef, onRestart }: { config: AreaGridConfig; state: AreaState; animate: boolean; headingRef: Ref<HTMLHeadingElement>; onRestart(): void }) {
   const [showRounds, setShowRounds] = useState(false);
   const listId = useId();

@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useReducer, useRef, useState, type KeyboardE
 import type { NumberLineConfig } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { FIRST_MOVE, RAISED } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import {
   canCheck,
@@ -128,6 +129,8 @@ export default function NumberLineGame({ config, reducedMotion, onEvent, onCompl
   const visibleHint = hint && (state.phase === 'incorrect' || hint.level > 1) ? hint : null;
   const lastRound = state.round >= config.rounds.length - 1;
   const waitText = state.phase === 'incorrect' ? 'Move the marker, then press Check.' : start !== null ? 'Tap where the jump lands first.' : 'Tap a point first.';
+  // Before the very first point is chosen, the line itself glows once: this is what to tap.
+  const firstMove = editable && state.round === 0 && state.chosen === null && state.mistakes === 0;
 
   // Always dispatched: several pointer moves or keys can arrive before a re-render, and the
   // reducer works from the latest marker position. This render's position only decides the sound.
@@ -223,7 +226,10 @@ export default function NumberLineGame({ config, reducedMotion, onEvent, onCompl
     const next = keyIndex(round, state.chosen, key);
     return editable && next !== null && next !== state.chosen;
   };
-  const stepButton = 'grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-line bg-surface text-ink hover:border-primary/50 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:border-line';
+  const stepButton = cn(
+    'grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-line bg-surface text-ink hover:border-primary/50 active:translate-y-px aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:border-line aria-disabled:active:translate-y-0',
+    RAISED,
+  );
   const sliderLabel = `Number line from ${formatValue(round.from, round.format)} to ${formatValue(round.to, round.format)}${start !== null ? `. The jump starts at ${fmt(start)}` : ''}`;
   const valueNow = valueAt(round, state.chosen ?? start ?? 0);
   const valueText =
@@ -294,7 +300,7 @@ export default function NumberLineGame({ config, reducedMotion, onEvent, onCompl
               editable ? (dragging ? 'cursor-grabbing' : 'cursor-pointer') : 'cursor-default',
             )}
           >
-            <LineDrawing round={round} chosen={state.chosen} phase={state.phase} animate={animate} dragging={dragging} editable={editable} />
+            <LineDrawing round={round} chosen={state.chosen} phase={state.phase} animate={animate} dragging={dragging} editable={editable} firstMove={firstMove} />
           </div>
         </div>
         <div className="mt-1 flex items-center justify-center gap-3">
@@ -358,6 +364,7 @@ function LineDrawing({
   animate,
   dragging,
   editable,
+  firstMove,
 }: {
   round: NumberLineRound;
   chosen: number | null;
@@ -365,6 +372,8 @@ function LineDrawing({
   animate: boolean;
   dragging: boolean;
   editable: boolean;
+  /** Before the first choice: a soft band behind the line that glows once (still with reduced motion). */
+  firstMove: boolean;
 }) {
   const start = startIndex(round);
   // Jump rounds need headroom for the arc and its label.
@@ -376,6 +385,18 @@ function LineDrawing({
 
   return (
     <svg viewBox={`0 0 ${VIEW_W} ${height}`} className="block h-auto w-full" aria-hidden="true" focusable="false">
+      {firstMove && (
+        <rect
+          data-cue={FIRST_MOVE}
+          x={LINE_X0 - 16}
+          y={lineY - 18}
+          width={LINE_X1 - LINE_X0 + 32}
+          height={36}
+          rx={18}
+          strokeWidth="2"
+          className={cn('fill-primary/10 stroke-primary/40', animate && 'animate-[pulse_1.4s_cubic-bezier(0.4,0,0.6,1)_500ms_1]')}
+        />
+      )}
       {/* The line carries on both ways, so it has an arrow tip at each end. */}
       <line x1={LINE_X0 - 12} y1={lineY} x2={LINE_X1 + 12} y2={lineY} className="stroke-ink" strokeWidth="3" strokeLinecap="round" />
       <path d={`M ${LINE_X0 - 21} ${lineY} l 10 -6.5 v 13 Z`} className="fill-ink" />
@@ -449,7 +470,6 @@ function Marker({ x, y, phase, glide }: { x: number; y: number; phase: NumberLin
 
 /* ------------------------------------------------------- progress, summary */
 
-/** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
 function CompleteCard({
   config,
   state,

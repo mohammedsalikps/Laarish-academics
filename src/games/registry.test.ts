@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { TOPICS } from '../../shared/curriculum';
 import { TOPIC_INDEX } from '../../shared/curriculum/topicIndex';
 import { GAMES } from './registry';
 
@@ -54,6 +55,21 @@ describe('the 14 game engines', () => {
   it.each(ENGINES)('%s loads its component', async (type) => {
     expect(typeof (await MODULES[type]()).default).toBe('function');
   }, 30_000);
+
+  it('give concrete missions: bar charts say build or read, magnets mention sorting only when there is a sort round', () => {
+    for (const t of TOPICS) {
+      const g = t.play.game;
+      if (g.type === 'bar-chart') {
+        const goal = GAMES['bar-chart'].goal(g);
+        expect(goal).not.toMatch(/chart tasks/);
+        if (g.rounds.every((r) => r.mode === 'read')) expect(goal).toBe(`Read the bar charts to answer all ${g.rounds.length} questions.`);
+        if (g.rounds.every((r) => r.mode === 'build')) expect(goal).toBe(`Make all ${g.rounds.length} bar charts match their tables.`);
+      }
+      if (g.type === 'magnet-lab') {
+        expect(GAMES['magnet-lab'].goal(g).includes('sort')).toBe(g.rounds.some((r) => r.kind === 'sort'));
+      }
+    }
+  });
 
   it('are each used by at least one topic, and every topic uses a registered engine', () => {
     const used = new Set(TOPIC_INDEX.map((t) => t.play.game.type));

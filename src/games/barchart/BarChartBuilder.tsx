@@ -16,6 +16,7 @@ import { Icon } from '../../components/ui/Icon';
 import type { BarChartConfig } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
+import { firstMoveCue, FIRST_MOVE } from '../affordance';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import {
   barChartResult,
@@ -145,6 +146,8 @@ export default function BarChartBuilder({ config, reducedMotion, onEvent, onComp
   const visibleHint = hint && (state.phase === 'incorrect' || hint.level > 1) ? hint : null;
   const lastRound = state.round >= config.rounds.length - 1;
   const incorrect = state.phase === 'incorrect';
+  // The first "read" round: before anything is chosen, the bars pulse once to show they are buttons.
+  const firstRead = !build && editable && state.chosen === null && wrongChecks(state, round) === 0 && config.rounds.findIndex((r) => r.mode === 'read') === state.round;
   const waitText = build
     ? incorrect
       ? 'Change a bar, then press Check.'
@@ -315,6 +318,7 @@ export default function BarChartBuilder({ config, reducedMotion, onEvent, onComp
                     <button
                       key={c.id}
                       type="button"
+                      data-cue={firstRead ? FIRST_MOVE : undefined}
                       aria-pressed={on}
                       aria-label={`${c.label}: ${formatValue(shown[i])}`}
                       disabled={!editable}
@@ -323,7 +327,7 @@ export default function BarChartBuilder({ config, reducedMotion, onEvent, onComp
                         'rounded-2xl outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-0 focus-visible:outline-primary disabled:cursor-default',
                         animate && 'transition-colors',
                         // The ring sits outside the column so it never covers a long label.
-                        on ? (correct ? 'bg-success/10 ring-[3px] ring-success' : 'bg-reward/15 ring-[3px] ring-reward') : 'enabled:hover:bg-primary/5',
+                        on ? (correct ? 'bg-success/10 ring-[3px] ring-success' : 'bg-reward/15 ring-[3px] ring-reward') : cn('enabled:hover:bg-primary/5', firstMoveCue(firstRead, reducedMotion)),
                       )}
                     />
                   );
@@ -556,7 +560,6 @@ function StepButton({ label, disabled, onClick, children }: { label: string; dis
   );
 }
 
-/** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
 function CompleteCard({
   config,
   state,

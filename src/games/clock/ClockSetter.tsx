@@ -368,7 +368,6 @@ function StepButton({ label, disabled, onClick }: { label: string; disabled: boo
 
 /* ---------------------------------------------------------- progress etc. */
 
-/** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
 function CompleteCard({
   config,
   state,

@@ -39,7 +39,8 @@ export const GAMES: GameRegistry = {
     skill: 'Test, observe and explain',
     goal: (c) => {
       const kinds = new Set(c.rounds.map((r) => r.kind));
-      return kinds.has('poles') && !kinds.has('test') ? 'Push two magnets together and find out when they attract and when they repel.' : 'Find out which objects a magnet pulls, then sort them.';
+      if (kinds.has('poles') && !kinds.has('test')) return 'Push two magnets together and find out when they attract and when they repel.';
+      return kinds.has('sort') ? 'Find out which objects a magnet pulls, then sort them.' : 'Find out which objects a magnet pulls.';
     },
     instructions: (c) => [
       ...(c.rounds.some((r) => r.kind === 'test') ? ['Drag an object close to the magnet, or tap it, and watch what happens.', 'Test every object, then compare your results.'] : []),
@@ -164,7 +165,13 @@ export const GAMES: GameRegistry = {
     type: 'bar-chart',
     name: 'Bar chart builder',
     skill: 'Show and read data',
-    goal: (c) => `Finish all ${c.rounds.length} chart tasks.`,
+    goal: (c) => {
+      const build = c.rounds.some((r) => r.mode === 'build');
+      const read = c.rounds.some((r) => r.mode === 'read');
+      const n = c.rounds.length;
+      if (build && read) return `Build and read bar charts: finish all ${n} tasks.`;
+      return build ? `Make all ${n} bar charts match their tables.` : `Read the bar charts to answer all ${n} questions.`;
+    },
     instructions: () => ['Build: drag each bar, or tap + and −, until it matches the table.', 'Read: look at the bars and tap the answer.', 'Press Check.'],
     Component: lazy(LOADERS['bar-chart']),
   },

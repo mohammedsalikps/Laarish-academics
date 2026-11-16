@@ -426,7 +426,6 @@ function Bar({ round, shaded, editable, showParts, firstMove, animate, onPieceCl
 
 /* ---------------------------------------------------------- readout etc. */
 
-/** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
 /** A stacked fraction; decorative, because callers give screen readers the words. */
 function StackedFraction({ top, bottom, className }: { top: ReactNode; bottom: ReactNode; className?: string }) {
   return (
