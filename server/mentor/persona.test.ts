@@ -81,9 +81,10 @@ describe('model availability', () => {
   });
 
   it('does not call the model when it is not available, and checks again next time', async () => {
-    const c = client(() => Promise.reject(Object.assign(new Error('not found'), { status: 404 })));
+    const notFound = Object.assign(new Error('not found'), { status: 404 });
+    const c = client(() => Promise.reject(notFound));
     const provider = new ClaudeMentorProvider(config, c.client);
-    await expect(provider.reply(ask(PLAY_CONTEXT), AbortSignal.timeout(5000))).rejects.toMatchObject({ name: 'ModelUnavailableError', message: expect.stringContaining('(HTTP 404)') });
+    await expect(provider.reply(ask(PLAY_CONTEXT), AbortSignal.timeout(5000))).rejects.toMatchObject({ name: 'ModelUnavailableError', message: expect.stringContaining('(HTTP 404)'), cause: notFound });
     expect(c.create).not.toHaveBeenCalled();
     await expect(provider.reply(ask(PLAY_CONTEXT), AbortSignal.timeout(5000))).rejects.toThrow();
     expect(c.models.retrieve).toHaveBeenCalledTimes(2);

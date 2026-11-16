@@ -58,7 +58,9 @@ describe('mentor API handler', () => {
   it('validates input', async () => {
     const service = createMentorService(baseConfig);
     expect((await service.handle(post(null, '{oops'), 'ip')).status).toBe(400);
-    expect((await service.handle(post({ messages: [] }), 'ip')).status).toBe(400);
+    const empty = await service.handle(post({ messages: [] }), 'ip');
+    expect(empty.status).toBe(400);
+    expect(await empty.json()).toEqual({ error: 'invalid_request', message: 'messages must be a non-empty array.' });
     expect((await service.handle(post(null, 'x'.repeat(20_000)), 'ip')).status).toBe(413);
     expect((await service.handle(new Request('http://localhost/api/mentor', { method: 'DELETE' }), 'ip')).status).toBe(405);
     expect((await service.handle(new Request('http://localhost/api/other'), 'ip')).status).toBe(404);

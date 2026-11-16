@@ -55,7 +55,9 @@ export const MAX_TOOL_ROUNDS = 2;
 export function runCalculatorTool(input: unknown): { content: string; isError: boolean } {
   const expression = typeof input === 'object' && input !== null ? (input as { expression?: unknown }).expression : undefined;
   const result = evaluateExpression(expression);
-  return result.ok ? { content: `${result.expression} = ${result.result}`, isError: false } : { content: result.error, isError: true };
+  // `=== false` narrows the result in Vercel's non-strict type check too.
+  if (result.ok === false) return { content: result.error, isError: true };
+  return { content: `${result.expression} = ${result.result}`, isError: false };
 }
 
 /** The parts of the Anthropic client the mentor uses. `models` is optional so tests can pass a minimal fake. */
@@ -87,7 +89,9 @@ export class ClaudeMentorProvider implements MentorProvider {
       (err: unknown) => {
         this.modelReady = undefined;
         const status = (err as { status?: number }).status;
-        const unavailable = new Error(`Configured model ${this.model} is not available to this API key${status ? ` (HTTP ${status})` : ''}`, { cause: err });
+        // The cause is set after construction: Vercel type-checks functions against ES2020 types, which lack Error's options argument.
+        const unavailable: Error & { cause?: unknown } = new Error(`Configured model ${this.model} is not available to this API key${status ? ` (HTTP ${status})` : ''}`);
+        unavailable.cause = err;
         // The handler logs the error name only, so name it clearly.
         unavailable.name = 'ModelUnavailableError';
         throw unavailable;

@@ -63,7 +63,8 @@ export function createMentorService(config: MentorServerConfig, deps: MentorServ
       return error(400, 'invalid_request', 'Request body must be valid JSON.');
     }
     const parsed = validateMentorRequest(body);
-    if (!parsed.ok) return error(400, 'invalid_request', parsed.error);
+    // `=== false` (not `!parsed.ok`) narrows the result in Vercel's non-strict type check too.
+    if (parsed.ok === false) return error(400, 'invalid_request', parsed.error);
     const req = parsed.value;
 
     const retryAfter = limiter.check(clientIp);

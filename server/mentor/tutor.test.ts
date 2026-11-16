@@ -101,6 +101,7 @@ describe('calculate tool', () => {
     expect(runCalculatorTool({ expression: '3/4 of 12' })).toEqual({ content: '3/4 of 12 = 9', isError: false });
     expect(runCalculatorTool({ expression: '(18 - 4) / 2' })).toEqual({ content: '(18 - 4) / 2 = 7', isError: false });
     expect(runCalculatorTool({ expression: '5 / 0' }).isError).toBe(true);
+    expect(runCalculatorTool({ expression: '5 / 0' }).content).toMatch(/\w/); // the evaluator's reason, not blank
     expect(runCalculatorTool({ expression: 'rm -rf /' }).isError).toBe(true);
     expect(runCalculatorTool({}).isError).toBe(true);
   });
