@@ -47,7 +47,7 @@ export const SCIENCE_6_8_LESSONS: Lesson[] = [
       icon: 'magnet',
       status: 'ready',
       topicIds: ['magnets-what-they-attract', 'magnets-poles', 'magnets-directions'],
-      source: curiosity(6, 4, 'Exploring Magnets', WRITTEN),
+      source: curiosity(6, 4, 'Exploring Magnets', 'Each topic was then checked against the chapter text on 16 Nov 2026: sections 4.1 to 4.4, printed pages 62-71 (docs/curriculum-sources.md). The wording is Laarish’s own.'),
       review: { teacher: 'pending' },
     },
     {

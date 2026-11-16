@@ -702,6 +702,11 @@ export interface Topic {
    * whether the lesson is complete, so saved completions keep counting.
    */
   extension?: boolean;
+  /**
+   * Where this topic's ideas are in the official textbook. Only set after the topic was checked
+   * against the chapter text itself (recorded in docs/curriculum-sources.md); never guessed.
+   */
+  bookRef?: { section: string; pages: string; checked: string };
   title: string;
   summary: string;
   objectives: string[];
@@ -734,7 +739,7 @@ export type GameMeta =
  */
 export interface TopicMeta extends Pick<
   Topic,
-  'id' | 'subjectId' | 'lessonId' | 'order' | 'title' | 'summary' | 'language' | 'icon' | 'estimatedMinutes' | 'difficulty' | 'prerequisites' | 'mastery' | 'extension'
+  'id' | 'subjectId' | 'lessonId' | 'order' | 'title' | 'summary' | 'language' | 'icon' | 'estimatedMinutes' | 'difficulty' | 'prerequisites' | 'mastery' | 'extension' | 'bookRef'
 > {
   watch: { video: Pick<VideoAsset, 'id' | 'status'> };
   play: Pick<TopicPlay, 'title' | 'assessed' | 'weight'> & { game: GameMeta };

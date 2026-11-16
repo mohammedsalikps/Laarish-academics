@@ -637,6 +637,7 @@ export const SCIENCE_TOPICS: Topic[] = [
   /* ---------------------------------------------------------------- Magnets 1 */
   {
     id: 'magnets-what-they-attract',
+    bookRef: { section: '4.1 Magnetic and Non-magnetic Materials', pages: '62-64', checked: '16 Nov 2026' },
     subjectId: 'science',
     lessonId: 'magnets',
     order: 1,
@@ -841,6 +842,7 @@ export const SCIENCE_TOPICS: Topic[] = [
   /* ---------------------------------------------------------------- Magnets 2 */
   {
     id: 'magnets-poles',
+    bookRef: { section: '4.2 Poles of Magnet and 4.4 Attraction and Repulsion between Magnets', pages: '64-65 and 68-71', checked: '16 Nov 2026' },
     subjectId: 'science',
     lessonId: 'magnets',
     order: 2,
@@ -974,6 +976,7 @@ export const SCIENCE_TOPICS: Topic[] = [
   // Original wording; checked against the official PDF on 16 Nov 2026. Not yet teacher-reviewed.
   {
     id: 'magnets-directions',
+    bookRef: { section: '4.3 Finding Directions', pages: '65-67', checked: '16 Nov 2026' },
     subjectId: 'science',
     lessonId: 'magnets',
     order: 3,

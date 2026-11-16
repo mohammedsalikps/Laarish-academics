@@ -1,6 +1,8 @@
 import { Check, Gamepad2, Lock, Pencil, Play, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SourceNote } from '../../components/curriculum/SourceNote';
 import { Dialog, DialogBody } from '../../components/ui/Dialog';
+import { getLesson } from '../../content';
 import type { TopicStep } from '../../domain/types';
 import { REWARD_RULES } from '../../engine/rules';
 import { isStepAccessible, passMastery, resumeStep, type TopicView } from '../../engine/progression';
@@ -159,7 +161,10 @@ export function TopicSheet({
           {state.settings.readAloud ? `${state.learner?.mentorId === 'ayra' ? 'Ayra' : 'Rishi'} reads everything aloud` : 'Read aloud is off'}
           {view.state === 'completed' && ' · Points are not earned twice; stars can improve.'}
         </p>
+        {lessonOf(topic.lessonId) && <SourceNote lesson={lessonOf(topic.lessonId)!} topic={topic} className="mt-3 border-t border-line pt-3" />}
       </DialogBody>
     </Dialog>
   );
 }
+
+const lessonOf = (id: string) => getLesson(id);
