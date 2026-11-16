@@ -1,4 +1,5 @@
 import { AcademicsControls } from './grownups/AcademicsControls';
+import { WeeklyReport } from './grownups/WeeklyReport';
 import { Lightbulb, Printer, ShieldCheck } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Avatar } from '../components/art/Avatar';
@@ -102,6 +103,9 @@ function ParentSummary() {
           <Printer className="h-4 w-4" aria-hidden="true" /> Print
         </button>
       </div>
+
+      {/* Wireframe G1: the weekly school report comes first. */}
+      <WeeklyReport />
 
       <dl className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-5">
         {[

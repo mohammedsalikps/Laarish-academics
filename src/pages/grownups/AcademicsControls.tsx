@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SubjectId } from '../../domain/types';
+import { REWARD_RULES } from '../../engine/rules';
 import { cn } from '../../lib/cn';
 import { updatePrefs, useAcademicsPrefs, type LiteModeSetting } from '../../state/academicsPrefs';
 import { useProgress } from '../../state/ProgressProvider';
@@ -20,7 +21,7 @@ const LITE: { value: LiteModeSetting; label: string }[] = [
  * test dates per subject, and Lite mode. Shown only behind the parental gate.
  */
 export function AcademicsControls() {
-  const { state } = useProgress();
+  const { state, actions } = useProgress();
   const prefs = useAcademicsPrefs();
   const worlds = allClassWorlds(state, prefs);
   const [editing, setEditing] = useState<SubjectId | null>(null);
@@ -62,6 +63,28 @@ export function AcademicsControls() {
         })}
       </ul>
       <p className="mt-2 text-xs text-ink-muted">Syllabus: NCERT (CBSE). Karnataka State Board is in development and cannot be selected yet.</p>
+
+      <h2 className="mt-6 text-lg font-extrabold text-ink" id="daily-goal-title">
+        Daily goal
+      </h2>
+      <div role="radiogroup" aria-labelledby="daily-goal-title" className="mt-2 grid grid-cols-3 gap-2">
+        {REWARD_RULES.dailyGoal.options.map((g) => {
+          const selected = state.learner?.dailyGoalXp === g;
+          return (
+            <button
+              key={g}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => actions.updateLearner({ dailyGoalXp: g })}
+              className={cn('min-h-[48px] rounded-2xl border-2 font-extrabold', selected ? 'border-grownup bg-grownup-soft text-grownup' : 'border-line bg-surface text-ink')}
+            >
+              {g} XP
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-1 text-sm text-ink-muted">XP is earned by learning (a step is 10 XP, a finished topic 30). The same goal is in Settings and drives the weekly report.</p>
 
       <h2 className="mt-6 text-lg font-extrabold text-ink" id="lite-mode-title">
         Lite mode (2D map and lists)
