@@ -55,12 +55,12 @@ export const GAMES: GameRegistry = {
     skill: 'Predict, test and compare',
     goal: (c) =>
       c.challenges?.length
-        ? `Test ${c.minSurfacesToComplete} surfaces, then solve ${c.challenges.length} Lab challenges.`
+        ? `Test ${c.minSurfacesToComplete} surfaces, then solve ${c.challenges.length} Lab challenges${c.check ? ' and answer one last question' : ''}.`
         : `Test ${c.minSurfacesToComplete} different surfaces and compare how far the car rolls.`,
     instructions: (c) => [
       'Choose a surface for the toy car.',
-      'Drag the car up the ramp, or tap Low, Middle or Top, to choose the push.',
       'Predict how far it will roll, then press Start.',
+      ...(c.challenges?.some((ch) => !ch.height) ? ['In some challenges you choose the push too: drag the car up the ramp, or tap Low, Middle or Top. Then press Test it.'] : []),
       c.challenges?.length ? `Test ${c.minSurfacesToComplete} surfaces, then solve the Lab challenges.` : `Test at least ${c.minSurfacesToComplete} different surfaces and compare your results.`,
     ],
     Component: lazy(LOADERS['friction-experiment']),
@@ -110,10 +110,10 @@ export const GAMES: GameRegistry = {
     type: 'balance',
     name: 'Balance puzzle',
     skill: 'Find the missing number',
-    goal: (c) => `Balance all ${c.rounds.length} scales by finding ${c.unknownLabel}.`,
+    goal: (c) => `Balance all ${c.rounds.length} scales by finding ${c.unknownLabel === '?' ? 'the missing number' : c.unknownLabel}.`,
     instructions: (c) => [
       'Look at both sides of the scale.',
-      `Tap a number to try it for ${c.unknownLabel}. The scale tips to the heavier side.`,
+      `Tap a number to try it in place of ${c.unknownLabel === '?' ? 'the ?' : c.unknownLabel}. The scale tips to the heavier side.`,
       'When the scale is level, press Check.',
       `Balance all ${c.rounds.length} scales.`,
     ],
@@ -172,8 +172,13 @@ export const GAMES: GameRegistry = {
     type: 'circuit',
     name: 'Circuit lab',
     skill: 'Test which materials let electricity through',
-    goal: (c) => (c.rounds.some((r) => r.goal === 'test-all') ? `Test all ${c.items.length} objects in the circuit.` : 'Light the bulb.'),
-    instructions: () => ['Drag an object into the gap in the circuit, or tap it.', 'Close the switch and watch the bulb.', 'The bulb lights only if electricity can pass through the object.', 'This is an on-screen circuit. Never experiment with mains electricity or wall sockets.'],
+    goal: (c) => {
+      const light = c.rounds.some((r) => r.goal === 'light-bulb');
+      const test = c.rounds.some((r) => r.goal === 'test-all');
+      if (light && test) return `Light the bulb, then test all ${c.items.length} objects in the circuit.`;
+      return test ? `Test all ${c.items.length} objects in the circuit.` : 'Light the bulb.';
+    },
+    instructions: () => ['Drag an object into the gap in the circuit, or tap it.', 'Press the switch to turn it on (this closes the circuit), then watch the bulb.', 'The bulb lights only if electricity can pass through the object.', 'This is an on-screen circuit. Never experiment with mains electricity or wall sockets.'],
     Component: lazy(LOADERS.circuit),
   },
 };

@@ -306,7 +306,8 @@ export default function ConceptMatch({ config, attempt, reducedMotion, onEvent, 
   // The example the learner is working on: being dragged, selected, or just tried.
   const activeLeft = drag?.id ?? state.selectedLeft ?? (fb?.kind === 'incorrect' ? fb.leftId : null);
   const level = activeLeft ? hintLevel(state, activeLeft) : 0;
-  useHintContext(onHintContext, done ? null : matchHints(config, state.selectedLeft, state.matched));
+  // The card being worked on: selected, or just tried (a try clears the selection). Not the one mid-drag, so hints don't reset while dragging.
+  useHintContext(onHintContext, done ? null : matchHints(config, state.selectedLeft ?? (fb?.kind === 'incorrect' ? fb.leftId : null), state.matched));
   const suggested = level === 2 ? activeLeft : null;
   const idle = !drag && !fb && !state.selectedLeft && !state.selectedRight;
   // A wordless cue for the very first move: the first example glows until the learner starts.

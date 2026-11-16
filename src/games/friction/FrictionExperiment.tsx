@@ -1,4 +1,4 @@
-import { ArrowRight, Check, ChevronDown, FlaskConical, Hand, Lightbulb, Play, RotateCcw, Scale, Target, Trophy, X } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, FlaskConical, Hand, Lightbulb, Play, RotateCcw, Scale, Target, Trophy } from 'lucide-react';
 import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { RAMP_HEIGHT_NAMES } from '../../../shared/mentor/scienceModels';
 import { SurfacePatterns } from '../../components/art/Illustration';
@@ -21,6 +21,7 @@ import {
   type RunRecord,
 } from './frictionGame';
 import { BAND_LABELS, BAND_TITLES, formatMetres, positionAt, speedAt } from './simulation';
+import { useFocusRescue } from '../useFocusRescue';
 import { frictionHints, useHintContext } from '../hints';
 
 /* Scene geometry (SVG user units). */
@@ -108,6 +109,9 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
   const surfacesNeeded = Math.min(config.minSurfacesToComplete, config.surfaces.length);
   const testProgress = state.mode === 'explore' ? { tested: testedCount, need: surfacesNeeded } : undefined;
   useHintContext(onHintContext, labComplete ? null : frictionHints(config, { challenge, check: showCheck }));
+  // Start, Next challenge and Try another surface disappear when pressed: keep keyboard focus on the current step.
+  const stepRef = useRef<HTMLDivElement>(null);
+  useFocusRescue(stepRef, `${state.phase}:${state.mode}:${state.challengeIndex}:${showCheck}`);
   const [showResults, setShowResults] = useState(false);
   const [changingSurface, setChangingSurface] = useState(false);
 
@@ -249,6 +253,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
       const isNewSurface = state.runs.filter((r) => r.surfaceId === run.surfaceId).length === 1;
       const sorted = comparison(state);
       if (isNewSurface && tested.length === config.surfaces.length) later('all-tested');
+      else if (isNewSurface && challenges.length > 0 && tested.length === Math.min(config.minSurfacesToComplete, config.surfaces.length)) later('challenges-ready');
       else if (isNewSurface && tested.length >= 2) {
         const smoothest = surfaceById.get(sorted[0].surfaceId)!.name.toLowerCase();
         const roughest = surfaceById.get(sorted[sorted.length - 1].surfaceId)!.name.toLowerCase();
@@ -266,6 +271,12 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
     const checkFirstTry = config.check && state.checkAttempts === 1 ? 1 : 0;
     const correct = correctPredictions + state.solvedFirstTry.length + checkFirstTry;
     const total = predictions.length + challenges.length + (config.check ? 1 : 0);
+    // With a final question, its answer line ("... Lab complete!") is the mentor's last word. Without one,
+    // the lab's own closing line is said, replacing any line still waiting.
+    if (!config.check) {
+      window.clearTimeout(pendingLine.current);
+      eventsRef.current.onEvent({ key: correct === total ? 'complete:perfect' : 'complete' });
+    }
     eventsRef.current.onComplete({
       gameType: 'friction-experiment',
       score: total ? correct / total : 1,
@@ -469,7 +480,7 @@ export default function FrictionExperiment({ config, reducedMotion, onEvent, onR
       </div>
 
       {/* --------------------------------------------- the current step only */}
-      <div className="card p-4 sm:p-5" aria-live="polite">
+      <div ref={stepRef} tabIndex={-1} className="card p-4 outline-none focus-visible:ring-4 focus-visible:ring-primary/30 sm:p-5" aria-live="polite">
         {showCheck && config.check ? (
           <ConceptCheckCard check={config.check} attempts={state.checkAttempts} correct={state.checkCorrect} onAnswer={answerCheck} />
         ) : state.phase === 'result' && state.current ? (
@@ -790,9 +801,9 @@ function ResultView({
   const ok = run.predictionCorrect;
   return (
     <div className="space-y-3" role="status">
-      <div className={cn('flex items-start gap-3 rounded-2xl p-3', ok ? 'bg-success-soft' : 'bg-reward-soft')}>
-        <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full text-white', ok ? 'bg-success' : 'bg-reward-strong')} aria-hidden="true">
-          {ok ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
+      <div className={cn('flex items-start gap-3 rounded-2xl p-3', ok ? 'bg-success-soft' : 'bg-notyet-soft')}>
+        <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full text-white', ok ? 'bg-success' : 'bg-notyet-strong')} aria-hidden="true">
+          {ok ? <Check className="h-5 w-5" /> : <Lightbulb className="h-5 w-5" />}
         </span>
         <div className="min-w-0">
           <p className="font-display text-xl font-semibold leading-tight">
@@ -860,7 +871,7 @@ function ConceptCheckCard({
               }}
               className={cn(
                 'flex min-h-[56px] w-full items-center gap-3 rounded-2xl border-2 px-4 py-2 text-left font-bold transition',
-                right ? 'border-success bg-success-soft' : isChosen && !correct ? 'border-reward bg-reward-soft' : 'border-line bg-surface hover:border-primary/40',
+                right ? 'border-success bg-success-soft' : isChosen && !correct ? 'border-notyet bg-notyet-soft' : 'border-line bg-surface hover:border-primary/40',
               )}
             >
               {o.text}

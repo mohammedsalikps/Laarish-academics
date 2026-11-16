@@ -1,4 +1,4 @@
-import { ArrowRight, Check, ChevronDown, Lightbulb, RotateCcw, Trophy } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, Lightbulb, RotateCcw, Trophy } from 'lucide-react';
 import { useEffect, useId, useMemo, useReducer, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type Ref } from 'react';
 import type { NumberLineConfig } from '../../domain/types';
 import { useSound } from '../../hooks/usePreferences';
@@ -214,6 +214,16 @@ export default function NumberLineGame({ config, reducedMotion, onEvent, onCompl
   };
 
   const fmt = (index: number) => formatTick(round, index);
+  /** One tick left or right: the ticks of a long line are too close together to tap reliably on a phone. */
+  const stepTo = (key: 'ArrowLeft' | 'ArrowRight') => {
+    const index = keyIndex(round, state.chosen, key);
+    if (index !== null) move({ type: 'key', key }, index);
+  };
+  const canStep = (key: 'ArrowLeft' | 'ArrowRight') => {
+    const next = keyIndex(round, state.chosen, key);
+    return editable && next !== null && next !== state.chosen;
+  };
+  const stepButton = 'grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-line bg-surface text-ink hover:border-primary/50 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:border-line';
   const sliderLabel = `Number line from ${formatValue(round.from, round.format)} to ${formatValue(round.to, round.format)}${start !== null ? `. The jump starts at ${fmt(start)}` : ''}`;
   const valueNow = valueAt(round, state.chosen ?? start ?? 0);
   const valueText =
@@ -287,9 +297,17 @@ export default function NumberLineGame({ config, reducedMotion, onEvent, onCompl
             <LineDrawing round={round} chosen={state.chosen} phase={state.phase} animate={animate} dragging={dragging} editable={editable} />
           </div>
         </div>
-        <p data-readout="" className="mt-1 text-center font-display text-xl font-semibold text-ink">
-          You chose: <span className={state.chosen === null ? 'text-ink-muted' : correct ? 'text-success-strong' : 'text-primary-strong'}>{state.chosen === null ? '?' : fmt(state.chosen)}</span>
-        </p>
+        <div className="mt-1 flex items-center justify-center gap-3">
+          <button type="button" className={stepButton} aria-label="One mark to the left" aria-disabled={!canStep('ArrowLeft')} onClick={() => canStep('ArrowLeft') && stepTo('ArrowLeft')}>
+            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+          </button>
+          <p data-readout="" className="text-center font-display text-xl font-semibold text-ink">
+            You chose: <span className={state.chosen === null ? 'text-ink-muted' : correct ? 'text-success-strong' : 'text-primary-strong'}>{state.chosen === null ? '?' : fmt(state.chosen)}</span>
+          </p>
+          <button type="button" className={stepButton} aria-label="One mark to the right" aria-disabled={!canStep('ArrowRight')} onClick={() => canStep('ArrowRight') && stepTo('ArrowRight')}>
+            <ChevronRight className="h-6 w-6" aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
       <div aria-live="polite" className="min-h-[1.75rem] text-center">

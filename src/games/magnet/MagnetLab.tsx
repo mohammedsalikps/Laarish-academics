@@ -770,7 +770,7 @@ function Workbench({
         strokeDasharray={over ? undefined : '6 5'}
       />
       {!object && (
-        <text x={TEST_SPOT.x + 32} y={TEST_SPOT.y + 36} textAnchor="middle" fontSize="11" fontWeight="800" fill="#7A4F1F">
+        <text x={TEST_SPOT.x + 32} y={TEST_SPOT.y + 37} textAnchor="middle" fontSize="13" fontWeight="800" fill="#7A4F1F">
           Bring it here
         </text>
       )}
@@ -985,7 +985,7 @@ function PoleTrack({
         </g>
       </g>
       {!together && (
-        <text x={(MOVING_TOUCH_X + MOVING_REST_X) / 2} y="26" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A6A3A">
+        <text x={(MOVING_TOUCH_X + MOVING_REST_X) / 2} y="26" textAnchor="middle" fontSize="13" fontWeight="800" fill="#8A6A3A">
           gap
         </text>
       )}

@@ -123,6 +123,24 @@ describe('Number line (played through the UI)', () => {
     expect(readout()).toHaveTextContent('You chose: 7');
   });
 
+  it('moves one mark at a time with the big step buttons (ticks on a long line are too close to tap)', async () => {
+    const { user } = setup();
+    const left = screen.getByRole('button', { name: 'One mark to the left' });
+    const right = screen.getByRole('button', { name: 'One mark to the right' });
+    await user.click(right);
+    const first = line().getAttribute('aria-valuetext');
+    await user.click(right);
+    expect(line().getAttribute('aria-valuetext')).not.toBe(first);
+    await user.click(left);
+    expect(line()).toHaveAttribute('aria-valuetext', first!);
+    // At the first mark there is nowhere further left to go.
+    await user.click(line());
+    await user.keyboard('{Home}');
+    expect(left).toHaveAttribute('aria-disabled', 'true');
+    await user.click(left);
+    expect(line()).toHaveAttribute('aria-valuetext', first!);
+  });
+
   it('plays with the keyboard: arrow keys, Home and End move the marker, Enter checks', async () => {
     const { user, onEvent } = setup();
 

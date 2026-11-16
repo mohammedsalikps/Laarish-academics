@@ -7,6 +7,7 @@ import { cn } from '../../lib/cn';
 import { beginPointerDrag, type MiniGameProps } from '../framework';
 import { createWordOrder, insertIndex, sentenceText, wordOrderResult } from './wordOrderLogic';
 import { wordOrderHints, useHintContext } from '../hints';
+import { useFocusRescue } from '../useFocusRescue';
 
 const DRAG_THRESHOLD = 6;
 
@@ -28,6 +29,9 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
   const speech = useSpeech();
   const round = config.rounds[state.roundIndex];
   useHintContext(onHintContext, state.status === 'correct' || state.status === 'finished' || !round ? null : wordOrderHints(round));
+  // "Next sentence" turns into a disabled Check, and the last one is replaced by the summary: keep keyboard focus in the game.
+  const focusRef = useRef<HTMLDivElement>(null);
+  useFocusRescue(focusRef, `${state.roundIndex}:${state.status}`);
   const stripRef = useRef<HTMLOListElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const suppressClick = useRef(false);
@@ -130,7 +134,7 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
   if (state.status === 'finished') {
     const result = wordOrderResult(config, state);
     return (
-      <div className="card animate-pop-in p-6 text-center" role="status">
+      <div ref={focusRef} tabIndex={-1} className="card animate-pop-in p-6 text-center outline-none" role="status">
         <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full bg-success-soft text-success">
           <Check className="h-8 w-8" aria-hidden="true" />
         </div>
@@ -149,7 +153,7 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
   const wrongFrom = state.status === 'wrong' ? state.firstWrong : null;
 
   return (
-    <div className="space-y-4" onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={() => setDrag(null)} onDragStart={(e) => e.preventDefault()}>
+    <div ref={focusRef} tabIndex={-1} className="space-y-4 outline-none" onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={() => setDrag(null)} onDragStart={(e) => e.preventDefault()}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="eyebrow">
           Sentence {state.roundIndex + 1} of {config.rounds.length}

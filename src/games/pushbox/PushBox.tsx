@@ -27,6 +27,7 @@ import {
   type PushOutcome,
 } from './pushBoxLogic';
 import { pushBoxHints, useHintContext } from '../hints';
+import { useFocusRescue } from '../useFocusRescue';
 
 /* Scene geometry (SVG units). */
 const W = 480;
@@ -76,6 +77,9 @@ export default function PushBox({ config, reducedMotion, onEvent, onComplete, on
   const labels = config.pushLabels;
   const floor = config.floors.find((f) => f.id === state.floorId);
   useHintContext(onHintContext, pushBoxHints(config, state.floorId));
+  // Push! is disabled while the box moves, which drops keyboard focus: give it back once the push is done.
+  const primaryRef = useRef<HTMLButtonElement>(null);
+  useFocusRescue(primaryRef, state.phase);
   const completedOnce = useRef(false);
   const timers = useRef<number[]>([]);
   const callbacks = useRef({ onEvent, onComplete });
@@ -267,7 +271,7 @@ export default function PushBox({ config, reducedMotion, onEvent, onComplete, on
                 {guide === 'go' && (
                   <span className={cn('pointer-events-none absolute inset-0 rounded-2xl', reducedMotion ? 'ring-4 ring-success/40 ring-offset-2' : 'animate-pulse-ring')} aria-hidden="true" />
                 )}
-                <button type="button" className={cn('btn btn-lg w-full sm:min-w-[11rem]', primary.tone)} disabled={!primary.onClick} onClick={primary.onClick}>
+                <button ref={primaryRef} type="button" className={cn('btn btn-lg w-full sm:min-w-[11rem]', primary.tone)} disabled={!primary.onClick} onClick={primary.onClick}>
                   {!primary.trailing && primary.icon}
                   {primary.label}
                   {primary.trailing && primary.icon}
