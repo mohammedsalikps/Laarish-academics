@@ -41,6 +41,8 @@ export default function ChapterPage() {
   const [failed, setFailed] = useState(false);
   const [makeOpen, setMakeOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  // Rishi and his speech bubble sit over the bottom-left of the scene: topic pins keep clear of them.
+  const mentorRef = useRef<HTMLDivElement>(null);
   const headerBottom = useHeaderBottom(headerRef, 180);
   const lesson = getLesson(lessonId);
   const path = lesson && lesson.subjectId === subjectId ? chapterPath(state, lesson, prefs) : undefined;
@@ -150,6 +152,7 @@ export default function ChapterPage() {
           label={`${lesson.title} chapter path in ${world.theme.name}. Topics are listed as buttons in order.`}
           className="absolute inset-0"
           safeTop={headerBottom}
+          avoid={[mentorRef]}
           lift={false}
         />
       ) : (
@@ -220,9 +223,10 @@ export default function ChapterPage() {
       </header>
 
       {/* Rishi */}
-      <div className="pointer-events-none absolute bottom-3 left-2 z-20 flex items-end gap-1">
+      <div ref={mentorRef} className="pointer-events-none absolute bottom-3 left-2 z-20 flex items-end gap-1">
         <MentorPose pose={chapterDone ? 'cheer' : 'point'} height={140} className="drop-shadow-lg" />
-        <p className="pointer-events-auto mb-14 max-w-[210px] rounded-3xl rounded-bl-md bg-white px-4 py-3 font-display text-lg font-extrabold leading-snug text-ink shadow-lift">
+        {/* On short phones the bubble would leave too little room for the topic pins: screen readers still get the line. */}
+        <p className="pointer-events-auto mb-14 max-w-[210px] rounded-3xl rounded-bl-md bg-white px-4 py-3 font-display text-lg font-extrabold leading-snug text-ink shadow-lift [@media(max-height:799px)]:sr-only">
           {rishiLine}
         </p>
       </div>

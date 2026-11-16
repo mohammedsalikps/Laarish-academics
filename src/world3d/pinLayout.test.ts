@@ -64,4 +64,45 @@ describe('the desktop Science world (pin sizes measured in the browser)', () => 
       }
     for (const p of sized) expect(p.y - p.h).toBeGreaterThanOrEqual(193);
   });
+
+  it('keeps pins clear of UI laid over the scene, like the mentor and their speech bubble', () => {
+    // Measured at 375 x 812: Rishi and his bubble cover the bottom-left; the locked Topic 3 pin sat under the bubble.
+    const mentor = { left: 8, top: 660, right: 318, bottom: 800 };
+    const lock = { ...box('topic-3', 160, 740, 0.9), w: 150, h: 80 };
+    const free = box('topic-1', 200, 420, 0.1);
+    const placed = separatePins([free, lock], { width: 375, height: 812, top: 150, avoid: [mentor] });
+    const p = placed.get('topic-3')!;
+    const clear = p.x + lock.w / 2 <= mentor.left || p.x - lock.w / 2 >= mentor.right || p.y <= mentor.top || p.y - lock.h >= mentor.bottom;
+    expect(clear).toBe(true);
+    expect(p.x + lock.w / 2).toBeLessThanOrEqual(375);
+    expect(placed.get('topic-1')).toEqual({ x: 200, y: 420 }); // pins away from the mentor do not move
+    expect([...placed.keys()].some((id) => id.startsWith('avoid'))).toBe(false);
+  });
+
+  it('ignores empty covered areas (an element that is not on screen)', () => {
+    const placed = separatePins([box('a', 150, 300, 0)], { width: 375, height: 600, avoid: [{ left: 0, top: 0, right: 0, bottom: 0 }] });
+    expect(placed.get('a')).toEqual({ x: 150, y: 300 });
+  });
+
+  it('finds the gap between the path and the mentor rather than covering another pin (measured chapter path, 375 px)', () => {
+    // Pin sizes and anchors read from the Magnets chapter path at 375 x 812; Topic 3's own anchor is next to the trophy.
+    const pins: PinBox[] = [
+      { id: 'topic-1', x: 187, y: 532, w: 130, h: 102, depth: 0.1, visible: true },
+      { id: 'kit', x: 128, y: 422, w: 130, h: 88, depth: 0.3, visible: true },
+      { id: 'topic-2', x: 266, y: 421, w: 130, h: 100, depth: 0.5, visible: true },
+      { id: 'trophy', x: 197, y: 313, w: 130, h: 88, depth: 0.7, visible: true },
+      { id: 'topic-3', x: 152, y: 313, w: 130, h: 88, depth: 0.9, visible: true },
+    ];
+    const mentor = { left: 8, top: 660, right: 298, bottom: 800 };
+    const placed = separatePins(pins, { width: 375, height: 812, top: 190, avoid: [mentor] });
+    const list = pins.map((p) => ({ ...p, ...placed.get(p.id)! }));
+    for (let i = 0; i < list.length; i++)
+      for (let j = i + 1; j < list.length; j++) {
+        const [a, b] = [list[i], list[j]];
+        const apart = Math.abs(a.x - b.x) >= (a.w + b.w) / 2 || Math.abs(a.y - a.h / 2 - (b.y - b.h / 2)) >= (a.h + b.h) / 2;
+        expect(apart, `${a.id} and ${b.id} overlap`).toBe(true);
+      }
+    const t3 = list.find((p) => p.id === 'topic-3')!;
+    expect(t3.y <= mentor.top || t3.x - t3.w / 2 >= mentor.right).toBe(true);
+  });
 });

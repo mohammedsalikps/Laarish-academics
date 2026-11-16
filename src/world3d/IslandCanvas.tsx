@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Vector3 } from 'three';
 import { useReducedMotion } from '../hooks/usePreferences';
 import { cn } from '../lib/cn';
 import type { IslandStyle } from './islands';
 import type { CameraPose, IslandScene, PinScreen, SceneMode, SceneStats } from './IslandScene';
-import { separatePins, type PinBox } from './pinLayout';
+import { separatePins, type Area, type PinBox } from './pinLayout';
 
 export interface OverlayPin {
   id: string;
@@ -32,6 +32,7 @@ export function IslandCanvas({
   label,
   className,
   safeTop = 0,
+  avoid,
   lift = true,
   lighting = 'morning',
   children,
@@ -52,6 +53,8 @@ export function IslandCanvas({
   label: string;
   /** Pixels at the top covered by other UI; pins stay below it. */
   safeTop?: number;
+  /** Other UI laid over the canvas (e.g. the mentor and their speech bubble): pins keep clear of it. */
+  avoid?: RefObject<HTMLElement | null>[];
   /** World mode on tall screens: lower the island below the header (off for the chapter path). */
   lift?: boolean;
   lighting?: 'morning' | 'evening';
@@ -64,9 +67,9 @@ export function IslandCanvas({
   const [scene, setScene] = useState<IslandScene | null>(null);
   const [ready, setReady] = useState(false);
   const reducedMotion = useReducedMotion();
-  const latest = useRef({ onIslandTap, onReady, onFail, onScene, safeTop });
+  const latest = useRef({ onIslandTap, onReady, onFail, onScene, safeTop, avoid });
   useLayoutEffect(() => {
-    latest.current = { onIslandTap, onReady, onFail, onScene, safeTop };
+    latest.current = { onIslandTap, onReady, onFail, onScene, safeTop, avoid };
   });
 
   // Create the scene once per mode/island.
@@ -95,7 +98,13 @@ export function IslandCanvas({
               if (el) boxes.push({ id, x: s.x, y: s.y, w: el.offsetWidth, h: el.offsetHeight, depth: s.depth, visible: s.visible });
             }
             const canvas = canvasRef.current;
-            const placed = separatePins(boxes, { width: canvas?.clientWidth ?? 0, height: canvas?.clientHeight ?? 0, top: latest.current.safeTop });
+            const frame = canvas?.getBoundingClientRect();
+            const covered: Area[] = [];
+            for (const ref of latest.current.avoid ?? []) {
+              const r = ref.current?.getBoundingClientRect();
+              if (r && frame) covered.push({ left: r.left - frame.left, top: r.top - frame.top, right: r.right - frame.left, bottom: r.bottom - frame.top });
+            }
+            const placed = separatePins(boxes, { width: canvas?.clientWidth ?? 0, height: canvas?.clientHeight ?? 0, top: latest.current.safeTop, avoid: covered });
             for (const box of boxes) {
               const el = pinRefs.current.get(box.id)!;
               const p = placed.get(box.id)!;
