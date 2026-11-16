@@ -23,14 +23,17 @@ const reload = vi.hoisted(() => vi.fn());
 vi.mock('../../lib/errors', async (importOriginal) => ({ ...(await importOriginal<typeof import('../../lib/errors')>()), reloadPage: reload }));
 
 vi.mock('../../games/pushbox/PushBox', () => ({
-  default: function StandInGame({ onComplete }: MiniGameProps) {
+  default: function StandInGame({ onComplete, onEvent }: MiniGameProps) {
     game.renders += 1;
     if (game.mode === 'crash') throw new Error('The stand-in game broke');
     if (game.mode === 'chunk') throw new TypeError('Failed to fetch dynamically imported module: /assets/PushBox.js');
     return (
       <button
         type="button"
-        onClick={() => onComplete({ gameType: 'push-box', score: 1, correct: 3, total: 3, mistakes: 0, completed: true, perfect: true, summary: 'Moved the box on all 3 floors' })}
+        onClick={() => {
+          onEvent({ key: 'complete' });
+          onComplete({ gameType: 'push-box', score: 1, correct: 3, total: 3, mistakes: 0, completed: true, perfect: true, summary: 'Moved the box on all 3 floors' });
+        }}
       >
         Finish the stand-in game
       </button>
@@ -91,6 +94,18 @@ describe('the mission card', () => {
     expect(within(mission()).getByText(/Mission complete · /)).toBeInTheDocument();
     expect(within(mission()).getByText('Moved the box on all 3 floors')).toBeInTheDocument();
     expect(next).toBeEnabled();
+  });
+
+  it('celebrates in gold when the mission is done, and Play again starts a fresh game', async () => {
+    const user = userEvent.setup();
+    renderPlay(FIRST, afterWatch(FIRST));
+    await user.click(await screen.findByRole('button', { name: 'Finish the stand-in game' }));
+    expect(document.querySelector('[data-tone]')).toHaveAttribute('data-tone', 'complete');
+    const rendersBefore = game.renders;
+    await user.click(within(mission()).getByRole('button', { name: /play again/i }));
+    expect(game.renders).toBeGreaterThan(rendersBefore);
+    expect(within(mission()).getByText(/^Your mission/)).toBeInTheDocument();
+    expect(document.querySelector('[data-tone]')).toHaveAttribute('data-tone', 'neutral');
   });
 
   it('tells a learner replaying a finished game that they have done it before', async () => {

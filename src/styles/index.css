@@ -34,6 +34,11 @@
   --c-grownup: 106 76 178; /* purple: grown-ups only */
   --c-grownup-soft: 238 233 250;
 
+  /* "Not yet": a wrong try is calm orange, never red (wireframe rules: no red error states). */
+  --c-notyet: 232 131 58;
+  --c-notyet-soft: 255 244 234;
+  --c-notyet-strong: 160 74 12;
+
   --c-coral: 240 106 77;
   --c-coral-strong: 176 64 40;
   --c-coral-soft: 255 233 227;

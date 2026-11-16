@@ -45,6 +45,7 @@ import {
   type MagnetObject,
   type Tray,
 } from './magnetLogic';
+import { RoundDots } from '../RoundDots';
 
 const EASE_OUT = 'cubic-bezier(.2,.8,.2,1)';
 /** Objects speed up as they get closer to a magnet, because the pull gets stronger. */
@@ -78,22 +79,6 @@ interface Press {
 
 function animateEl(el: Element | null | undefined, keyframes: Keyframe[], options: KeyframeAnimationOptions): Animation | null {
   return el && typeof el.animate === 'function' ? el.animate(keyframes, options) : null;
-}
-
-function RoundDots({ total, current, currentDone }: { total: number; current: number; currentDone: boolean }) {
-  return (
-    <ol className="mt-2 flex shrink-0 items-center gap-1.5" aria-label="Round progress">
-      {Array.from({ length: total }, (_, i) => {
-        const done = i < current || (i === current && currentDone);
-        const now = i === current;
-        return (
-          <li key={i} className={cn('h-3 rounded-full', now ? 'w-6' : 'w-3', done ? 'bg-success' : now ? 'bg-primary' : 'bg-ink/15')}>
-            <span className="sr-only">{done ? `Round ${i + 1} done` : now ? `Round ${i + 1}, playing now` : `Round ${i + 1}`}</span>
-          </li>
-        );
-      })}
-    </ol>
-  );
 }
 
 /**

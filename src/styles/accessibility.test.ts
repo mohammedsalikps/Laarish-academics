@@ -53,6 +53,7 @@ describe('text contrast (WCAG AA)', () => {
     ['success-strong', 'success-soft'],
     ['reward-strong', 'reward-soft'],
     ['primary', 'surface'],
+    ['notyet-strong', 'notyet-soft'],
   ])('%s text on %s', (fg, bg) => {
     expect(contrast(token(fg), token(bg))).toBeGreaterThanOrEqual(4.5);
   });

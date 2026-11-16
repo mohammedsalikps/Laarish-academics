@@ -33,6 +33,7 @@ import {
   type NumberLineRound,
   type NumberLineState,
 } from './numberLineLogic';
+import { RoundDots } from '../RoundDots';
 
 const SNAP = 'cubic-bezier(.3,1.4,.5,1)';
 /** Teardrop pin with its tip at (0, -3), just above the line. */
@@ -366,7 +367,7 @@ function LineDrawing({
       })}
       {xs.map((x, i) =>
         isLabelled(i, stride) ? (
-          <text key={i} x={x} y={lineY + 32} textAnchor="middle" fontSize={LABEL_FONT} fontWeight={800} className={i !== chosen ? 'fill-ink' : phase === 'correct' ? 'fill-success-strong' : phase === 'incorrect' ? 'fill-coral-strong' : 'fill-primary-strong'}>
+          <text key={i} x={x} y={lineY + 32} textAnchor="middle" fontSize={LABEL_FONT} fontWeight={800} className={i !== chosen ? 'fill-ink' : phase === 'correct' ? 'fill-success-strong' : phase === 'incorrect' ? 'fill-notyet-strong' : 'fill-primary-strong'}>
             {formatTick(round, i)}
           </text>
         ) : null,
@@ -420,7 +421,7 @@ function JumpArc({ x1, x2, y, label, animate }: { x1: number; x2: number; y: num
 function Marker({ x, y, phase, glide }: { x: number; y: number; phase: NumberLineState['phase']; glide: boolean }) {
   return (
     <g data-marker="" style={{ transform: `translate(${x}px, ${y}px)`, transition: glide ? `transform 180ms ${SNAP}` : 'none' }}>
-      <path d={PIN_PATH} className={phase === 'correct' ? 'fill-success' : phase === 'incorrect' ? 'fill-coral' : 'fill-primary'} stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d={PIN_PATH} className={phase === 'correct' ? 'fill-success' : phase === 'incorrect' ? 'fill-notyet' : 'fill-primary'} stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
       <circle cx="0" cy="-30" r="5" fill="white" />
     </g>
   );
@@ -429,22 +430,6 @@ function Marker({ x, y, phase, glide }: { x: number; y: number; phase: NumberLin
 /* ------------------------------------------------------- progress, summary */
 
 /** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
-function RoundDots({ total, current, currentDone }: { total: number; current: number; currentDone: boolean }) {
-  return (
-    <ol className="mt-2 flex shrink-0 items-center gap-1.5" aria-label="Round progress">
-      {Array.from({ length: total }, (_, i) => {
-        const done = i < current || (i === current && currentDone);
-        const now = i === current;
-        return (
-          <li key={i} className={cn('h-3 rounded-full', now ? 'w-6' : 'w-3', done ? 'bg-success' : now ? 'bg-primary' : 'bg-ink/15')}>
-            <span className="sr-only">{done ? `Round ${i + 1} done` : now ? `Round ${i + 1}, playing now` : `Round ${i + 1}`}</span>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 function CompleteCard({
   config,
   state,

@@ -414,7 +414,7 @@ export default function ConceptMatch({ config, attempt, reducedMotion, onEvent, 
                           : selected
                             ? 'border-primary bg-primary-soft shadow-soft'
                             : wrong
-                              ? 'border-coral bg-surface shadow-soft'
+                              ? 'border-notyet bg-notyet-soft shadow-soft'
                               : guideId === id
                                 ? cn('border-primary bg-surface', reducedMotion ? 'ring-4 ring-primary/25' : 'animate-pulse-ring')
                                 : 'border-line bg-surface shadow-soft hover:border-primary/40',
@@ -474,7 +474,7 @@ export default function ConceptMatch({ config, attempt, reducedMotion, onEvent, 
                             : selected
                               ? 'border-primary bg-primary-soft shadow-soft'
                               : wrong
-                                ? 'border-coral bg-surface'
+                                ? 'border-notyet bg-notyet-soft'
                                 : choosingRight
                                   ? 'border-dashed border-primary/45 bg-surface hover:border-primary'
                                   : 'border-dashed border-line-strong bg-canvas hover:border-primary/40',

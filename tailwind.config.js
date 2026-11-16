@@ -30,6 +30,7 @@ export default {
         coral: { DEFAULT: token('coral'), strong: token('coral-strong'), soft: token('coral-soft') },
         sky: { DEFAULT: token('sky'), soft: token('sky-soft') },
         grownup: { DEFAULT: token('grownup'), soft: token('grownup-soft') },
+        notyet: { DEFAULT: token('notyet'), soft: token('notyet-soft'), strong: token('notyet-strong') },
       },
       fontFamily: {
         sans: [

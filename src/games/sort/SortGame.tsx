@@ -259,11 +259,17 @@ export default function SortGame({ config, attempt, reducedMotion, onEvent, onCo
   const scoreLine = result ? (result.perfect ? 'Every one right on the first try!' : `${result.correct} of ${result.total} right on the first try.`) : '';
 
   // One short status line. Extra details are added for screen readers only.
-  let status: { tone: Tone; text: string; sr?: string } | null = null;
+  let status: { tone: Tone; text: string; detail?: string; sr?: string } | null = null;
   if (result) status = { tone: 'good', text: '', sr: `Everything is sorted! ${scoreLine}` };
   else if (drag) status = { tone: 'active', text: hoverBin ? `Let go to put it in “${bins.get(hoverBin)!.label}”.` : 'Drop it in its box.' };
   else if (fb?.kind === 'correct') status = { tone: 'good', text: items.get(fb.itemId)!.explanation, sr: item ? `Next: ${item.label}.` : undefined };
-  else if (fb?.kind === 'incorrect') status = { tone: 'retry', text: 'Not that box. Try again!', sr: `“${items.get(fb.itemId)!.label}” does not go in “${bins.get(fb.binId)!.label}”.` };
+  else if (fb?.kind === 'incorrect') {
+    // Say why, without giving the answer away: remind the learner what the chosen box is for.
+    const bin = bins.get(fb.binId)!;
+    const item = items.get(fb.itemId)!;
+    const detail = bin.description ? `“${bin.label}”: ${bin.description}${/[.!?]$/.test(bin.description) ? '' : '.'} Does “${item.label}” belong there?` : undefined;
+    status = { tone: 'retry', text: 'Not that box. Try again!', detail, sr: `“${item.label}” does not go in “${bin.label}”.` };
+  }
   else if (selected) status = { tone: 'active', text: 'Now tap its box.' };
   const StatusIcon = status && STATUS_ICON[status.tone];
 
@@ -280,7 +286,10 @@ export default function SortGame({ config, attempt, reducedMotion, onEvent, onCo
         {status?.text && StatusIcon && (
           <span className={cn('inline-flex items-start gap-1.5 rounded-2xl px-3 py-1.5', TONE_CLASS[status.tone])}>
             <StatusIcon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            {status.text}
+            <span>
+              {status.text}
+              {status.detail && <span className="block font-semibold">{status.detail}</span>}
+            </span>
           </span>
         )}
         {status?.sr && <span className="sr-only"> {status.sr}</span>}
@@ -389,7 +398,7 @@ export default function SortGame({ config, attempt, reducedMotion, onEvent, onCo
                   : hovered
                     ? 'border-primary bg-primary-soft shadow-lift ring-4 ring-primary/20'
                     : wrong
-                      ? 'border-coral bg-surface'
+                      ? 'border-notyet bg-notyet-soft'
                       : ready
                         ? 'border-dashed border-primary/60 bg-primary-soft/40 hover:bg-primary-soft'
                         : 'border-dashed border-line-strong bg-surface hover:border-primary/50',

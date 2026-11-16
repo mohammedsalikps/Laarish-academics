@@ -1,4 +1,4 @@
-import { Volume2, VolumeX } from 'lucide-react';
+import { CheckCircle2, RotateCcw, Trophy, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, type ReactNode } from 'react';
 import { useSpeech } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
@@ -17,6 +17,7 @@ export function MentorBubble({
   children,
   className,
   live = true,
+  tone = 'neutral',
 }: {
   text: string;
   mood?: MentorMood;
@@ -25,6 +26,8 @@ export function MentorBubble({
   className?: string;
   /** Announce changes to screen readers. */
   live?: boolean;
+  /** Feedback colour: green for right, calm orange for "not yet" (never red), gold when done. */
+  tone?: 'neutral' | 'correct' | 'not-yet' | 'complete';
 }) {
   const speech = useSpeech();
   const persona = useMentorPersona();
@@ -37,14 +40,26 @@ export function MentorBubble({
   }, [text, autoRead, supported, speak]);
   return (
     <div className={cn('flex items-start gap-2.5', className)}>
-      <MentorAvatar size={size} mood={mood} label={persona.name} />
+      <MentorAvatar size={size} mood={tone === 'complete' ? 'celebrating' : mood} label={persona.name} />
       <div
         key={text}
-        className="flex min-w-0 flex-1 animate-pop-in items-start gap-2 rounded-3xl rounded-tl-md bg-surface px-4 py-2.5 shadow-soft"
+        className={cn(
+          'flex min-w-0 flex-1 animate-pop-in items-start gap-2 rounded-3xl rounded-tl-md px-4 py-2.5 shadow-soft',
+          tone === 'neutral' && 'bg-surface',
+          tone === 'correct' && 'border-2 border-success/40 bg-success-soft',
+          tone === 'not-yet' && 'border-2 border-[#E8833A]/50 bg-[#FFF4EA]',
+          tone === 'complete' && 'border-2 border-reward/60 bg-reward-soft',
+        )}
         aria-live={live ? 'polite' : undefined}
+        data-tone={tone}
       >
         <div className="min-w-0 flex-1">
-          <p className="text-[1rem] font-semibold leading-snug text-ink">{text}</p>
+          <p className="text-[1rem] font-semibold leading-snug text-ink">
+            {tone === 'correct' && <CheckCircle2 className="mr-1.5 inline h-5 w-5 -translate-y-0.5 text-success-strong" aria-label="Right:" />}
+            {tone === 'not-yet' && <RotateCcw className="mr-1.5 inline h-5 w-5 -translate-y-0.5 text-[#B8540F]" aria-label="Not yet:" />}
+            {tone === 'complete' && <Trophy className="mr-1.5 inline h-5 w-5 -translate-y-0.5 text-reward-strong" aria-label="Done:" />}
+            {text}
+          </p>
           {children}
         </div>
         {supported && (

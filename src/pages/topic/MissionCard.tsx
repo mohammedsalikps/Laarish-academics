@@ -1,4 +1,4 @@
-import { CheckCircle2, CircleHelp, Target, X } from 'lucide-react';
+import { CheckCircle2, CircleHelp, RotateCcw, Target, X } from 'lucide-react';
 import { SpeakButton } from '../../components/quiz/SpeakButton';
 import { Pill } from '../../components/ui/primitives';
 import type { GameResult } from '../../domain/results';
@@ -21,6 +21,8 @@ export function MissionCard({
   result,
   showHow,
   onToggleHow,
+  objective,
+  onReplay,
 }: {
   play: TopicPlay;
   def: Pick<MiniGameDefinition, 'name' | 'skill' | 'goal' | 'instructions'>;
@@ -29,6 +31,10 @@ export function MissionCard({
   result?: GameResult;
   showHow: boolean;
   onToggleHow: () => void;
+  /** What the learner will understand after the game (the topic's first objective). */
+  objective?: string;
+  /** Start the game again (shown once it has been played). */
+  onReplay?: () => void;
 }) {
   const speech = useSpeech();
   const goal = def.goal(play.game as never);
@@ -63,6 +69,12 @@ export function MissionCard({
           {play.title}
         </h2>
         <p className="mt-0.5 font-bold leading-snug text-primary-strong">{goal}</p>
+        {objective && (
+          // Phones keep the card short so the game stays in view; the objective is also in "How to play".
+          <p className="mt-0.5 hidden text-sm font-semibold leading-snug text-ink-soft sm:line-clamp-2">
+            <span className="font-extrabold">You'll learn:</span> {objective}
+          </p>
+        )}
       </div>
       <div className="col-start-1 row-start-2 flex min-w-0 flex-wrap items-center gap-2 self-center sm:col-start-2">
         {complete ? (
@@ -75,6 +87,11 @@ export function MissionCard({
           <Pill tone={scored ? 'reward' : 'sky'}>{scored ? 'Counts towards your mastery' : 'Explore and test: not scored'}</Pill>
         )}
         <span className="hidden text-xs font-bold text-ink-muted sm:inline">{def.name}</span>
+        {onReplay && (
+          <button type="button" onClick={onReplay} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl px-2 text-sm font-extrabold text-primary hover:underline">
+            <RotateCcw className="h-4 w-4" aria-hidden="true" /> Play again
+          </button>
+        )}
       </div>
       <div className="col-start-2 row-start-2 flex items-center gap-1.5 self-center sm:col-start-3 sm:row-start-1 sm:self-start">
         <SpeakButton text={`${play.title}. ${goal}`} label="Read the mission aloud" speech={speech} />
@@ -95,6 +112,11 @@ export function MissionCard({
           <button type="button" onClick={onToggleHow} className="absolute right-1.5 top-1.5 grid h-11 w-11 place-items-center rounded-xl text-ink-muted hover:bg-ink/5" aria-label="Close how to play">
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
+          {objective && (
+            <p className="mb-2 text-sm font-semibold text-ink-soft">
+              <span className="font-extrabold">You'll learn:</span> {objective}
+            </p>
+          )}
           <p className="font-display font-semibold">How to play</p>
           <ol className="mt-2 space-y-1.5">
             {instructions.map((step, i) => (

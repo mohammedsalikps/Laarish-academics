@@ -5,6 +5,7 @@ import { useSound } from '../../hooks/usePreferences';
 import { cn } from '../../lib/cn';
 import type { MiniGameProps } from '../framework';
 import { balanceHint, balanceResult, createBalanceReducer, initialBalanceState, sideTotal, tilt, wrongTries } from './balanceLogic';
+import { RoundDots } from '../RoundDots';
 
 const PIVOT = { x: 180, y: 64 };
 const ARM = 118;
@@ -30,22 +31,6 @@ function Pan({ x, y, label, highlight, animate }: { x: number; y: number; label:
 }
 
 /** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
-function RoundDots({ total, current, currentDone }: { total: number; current: number; currentDone: boolean }) {
-  return (
-    <ol className="mt-2 flex shrink-0 items-center gap-1.5" aria-label="Round progress">
-      {Array.from({ length: total }, (_, i) => {
-        const done = i < current || (i === current && currentDone);
-        const now = i === current;
-        return (
-          <li key={i} className={cn('h-3 rounded-full', now ? 'w-6' : 'w-3', done ? 'bg-success' : now ? 'bg-primary' : 'bg-ink/15')}>
-            <span className="sr-only">{done ? `Round ${i + 1} done` : now ? `Round ${i + 1}, playing now` : `Round ${i + 1}`}</span>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 /**
  * Balance Scale: find the number that makes both sides of the scale equal.
  * One scale at a time: tap a number, watch the scale tip, press Check.
@@ -205,7 +190,7 @@ export default function BalanceScale({ config, reducedMotion, onEvent, onComplet
         <div aria-live="polite" className="text-center font-display text-lg font-semibold">
           <p aria-hidden="true">
             Left {leftTotal ?? '?'}{' '}
-            <span className={cn('mx-1 inline-block min-w-[1.75rem] rounded-lg px-1.5', t === null ? 'bg-canvas-sunken text-ink-muted' : t === 0 ? 'bg-success-soft text-success-strong' : 'bg-coral-soft text-coral-strong')}>
+            <span className={cn('mx-1 inline-block min-w-[1.75rem] rounded-lg px-1.5', t === null ? 'bg-canvas-sunken text-ink-muted' : t === 0 ? 'bg-success-soft text-success-strong' : 'bg-notyet-soft text-notyet-strong')}>
               {t === null ? '?' : t === 0 ? '=' : t < 0 ? '>' : '<'}
             </span>{' '}
             Right {rightTotal ?? '?'}

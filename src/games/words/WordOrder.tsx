@@ -205,7 +205,7 @@ export default function WordOrder({ config, attempt, reducedMotion, onEvent, onC
                   aria-label={`Word ${i + 1}: ${textOf(id)}. Press to send it back. Use the arrow keys to move it.`}
                   className={cn(
                     'h-14 min-w-[56px] touch-none select-none rounded-2xl border-2 px-4 font-display text-2xl font-semibold shadow-soft transition',
-                    state.status === 'correct' ? 'border-success bg-surface text-success-strong' : wrong ? 'border-coral bg-coral-soft text-coral-strong' : 'border-primary/40 bg-surface text-ink',
+                    state.status === 'correct' ? 'border-success bg-surface text-success-strong' : wrong ? 'border-notyet bg-notyet-soft text-notyet-strong' : 'border-primary/40 bg-surface text-ink',
                     wrong && !reducedMotion && i === wrongFrom && 'animate-shake',
                   )}
                 >

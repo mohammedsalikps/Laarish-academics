@@ -13,6 +13,7 @@ import { useReducedMotion } from '../../hooks/usePreferences';
 import { useProgress } from '../../state/ProgressProvider';
 import { MissionCard } from './MissionCard';
 import { StepFooter, type StepViewProps } from './shared';
+import { feedbackTone, type FeedbackTone } from '../../games/feedback';
 
 function GameErrorFallback({ reset, chunkError, onRestart }: ErrorFallbackProps & { onRestart: () => void }) {
   return (
@@ -69,6 +70,7 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
   const play = topic.play;
   const [attempt, setAttempt] = useState(0);
   const [coach, setCoach] = useState(() => play.coach.start ?? "Let's play!");
+  const [tone, setTone] = useState<FeedbackTone>('neutral');
   const [finished, setFinished] = useState(false);
   const [result, setResult] = useState<GameResult>();
   const [showHow, toggleHow] = useHowToPlay(topic.id);
@@ -83,7 +85,11 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
   const onEvent = useCallback(
     (e: GameEvent) => {
       const line = coachLine(play.coach, e);
-      if (line) setCoach(line);
+      // The colour follows the words on screen: only events that change the line change it.
+      if (line) {
+        setCoach(line);
+        setTone(feedbackTone(e.key));
+      }
     },
     [play.coach],
   );
@@ -122,12 +128,24 @@ export function PlayStep({ topic, completed, onNext, onBack, setMentorExtras }: 
     setAttempt((a) => a + 1);
     setFinished(false);
     setResult(undefined);
-  }, []);
+    setCoach(play.coach.start ?? "Let's play!");
+    setTone('neutral');
+  }, [play.coach.start]);
 
   return (
     <div>
-      <MissionCard play={play} def={def} status={finished ? 'complete' : completed ? 'done-before' : 'playing'} result={result} showHow={showHow} onToggleHow={toggleHow} />
-      <MentorBubble text={coach} className="mb-3" />
+      <MissionCard
+        play={play}
+        def={def}
+        objective={topic.objectives?.[0]}
+        status={finished ? 'complete' : completed ? 'done-before' : 'playing'}
+        result={result}
+        showHow={showHow}
+        onToggleHow={toggleHow}
+        onReplay={finished || completed ? restart : undefined}
+      />
+      {/* Every engine announces its own feedback, so the coach line is not a second live region. */}
+      <MentorBubble text={coach} tone={tone} live={false} className="mb-3" />
 
       {/* A game that breaks (or fails to download) can be restarted without leaving the topic; a new attempt clears the error. */}
       <ErrorBoundary resetKeys={[attempt]} fallback={(p) => <GameErrorFallback {...p} onRestart={restart} />}>

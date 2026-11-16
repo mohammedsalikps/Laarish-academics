@@ -37,6 +37,7 @@ import {
   type BarChartState,
   type BarRound,
 } from './barChartLogic';
+import { RoundDots } from '../RoundDots';
 
 /*
  * Chart geometry in SVG units. The HTML layers on top (sliders, bar buttons) and below
@@ -554,22 +555,6 @@ function StepButton({ label, disabled, onClick, children }: { label: string; dis
 }
 
 /** Compact progress: one dot per round (green when done, a longer dot for the round being played). */
-function RoundDots({ total, current, currentDone }: { total: number; current: number; currentDone: boolean }) {
-  return (
-    <ol className="mt-2 flex shrink-0 items-center gap-1.5" aria-label="Round progress">
-      {Array.from({ length: total }, (_, i) => {
-        const done = i < current || (i === current && currentDone);
-        const now = i === current;
-        return (
-          <li key={i} className={cn('h-3 rounded-full', now ? 'w-6' : 'w-3', done ? 'bg-success' : now ? 'bg-primary' : 'bg-ink/15')}>
-            <span className="sr-only">{done ? `Round ${i + 1} done` : now ? `Round ${i + 1}, playing now` : `Round ${i + 1}`}</span>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 function CompleteCard({
   config,
   state,
