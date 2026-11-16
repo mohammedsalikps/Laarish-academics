@@ -410,14 +410,14 @@ function PushScene({
               </text>
             </g>
           ))}
-          <text x={FRONT_X - 16} y={FLOOR_Y + 62} textAnchor="end" fontFamily={FONT} fontWeight="800" fontSize="14" fill="#69668E">
+          <text x={FRONT_X - 16} y={FLOOR_Y + 62} textAnchor="end" fontFamily={FONT} fontWeight="800" fontSize="16" fill="#69668E">
             steps
           </text>
 
           {balanced && (
             <g>
               <rect x={BOX_X + BOX / 2 - 46} y={FLOOR_Y - BOX - 36} width="92" height="26" rx="13" fill="#fff" stroke="rgb(29 26 74 / 0.12)" strokeWidth="1.5" />
-              <text x={BOX_X + BOX / 2} y={FLOOR_Y - BOX - 18} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="14" fill="#1D1A4A">
+              <text x={BOX_X + BOX / 2} y={FLOOR_Y - BOX - 18} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="16" fill="#1D1A4A">
                 Balanced
               </text>
             </g>
@@ -440,7 +440,7 @@ function PushScene({
             <g transform={`rotate(90 ${PUSH_TIP_X} ${ARROW_Y})`}>
               <Hand x={PUSH_TIP_X - 12} y={ARROW_Y - 12} size={24} color={PURPLE} strokeWidth={2.5} aria-hidden="true" />
             </g>
-            <text x={PUSH_TIP_X} y={ARROW_Y - HANDLE_R - 9} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="15" fill="#4031B8">
+            <text x={PUSH_TIP_X} y={ARROW_Y - HANDLE_R - 9} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize="16" fill="#4031B8">
               Push
             </text>
           </g>
@@ -477,7 +477,7 @@ function PushScene({
               textAnchor="end"
               fontFamily={FONT}
               fontWeight="800"
-              fontSize="14"
+              fontSize="16"
               fill="#B04028"
               stroke="#fff"
               strokeWidth="4"

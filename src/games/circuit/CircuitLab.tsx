@@ -659,7 +659,7 @@ function CircuitPicture({
       <text x={LEFT + 26} y="146" className="font-display" fontSize="22" fontWeight="700" fill="#1D1A4A">
         −
       </text>
-      <text x={LEFT + 26} y="125" fontSize="11" fontWeight="700" fill="#69668E">
+      <text x={LEFT + 26} y="125" fontSize="14" fontWeight="700" fill="#69668E">
         cell
       </text>
 
@@ -685,7 +685,7 @@ function CircuitPicture({
       <path d={`M ${BULB.x - 10} 57 h 20 M ${BULB.x - 10} 62 h 20`} stroke="#6B6F8C" strokeWidth="1.5" />
 
       {/* Switch: the lever closes onto the top contact when it is on */}
-      <text x={RIGHT - 12} y="122" textAnchor="end" fontSize="11" fontWeight="700" fill="#69668E">
+      <text x={RIGHT - 12} y="122" textAnchor="end" fontSize="14" fontWeight="700" fill="#69668E">
         switch
       </text>
       <g style={{ transform: `rotate(${switchOn ? 0 : 32}deg)`, transformOrigin: `${SWITCH.x}px ${SWITCH.bottom}px`, transition: animate ? 'transform 200ms ease-out' : 'none' }}>
@@ -716,7 +716,7 @@ function CircuitPicture({
             strokeWidth="2"
             strokeDasharray={overGap ? undefined : '6 5'}
           />
-          <text x={BULB.x} y={BOTTOM + 4} textAnchor="middle" fontSize="12" fontWeight="700" fill="#6B60D8">
+          <text x={BULB.x} y={BOTTOM + 5} textAnchor="middle" fontSize="14" fontWeight="700" fill="#6B60D8">
             gap
           </text>
         </g>

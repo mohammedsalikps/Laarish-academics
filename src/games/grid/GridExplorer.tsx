@@ -250,6 +250,7 @@ export default function GridExplorer({ config, reducedMotion, onEvent, onComplet
       {/* ------------------------------------------- current stop + progress */}
       <section className="rounded-3xl bg-primary-soft p-3 sm:p-4" aria-label={`Stop ${state.task + 1} of ${config.tasks.length}`}>
         <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
           <ol className="flex gap-1.5" aria-label="Trail progress">
             {config.tasks.map((t, i) => {
               const found = i < state.task || (i === state.task && state.phase === 'correct');
@@ -260,6 +261,10 @@ export default function GridExplorer({ config, reducedMotion, onEvent, onComplet
               );
             })}
           </ol>
+          <span className="whitespace-nowrap text-xs font-extrabold text-ink-muted" aria-hidden="true">
+            Stop {state.task + 1} of {config.tasks.length}
+          </span>
+          </div>
           <p className="flex items-center gap-1.5 text-sm font-extrabold text-primary-strong">
             <Footprints className="h-4 w-4" aria-hidden="true" />
             {state.stopSteps} {state.stopSteps === 1 ? 'step' : 'steps'}
