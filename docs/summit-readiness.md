@@ -12,6 +12,30 @@ Complete (stars, rewards, recap) → back to the chapter path: Topic 1 done, Top
 Progress survives a full reload. The compass topic ("Finding directions with a magnet") follows
 as an Explore more topic after the chapter trophy.
 
+## Running the summit demo
+
+1. Before the session: open the preview (below) on the demo device, signed in to Vercel or with a
+   shareable link. Make a fresh learner by clearing the site's data in the browser. Charge the
+   device; Wi-Fi on.
+2. Welcome → **Start learning** → a nickname → **Class 6** → choose Rishi or Ayra.
+3. Home: point out the 3D hub (drag to spin). Tap **Science** to fly into Discovery Valley, then
+   tap **Magnets**.
+4. Chapter path: tap **Topic 1**. The sheet shows the 60 % unlock and, at the bottom, the honest
+   source line (Laarish original, NCERT Curiosity Class 6 section 4.1 pages 62-64, awaiting teacher
+   review). Tap **Start**.
+5. Watch: the labelled animated explainer (use the scene arrows to move on), then
+   **Continue to Play**.
+6. Play: drag or tap objects to the magnet. Show **Need a hint?** (hint 1, then hint 2, then
+   "Ask Rishi"). In round 3 put one object in the wrong tray to show the calm "not yet"
+   feedback, then sort correctly and **Finish**.
+7. Practice: 6 questions (picture choice, sorting, true/false with a reason).
+8. Complete: stars, XP and achievements. Back on the chapter path, Topic 2 is unlocked.
+9. If 3D is slow or unavailable on the device, add `?nowebgl` to the address, or set Lite mode in
+   Grown-ups: the same journey runs on the 2D map and lists.
+10. Do not promise: official videos, teacher-reviewed content, AI answers in the preview (it has no
+    AI key and shows labelled demo answers), offline downloads, or phone performance figures
+    (not yet measured on a real phone).
+
 ## Task ledger
 
 | Area | State |
@@ -25,10 +49,15 @@ as an Explore more topic after the chapter trophy.
 | Mini Makers (Classes 7-8): Manrope, evening hub, numbered nodes | Done, tested, pushed |
 | Mini Makers worked-solution reveal (M3) | Not started: needs solution steps in content |
 | Per-engine fixes from the audit: friction "Surfaces tested X of N" and scene text/overlays at 375 px; area grid squares ≥ 24 px at 320 px for 10 columns; balance pan labels never clipped | Done, tested, pushed (checked by hand at 375 and 320 px) |
-| "Need a hint?" button inside Play (audit item 6) | Not started: most games show a hint after a wrong answer, but there is no on-demand button yet |
+| "Need a hint?" in Play for all 14 engines: one hint at a time (a nudge from the question, then the round hint, never the answer), free, offline, then "Ask Rishi/Ayra" | Done, tested, pushed (content test over all 241 topics; Magnets played through the app; checked by hand at 375 px) |
+| Engine audit, all 14 one by one (mission, instructions, hints, feedback, explanation, replay, progress, keyboard/touch, layout, reduced motion) | Done; fixes pushed: number-line step buttons, readable Push Box / Circuit / Magnet 2D labels, map "Stop X of Y", Balance and Circuit wording, Friction feedback colours and coach lines, keyboard focus kept in Friction, Sentence builder and Push Box, Match hint follows the card tried |
+| Magnets content fact-check against the chapter text; source line on every topic sheet ("Laarish original lesson", section and pages, "awaiting teacher review") | Done, tested, pushed |
+| Android test checklist (`docs/android-test-checklist.md`) | Written. Real-phone test **not done**: no Android phone was available |
 | Downloadable worlds / service worker (X4) | Not started: not safe tonight; the app says only what is true |
 | Official videos (Magnets, Halves and Quarters, Plant from Seed, Building Sentences) | Not started: no verified assets; labelled animated explainers stay |
-| Preview deployment | Blocked: Vercel CLI not installed or signed in; project not linked to GitHub |
+| Preview deployment | Done: isolated Vercel preview of this branch (see "Preview deployment" below) |
+| Chapter path at 375 px: Rishi's speech bubble covers the label of the last (locked, Explore more) node | Known, not fixed (cosmetic) |
+| Vercel's own type check of the mentor server files reports 3 TypeScript errors (non-strict narrowing in `server/mentor/handler.ts` and `providers.ts`; code unchanged from `main`). The build completes and deploys | Known, not fixed |
 
 ## Performance (production build, measured)
 
@@ -87,17 +116,36 @@ budget phone, battery and heat.
 
 ## Preview deployment
 
-Not deployed. The Vercel project is not connected to the GitHub repository (no deployments,
-statuses or webhooks), this checkout is not linked to a Vercel project, and the Vercel CLI is not
-installed or signed in. A safe preview needs someone signed in to the team's Vercel account to
-run `vercel login`, then `vercel link` (choosing the existing project, never a new one), then
-`vercel deploy` (no `--prod`). Preview deployments do not touch the production domain.
+**Preview (16 Nov 2026, app code of commit `ca1a89d`):
+https://laarish-academics-j4r3uzwev-salik-alpha.vercel.app**. An earlier preview of `c492172` is
+https://laarish-academics-3pv156hxp-salik-alpha.vercel.app.
+
+- Made with the existing project `salik-alpha/laarish-academics` (`vercel deploy --target preview`,
+  no `--prod`, no `vercel link`, no environment changes), using `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`
+  so no new project could be created.
+- Isolation checked afterwards: production is still the 25-day-old deployment `fzpqu6297`, and both
+  production domains (laarish-academics.vercel.app, laarish-academics-salik-alpha.vercel.app) still
+  point to it.
+- The project's only environment variable is `ANTHROPIC_API_KEY`, scoped to Production. The preview
+  therefore has no AI key: the mentor answers with its labelled demo answers. There are no database
+  or Firebase variables, so the preview cannot reach production data.
+- The project has Vercel Authentication on for every deployment except custom domains: opening the
+  preview needs a Vercel sign-in with access to the team, or a shareable link made in the Vercel
+  dashboard (Deployment → Share). The settings were not changed.
+- The project is not connected to GitHub, so pushes do not deploy; previews are made from the CLI.
 
 ## Verification (final run on this branch)
 
 - Typecheck, lint, production build, lesson media check: all pass.
-- Tests: 1,060 of 1,060 in 74 files, including every route, all 14 game engines, the saved-progress
-  contract, 60 % unlock, the Lite-mode journey, the weekly report, Mini Makers and pin layout.
+- Tests: 1,316 of 1,316 in 78 files, including every route, all 14 game engines, hints for every
+  game in the curriculum, the engine-audit fixes, the saved-progress contract, 60 % unlock, the
+  Lite-mode journey, the weekly report, Mini Makers, source notes and pin layout.
+- By hand on the production build at 375 px (16 Nov): onboarding (new Class 6 learner) → Home →
+  Discovery Valley → Magnets → topic sheet → Watch (3 scenes) → Play on the 3D bench (3 rounds,
+  one deliberate wrong sort) → Practice (6 of 6) → Complete (92 %, Level 2) → Topic 2 unlocked;
+  progress kept after a full reload; `?nowebgl` gives the 2D map and chapter list with no
+  three.js download; every route opens without an error or sideways scroll. Desktop (1366 px)
+  Home and Topic 2 checked.
 - Secret scan (API keys, tokens, private keys) of tracked files, the built bundle and this branch's
   history: no matches; no `.env` file is tracked.
 
@@ -108,6 +156,9 @@ run `vercel login`, then `vercel link` (choosing the existing project, never a n
 2. `npm ci`, then `npm run typecheck`, `npm run lint`, `npx vitest run`, `npm run build`.
 3. `npm run dev` for development; `npm run build && npm run preview` (port 4173) for measurements.
    The measurement method is described above; add `?perf` to read scene stats.
-4. Next tasks, in order: a "Need a hint?" button in Play; a real Android phone test;
-   a preview deployment once someone signs in to Vercel; official videos when assets exist;
-   the Mini Makers worked-solution reveal once lessons have solution steps.
+4. Next tasks, in order: the real Android phone test (`docs/android-test-checklist.md`); a
+   shareable preview link for the summit (Vercel dashboard); the chapter-path bubble overlap at
+   375 px; official videos when assets exist; the Mini Makers worked-solution reveal once
+   lessons have solution steps.
+5. New preview: `VERCEL_ORG_ID=<team id> VERCEL_PROJECT_ID=prj_g0HbBNe6IYWLHS3X45CeNPK6Gb66
+   npx vercel@65.16.0 deploy --target preview`. Never `--prod`.
